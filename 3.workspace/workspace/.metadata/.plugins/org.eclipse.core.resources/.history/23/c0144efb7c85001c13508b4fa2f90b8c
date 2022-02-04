@@ -1,0 +1,24 @@
+package com.spring.basic.ex04;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class Printer {
+	private Paper paper;
+	
+
+	public Printer(Paper paper) {
+		// TODO Auto-generated constructor stub
+		this.paper = paper;
+	}
+	
+	
+	public void setPaper(Paper paper) {
+		this.paper = paper;
+	}
+	@Autowired // ctrl shift o 하면 자동 import 됨	
+	public void showPaperInfo(int a) {
+		for (String info : paper.data) {
+			System.out.println(info);
+		}
+	}
+}

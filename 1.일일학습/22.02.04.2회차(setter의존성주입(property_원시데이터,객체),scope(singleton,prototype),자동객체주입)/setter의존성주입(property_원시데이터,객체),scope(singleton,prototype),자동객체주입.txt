@@ -1,0 +1,1109 @@
+21.02.04.2회차
+===============================================================================
+*setter의존성주입(property_원시데이터,객체),scope(singleton,prototype),자동객체주입
+===============================================================================
+
+
+
+
+
+
+##############################################################################
+4)setter를 통한 의존성 주입(원시형 자료형 데이터 주입)
+
+*수동 의존성주입방식
+1.생성자를 통한 의존성 주입
+2.setter를 통한 의존성 주입
+
+
+1)db-config.xml을 이용하여 setter를 통한 의존성 주입을 설정하라 
+	-main 주석읽고 풀어라
+	-bean id : db1, db2
+
+package com.spring.basic.ex02;
+
+public class DataBaseInfo {
+	private String url;
+	private String uid;
+	private String upw;
+	
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public String getUid() {
+		return uid;
+	}
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+	public String getUpw() {
+		return upw;
+	}
+	public void setUpw(String upw) {
+		this.upw = upw;
+	}
+	
+	
+}
+
+
+package com.spring.basic.ex02;
+
+public class MainClass {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		DataBaseInfo dbInfo = new DataBaseInfo();
+		dbInfo.setUid("spring1");
+		dbInfo.setUpw("sss111");
+		dbInfo.setUrl("jdbc:mysql://localhost:3306/spring");
+		
+		System.out.println("URL : " + db1.getUrl());
+		System.out.println("UID : " + db1.getUid());
+		System.out.println("UPW : " + db1.getUpw());
+
+		//위처럼 하지말고 설정으로 해보자
+	}
+}
+
+
+<출력결과>
+URL : jdbc:mysql://localhost:3306/spring
+UID : spring1
+UPW : sss111
+URL : jdbc:mysql://localhost:3306/practice
+UID : root
+UPW : mysql
+
+
+##############################################################################
+
+
+답:
+
+#db-config.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"  
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans  
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id = "db1" class = "com.spring.basic.ex02.DataBaseInfo">
+		<!--  setter 주입 -->
+		<property name = "url" value = "jdbc:mysql://localhost:3306/spring" />
+				<!--  setter에 해당하는 field이름을 name에 적는다. -->
+		<property name = "uid" value = "spring1" />
+		<property name = "upw" value = "sss111" />
+	</bean>
+	
+	<bean id = "db2" class = "com.spring.basic.ex02.DataBaseInfo">
+		<property name = "url" value = "jdbc:mysql://localhost:3306/practice" />
+				<!--  setter에 해당하는 field이름을 name에 적는다. -->
+		<property name = "uid" value = "root" />
+		<property name = "upw" value = "mysql" />
+	</bean>
+	
+	
+</beans>
+
+
+package com.spring.basic.ex02;
+
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+public class MainClass {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+//		DataBaseInfo dbInfo = new DataBaseInfo();
+//		dbInfo.setUid("spring1");
+//		dbInfo.setUpw("sss111");
+//		dbInfo.setUrl("jdbc:mysql://localhost:3306/spring");
+		
+		//위처럼하면 귀찮고 보안위험있으니 설정으로 해보자
+		
+		GenericXmlApplicationContext ct =
+				new GenericXmlApplicationContext("classpath:db-config.xml");
+		DataBaseInfo db1 = ct.getBean("db1", DataBaseInfo.class);
+		
+		System.out.println("URL : " + db1.getUrl());
+		System.out.println("UID : " + db1.getUid());
+		System.out.println("UPW : " + db1.getUpw());
+		
+	
+		DataBaseInfo db2 = ct.getBean("db2", DataBaseInfo.class);
+		System.out.println("URL : " + db2.getUrl());
+		System.out.println("UID : " + db2.getUid());
+		System.out.println("UPW : " + db2.getUpw());
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+5)setter를 통한 의존성 주입(class 자료형 객체 주입)
+
+1)클래스 MemberDAO를 만들고(아래코드) main코드를 db-config.xml 설정을 이용해서 db객체를 의존성주입하도록 만들어라
+
+
+package com.spring.basic.ex02;
+
+public class MemberDAO {
+	private DataBaseInfo dbInfo;
+	
+	public void setDbInfo(DataBaseInfo dbInfo) {
+		this.dbInfo = dbInfo;
+	}
+	
+	public void showDBInfo() {
+		System.out.println("URL: " + dbInfo.getUrl());
+		System.out.println("UID: " + dbInfo.getUid());
+		System.out.println("UPW: " + dbInfo.getUpw());
+	}
+}
+
+
+package com.spring.basic.ex02;
+
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+public class MainClass {
+
+	public static void main(String[] args) {
+		
+		GenericXmlApplicationContext ct =
+				new GenericXmlApplicationContext("classpath:db-config.xml");
+		DataBaseInfo db1 = ct.getBean("db1", DataBaseInfo.class);
+		DataBaseInfo db2 = ct.getBean("db2", DataBaseInfo.class);
+		
+		
+		MemberDAO dao = new MemberDAO();
+		dao.setDbInfo(db1);
+		dao.showDBInfo();
+		
+	}
+
+}
+
+
+*property 할때 원래는 대부분 ref로 참조해야하지만 원시자료형, String정도는 바로 값을 넣을수 있도록 value를 지원하는거임
+
+<출력결과>
+URL: jdbc:mysql://localhost:3306/spring
+UID: spring1
+UPW: sss111
+##############################################################################
+
+
+답:
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"  
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans  
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id = "db1" class = "com.spring.basic.ex02.DataBaseInfo">
+		<!--  setter 주입 -->
+		<property name = "url" value = "jdbc:mysql://localhost:3306/spring" />
+				<!--  setter에 해당하는 field이름을 name에 적는다. -->
+		<property name = "uid" value = "spring1" />
+		<property name = "upw" value = "sss111" />
+	</bean>
+	
+	<bean id = "db2" class = "com.spring.basic.ex02.DataBaseInfo">
+		<property name = "url" value = "jdbc:mysql://localhost:3306/practice" />
+				<!--  setter에 해당하는 field이름을 name에 적는다. -->
+		<property name = "uid" value = "root" />
+		<property name = "upw" value = "mysql" />
+	</bean>
+	
+	<bean id = "dao" class = "com.spring.basic.ex02.MemberDAO">
+		<property name = "dbInfo" ref = "db1" />
+	</bean>
+	
+</beans>
+
+package com.spring.basic.ex02;
+
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+public class MainClass {
+
+	public static void main(String[] args) {
+		GenericXmlApplicationContext ct =
+				new GenericXmlApplicationContext("classpath:db-config.xml");
+
+		MemberDAO dao = ct.getBean("dao", MemberDAO.class);
+		dao.showDBInfo();
+		
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+6)setter를 통한 의존성 주입(class 자료형 객체 주입)
+
+1)3번문제에서 풀었던 com.spring.basic.ex01.Restaurant class의 생성자를 없애고 해당 패키지의 MainClass에서 실행시켜라
+그러면 xml에서 error가 나는데 그 에러내용은 생성자매개변수를 매칭할수있는 생성자가 클래스에 없다고 된다.
+그것을 setter로 바꿔바라
+
+아래는 기존내용 코드다
+
+#test-config.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans  
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id = "test" class = "com.spring.basic.SpringTest" />
+	
+	<!--  Hotel 객체와 의존객체들의 빈 등록 및 의존성 주입설정 -->
+	<bean id = "chef" class = "com.spring.basic.ex01.Chef" />
+	<bean id = "res" class = "com.spring.basic.ex01.Restaurant" >
+		<constructor-arg ref = "chef" />
+	</bean>
+	<bean id = "hotel" class = "com.spring.basic.ex01.Hotel" >
+		<constructor-arg ref = "res" />
+	</bean>
+</beans>
+
+
+
+
+package com.spring.basic.ex01;
+
+public class Restaurant {
+	private Chef chef;
+	
+	public Restaurant(Chef chef) {
+		// TODO Auto-generated constructor stub
+		this.chef = chef;
+		
+		System.out.println("레스토랑이 생성됨!");
+	}
+	
+	public void orderDinner() {
+		System.out.println("저녁식사를 주문합니다.");
+		chef.cook();
+	}
+}
+
+##############################################################################
+
+
+답:
+
+#test-config.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans  
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id = "test" class = "com.spring.basic.SpringTest" />
+	
+	<!--  Hotel 객체와 의존객체들의 빈 등록 및 의존성 주입설정 -->
+	<bean id = "chef" class = "com.spring.basic.ex01.Chef" />
+	<bean id = "res" class = "com.spring.basic.ex01.Restaurant" >
+		<!--  <constructor-arg ref = "chef" /> -->
+		<property name = "chef" ref = "chef" />
+	</bean>
+	<bean id = "hotel" class = "com.spring.basic.ex01.Hotel" >
+		<constructor-arg ref = "res" />
+	</bean>
+</beans>
+
+
+
+package com.spring.basic.ex01;
+
+public class Restaurant {
+	private Chef chef;
+	
+//	public Restaurant(Chef chef) {
+//		// TODO Auto-generated constructor stub
+//		this.chef = chef;
+//		
+//		System.out.println("레스토랑이 생성됨!");
+//	}
+	
+	public void setChef(Chef chef) {
+		this.chef = chef;
+	}
+	
+	public void orderDinner() {
+		System.out.println("저녁식사를 주문합니다.");
+		chef.cook();
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+7)bean객체의 싱글톤 기본설정 및 변경
+
+di를 이용하면 객체는 항상 싱글톤이다.
+싱글톤이 아니게하여서 아래처럼 bean이 여러 객체를 만들수있게하라
+1)아래 main의 주석을 처리하라
+
+#prototype-config.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans  
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id = "person" class = "com.spring.basic.ex03.Person">
+		<property name = "name" value = "홍길동" />
+		<property name = "age" value = "20" />
+	</bean>
+	
+
+</beans>
+
+
+
+package com.spring.basic.ex03;
+
+public class Person {
+	private String name;
+	private Integer age;
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Integer getAge() {
+		return age;
+	}
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+	
+	
+}
+
+
+
+package com.spring.basic.ex03;
+
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+public class MainClass {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		GenericXmlApplicationContext ct =
+				new GenericXmlApplicationContext("classpath:prototype-config.xml");
+		
+		Person hong = ct.getBean("person", Person.class);
+		Person kim = ct.getBean("person", Person.class);
+		
+		System.out.println("hong의 주소 : " + hong);
+		System.out.println("kim의 주소 : " + kim);
+		System.out.println("hong과 kim은 같은 객체인가 ? : " + (hong == kim));
+		
+		kim.setName("김철수");
+		kim.setAge(30);
+		
+		//kim만 이름나이 바꾸고 싶은데 싱글톤이라서 hong의 이름과 나이도 김철수와 30세가 된다..
+		//싱글톤이 아니게해서 아래 문제를 푼뒤 출력결과처럼 나오게 하여라
+		
+		System.out.println("hong의 이름: " + hong.getName());
+		System.out.println("hong의 나이: " + hong.getAge());
+		System.out.println("kim의 이름: " + kim.getName());
+		System.out.println("kim의 나이: " + kim.getAge());
+	}
+
+}
+
+<현재 위 문제코드 출력결과> : main의 코드는 그대로두고 prototype-config.xml의 답만 변경하면 된다.
+
+hong의 주소 : com.spring.basic.ex03.Person@56ac3a89
+kim의 주소 : com.spring.basic.ex03.Person@56ac3a89
+hong과 kim은 같은 객체인가 ? : true
+hong의 이름: 김철수
+hong의 나이: 30
+kim의 이름: 김철수
+kim의 나이: 30
+
+<문제를 푼뒤 출력결과(답의 출력결과)>
+hong의 주소 : com.spring.basic.ex03.Person@1ce92674
+kim의 주소 : com.spring.basic.ex03.Person@5700d6b1
+hong과 kim은 같은 객체인가 ? : false
+hong의 이름: 홍길동
+hong의 나이: 20
+kim의 이름: 김철수
+kim의 나이: 30
+
+
+##############################################################################
+
+
+답:
+
+***scope만 변경하면 됨 : 원래는 scope = "singleton"으로 기본값설정되어있다.
+
+#prototype-config.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans  
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id = "person" class = "com.spring.basic.ex03.Person" scope = "prototype">
+		<property name = "name" value = "홍길동" />
+		<property name = "age" value = "20" />
+	</bean>
+	
+
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+8)의존객체 자동주입
+	-constructor-arg 또는 property 없이도 알아서 java코드를보고 spring이 의존객체를 자동주입시켜주는 것을 뜻한다
+
+아래코드는 잘된다
+
+<package 생성> : com.spring.basic.ex04
+<Class 생성> : Printer, Paper(아래코드)
+
+
+package com.spring.basic.ex04;
+
+public class Paper {
+	public String[] data = {
+			"스프링 프레임워크", 
+			"자동객체 주입",
+			"Autowired는 객체의 타입을 검색하여 자동 주입"
+	};
+}
+
+
+
+package com.spring.basic.ex04;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+public class Printer {
+	private Paper paper;
+	
+
+	public Printer(Paper paper) {
+		// TODO Auto-generated constructor stub
+		this.paper = paper;
+	}
+	
+	public void setPaper(Paper paper) {
+		this.paper = paper;
+	}
+	
+	
+	public void showPaperInfo() {
+		for (String info : paper.data) {
+			System.out.println(info);
+		}
+	}
+}
+
+
+package com.spring.basic.ex04;
+
+public class MainClass {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Printer printer = new Printer(new Paper());
+		printer.showPaperInfo();
+	}
+
+}
+
+1)위의 구시대적인 MainClass의 코드를 auto-config.xml을 이용하여 설정하라 
+
+
+2)위의 거에서 constructor-arg 없이 자동주입하라
+	-이때 생성자, 필드, 메서드 3개에 다 스캔해바라
+
+*아래 코드로 두줄을 beans에 수정해야 자동스캔명령추가 태그를 사용가능해진다.
+	-자동스캔명령추가가 해당 bean들을 만들다가 의존성이 발생하면 알아서 자동스캔해서 주입하라는 명령인것같고
+		여기서 Autowired를 사용해서 자동스캔위치를 정해주는 듯
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+</beans>
+
+
+
+
+3)위 2번답에서 auto-config.xml에 paper를 paper, paper2로 나눈뒤(아래코드참고)
+	autowired가 같은 타입이 두개있을시에 beanid를 보고 찾아가서 실행한다는 개념을 이해하고
+	그후 bean id가 paper인 놈을 paper1로 바꾸고 타입도 id로도 찾을수 없는 경우를 만들어라
+	그리하여 paper1,paper2중 하나를 골라달라는 에러를 보고 처리해라.
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!--  자동스캔 명령 추가 -->
+	<context:annotation-config />
+	
+	<bean id = "paper" class = "com.spring.basic.ex04.Paper" />
+	<bean id = "paper2" class = "com.spring.basic.ex04.Paper" />
+
+	<bean id = "printer" class = "com.spring.basic.ex04.Printer">
+		<!--  <constructor-arg ref = "paper" />  -->
+	</bean>
+	
+
+</beans>
+
+******Autowired 
+-객체를 자동 주입할때 사용하는 아노테이션
+-스캔명령을 통해 객체를 찾아 주입하는데 타입이름으로 검색
+-타입을 찾아내지 못하면 이름(id속성값)을 통해 검색
+	-타입이 2개이상있다면 이름을 검색하여 일치하는 이름의 bean객체를 주입한다.
+	-하지만 이름까지도 같은게 없으면 에러난다. 이때는 같은 타입객체 두개중 누구인지 이름을 따로알려주는 Qualifier를 사용해야함
+-생성자, 필드, 메서드에 적용 가능
+
+*****Qualifier("bean id")
+-Autowired를 사용할때 동일 타입의 빈이 여러개 있을경우 어떤 빈을 주입해야하 하는지 선택해주는 추가 아노테이션
+					(여러개있고 매개변수와 같은 beanid까지도 찾을수없는경우)
+-qualifier + autowired로 필드에 자동주입 설정을 수행할때는 기본생성자가 반드시 있어야함
+
+
+##############################################################################
+
+
+답:
+
+1)
+#auto-config.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans  
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id = "paper" class = "com.spring.basic.ex04.Paper" />
+
+	<bean id = "printer" class = "com.spring.basic.ex04.Printer">
+		<constructor-arg ref = "paper" />
+	</bean>
+	
+
+</beans>
+
+
+
+package com.spring.basic.ex04;
+
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+public class MainClass {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		GenericXmlApplicationContext ct = 
+				new GenericXmlApplicationContext("classpath:auto-config.xml");
+		
+		
+		Printer printer = ct.getBean("printer", Printer.class);
+		printer.showPaperInfo();
+	}
+
+}
+
+
+2)위의 거에서 contructor-arg 없이 자동주입하라
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!--  자동스캔 명령 추가 -->
+	<context:annotation-config />
+	
+	<bean id = "paper" class = "com.spring.basic.ex04.Paper" />
+
+	<bean id = "printer" class = "com.spring.basic.ex04.Printer" />
+		<!--  <constructor-arg ref = "paper" />  -->
+		
+
+</beans>
+
+
+package com.spring.basic.ex04;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class Printer {
+	@Autowired
+	private Paper paper;
+	
+	@Autowired // ctrl shift o 하면 자동 import 됨	
+	public Printer(Paper paper) {
+		// TODO Auto-generated constructor stub
+		this.paper = paper;
+	}
+	
+	
+	@Autowired // 위의 생성자 혹은 필드, 메소드(setter) 다 가능	
+	public void setPaper(Paper paper) {
+		this.paper = paper;
+	}
+	
+	public void showPaperInfo() {
+		for (String info : paper.data) {
+			System.out.println(info);
+		}
+	}
+}
+
+
+
+3)
+
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!--  자동스캔 명령 추가 -->
+	<context:annotation-config />
+	
+	<bean id = "paper1" class = "com.spring.basic.ex04.Paper" />
+	<bean id = "paper2" class = "com.spring.basic.ex04.Paper" />
+
+	<bean id = "printer" class = "com.spring.basic.ex04.Printer">
+		<!--  <constructor-arg ref = "paper" />  -->
+	</bean>
+	
+
+</beans>
+
+
+
+
+package com.spring.basic.ex04;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+public class Printer {
+	@Autowired
+	@Qualifier("paper1")
+	private Paper paper;
+	
+	public Printer() { // 반드시 해당 기본생성자가 있어야 Autowired + qualifier 조합 사용가능하다
+		super();		//추가실험해보니 autowired는 기본생성자 없어도 쓸수있더라
+	}
+	
+//	@Autowired // ctrl shift o 하면 자동 import 됨
+//	@Qualifier("paper1") Qualifier는 생성자는 안됨으로 여기서는 에러난다.
+	public Printer(Paper paper) {
+		// TODO Auto-generated constructor stub
+		this.paper = paper;
+	}
+	
+//	
+//	@Autowired // 위의 생성자 혹은 필드, 메소드(setter) 다 가능
+//	@Qualifier("paper1")
+	public void setPaper(Paper paper) {
+		this.paper = paper;
+	}
+	
+	
+	public void showPaperInfo() {
+		for (String info : paper.data) {
+			System.out.println(info);
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+9)의존객체 자동주입 - 아노테이션_Resource
+
+Book클래스를 만들어라(아래코드)
+1)그리고 해당 코드를 auto-config.xml을 조작하여(2번답인 코드인상태에서 조작하면됨) 2개의 아노테이션으로 문제를 해결하라
+	-아래 autowired와 resource의 공통점을 보고 매개변수가 있는 생성자의 여부에따라 기본생성자를 어떻게 해야하는지도 확인해라
+
+package com.spring.basic.ex04;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+public class Book {
+	
+	private Paper paper;
+
+	public Paper getPaper() {
+		return paper;
+	}
+
+
+	public void setPaper(Paper paper) {
+		this.paper = paper;
+	}
+	
+	
+
+}
+
+package com.spring.basicReview.ex04;
+
+import java.util.Arrays;
+
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+public class MainClass {
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		GenericXmlApplicationContext ct =
+				new GenericXmlApplicationContext("classpath:auto-config.xml");
+				
+		Printer printer = ct.getBean("printer", Printer.class);
+		printer.showPaperInfo();
+		
+		Book book = ct.getBean("book", Book.class);
+		String data = Arrays.toString(book.getPaper().data);
+		
+		System.out.println(data);
+	}
+}
+
+
+
+
+2)1번에서 두개의 아노테이션으로 처리했는데 하나로해봐라
+
+***Autowired는 Spring 아노테이션이고 Inject는 javaSE의 아노테이션임
+		-즉 아무거나해도되는데 상사가쓰는거 따라보고함
+***Resource
+	-Autowired + Qualifier를 합쳐놓은 것
+	-사람들이 거의 안쓴다고한다. 자바 8버전에서까지만 사용가능
+	-빈을 자동주입하는 아노테이션
+	-필드, 메서드에만 적용이 가능하며 생성자에서는 적용불가능
+		-이 특징은 autowired + qualifier 와 동일하지 않나?
+			-확인결과 동일하게 안된다.
+			
+	-name속성을 통해 특정 bean의 id를 지정가능
+
+*********그리고 auto + qualifier, resource 공통점
+	-타입달라도 이름(bean id)으로 찝어서 주입가능
+	-생성자 앞에서 스캔불가
+	-매개변수가 있는 생성자 없으면 기본 생성자없이도 실행가능
+	-매개변수가 있는 생성자가 있으면 기본 생성자가 있어야지만 실행가능
+
+##############################################################################
+
+
+답:
+
+#auto-config.xml
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!--  자동스캔 명령 추가 -->
+	<context:annotation-config />
+	
+	<bean id = "paper1" class = "com.spring.basic.ex04.Paper" />
+	<bean id = "paper2" class = "com.spring.basic.ex04.Paper" />
+
+	<bean id = "printer" class = "com.spring.basic.ex04.Printer">
+		<!--  <constructor-arg ref = "paper" />  -->
+	</bean>
+	
+	<bean id = "book" class = "com.spring.basic.ex04.Book" />
+</beans>
+
+
+
+
+1)
+package com.spring.basic.ex04;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+public class Book {
+	
+	private Paper paper;
+
+	public Paper getPaper() {
+		return paper;
+	}
+
+	@Autowired
+	@Qualifier("paper1")
+	public void setPaper(Paper paper) {
+		this.paper = paper;
+	}
+	
+	
+
+}
+
+
+2)
+
+package com.spring.basic.ex04;
+
+import javax.annotation.Resource;
+
+public class Book {
+	
+	private Paper paper;
+
+	Book () {
+		
+	}
+	
+
+	Book (Paper paper) {
+		this.paper = paper;
+	}
+	public Paper getPaper() {
+		return paper;
+	}
+
+	@Resource(name = "paper2")
+//	@Autowired
+//	@Qualifier("paper2")
+	public void setPaper(Paper paper) {
+		this.paper = paper;
+	}
+	
+	
+
+}
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+10)자동객체주입
+
+<패키지생성>
+com.spring.basic.quiz
+
+<클래스생성>
+-위치 : com.spring.basic.quiz
+
+-이름 : Moniter, Keyboard, Mouse
+	LG 모니터! 삼성 키보드! 구글 마우스!
+-기능 : 각 인스턴스의 브랜드 정보를 출력하는 info() 메서드 구현
+	-interface 쓰지말고 그냥해라 그게 중요한게하니다 지금
+-필드 : 필요없음
+
+-이름 : Computer
+-field : Moniter, Keyboard, Mouse 타입의 monitor, keyboard, mouse 인스턴스 주소를 담을 private한 변수
+-기능 : computerInfo() 메서드를 통해 "*** 컴퓨터 정보 ***"를 출력한 뒤 위 3개의 인스턴스에 대해 info() 메서드를 
+	호출하는 기능을 구현
+
++MainClass 생성
+
+<xml 생성> : quiz-config.xml
+
+
+1.quiz-config.xml에 Monitor, Mouse, Keyboard, Computer 빈을 생성후
+2.Computer 클래스에서 자동 주입을 설정하세요.
+3.xml에서 빈을 얻은 후 computerInfo()메서드를 실행하세요.
+
+
+1)위 조건의 답중 Computer에 자동주입 아노테이션을 넣을때는 두가지방식으로 풀어라
+1-1)아노테이션 각필드에 하나식 이용
+1-2)아노테이션 단하나만 이용 
+
+
+***1-2)단점 문제다풀고 읽을 것!!!
+	-1-2)처럼 하면 Autowired + Qualifier 콤보를 사용할수 없음
+	@Autowired
+	@Qualifier("bean id")
+	private Monitor monitor;
+	
+	@Autowired
+	@Qualifier("bean id")
+	private Keyboard keyboard;
+	
+	@Autowired
+	@Qualifier("bean id")
+	private Mouse mouse;
+##############################################################################
+
+
+답:
+
+
+1-1)
+package com.spring.basic.quiz;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class Computer {
+	
+	@Autowired
+	private Monitor monitor;
+	
+	@Autowired
+	private Keyboard keyboard;
+	
+	@Autowired
+	private Mouse mouse;
+	
+	public Computer(Monitor monitor, Keyboard keyboard, Mouse mouse) {
+		super();
+		this.monitor = monitor;
+		this.keyboard = keyboard;
+		this.mouse = mouse;
+	}
+
+	public Computer() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public void computerInfo() {
+		System.out.println("*** 컴퓨터 정보 ***");
+		monitor.info();
+		keyboard.info();
+		mouse.info();
+	}
+
+}
+
+
+
+1-2)
+package com.spring.basic.quiz;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class Computer {
+	
+	private Monitor monitor;
+	private Keyboard keyboard;
+	private Mouse mouse;
+	
+	@Autowired	
+	public Computer(Monitor monitor, Keyboard keyboard, Mouse mouse) {
+		super();
+		this.monitor = monitor;
+		this.keyboard = keyboard;
+		this.mouse = mouse;
+	}
+	
+	public void computerInfo() {
+		System.out.println("*** 컴퓨터 정보 ***");
+		monitor.info();
+		keyboard.info();
+		mouse.info();
+	}
+
+}

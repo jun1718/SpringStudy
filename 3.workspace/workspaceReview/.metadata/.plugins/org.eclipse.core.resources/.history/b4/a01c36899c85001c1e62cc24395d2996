@@ -1,0 +1,15 @@
+package com.spring.basicReview.quiz;
+
+public class Computer {
+	private Moniter moniter;
+	private Keyboard keyboard;
+	private Mouse mouse;
+	
+	public void computerInfo() {
+		System.out.println("*** 컴퓨터 정보 ***");
+		moniter.info();
+		keyboard.info();
+		mouse.info();
+	}
+	
+}

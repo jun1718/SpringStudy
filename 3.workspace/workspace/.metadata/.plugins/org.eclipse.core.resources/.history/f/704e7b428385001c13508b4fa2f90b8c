@@ -1,0 +1,31 @@
+package com.spring.basic.ex04;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+public class Book {
+	
+	private Paper paper;
+
+//	Book () {
+//		
+//	}
+	
+
+	Book (Paper paper) {
+		this.paper = paper;
+	}
+	public Paper getPaper() {
+		return paper;
+	}
+
+	@Resource(name = "paper2")
+//	@Autowired
+//	@Qualifier("paper2")
+	public void setPaper(Paper paper) {
+		this.paper = paper;
+	}
+	
+	
+
+}

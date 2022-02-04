@@ -1,0 +1,10 @@
+package com.spring.basicReview.ex01;
+
+public class Restaurant {
+
+	public Restaurant() {
+		// TODO Auto-generated constructor stub
+		System.out.println("레스토랑 생성됨!!");
+	}
+
+}

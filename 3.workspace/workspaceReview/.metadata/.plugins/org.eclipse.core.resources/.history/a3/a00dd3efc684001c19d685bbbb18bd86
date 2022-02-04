@@ -1,0 +1,10 @@
+package com.spring.basicReview.ex01;
+
+public class Hotel {
+
+	public Hotel() {
+		// TODO Auto-generated constructor stub
+		System.out.println("hotel 생성됨!!");
+	}
+
+}

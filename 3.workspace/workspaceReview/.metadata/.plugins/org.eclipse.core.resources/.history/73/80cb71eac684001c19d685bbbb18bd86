@@ -1,0 +1,10 @@
+package com.spring.basicReview.ex01;
+
+public class Chef {
+
+	public Chef() {
+		// TODO Auto-generated constructor stub
+		System.out.println("요리사가 출근함!!");
+	}
+
+}

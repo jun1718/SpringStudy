@@ -1,0 +1,9 @@
+package com.spring.basic.ex04;
+
+public class Book {
+
+	public Book() {
+		// TODO Auto-generated constructor stub
+	}
+
+}
