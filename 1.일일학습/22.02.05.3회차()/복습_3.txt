@@ -1,0 +1,1283 @@
+21.02.05.3회차
+===============================================================================
+*복습
+===============================================================================
+
+
+
+
+##############################################################################
+11)STS 및 톰캣 설치 후 구동
+
+**이클립스는 20년 9월버전부턴 java 8버전사용못하니 20년 6월을 받아야한다.
+	18년꺼는 썻더니 조회가 안된다. 그래서 20년 6월쯤받으면 될듯
+
+STS 설치
+	-eclipse marketplace : sts -> 3버전으로 설치
+	-프로그램 껏다 키고나서 perspective에 spring 생겼나보고 생겼으면 그걸로 교체
+	
+
+
+톰캣 설치
+	-톰켓 홈페이지가서 9버전 설치
+		-이때 tomcat위치는 원하는곳으로하되 tomcat 폴더가 두개 겹치지 않게 잘라내서 다시 붙여넣기 ㄱㄱ
+	-이클립스 spring으로 바꿨으면 아래 servers텝이 따로 분리되어있는데 거기 클릭해서 서버추가(톰켓폴더통째로 선택하면됨)
+
+톰캣 설정
+	-톱캣 더블클릭 server위치찾는곳에서 중간꺼(톰켓 설치되어있는 곳이 서버위치라고 하는 뜻임) 클릭
+	-server options에서 publicsh module 2번재거(안전을위해서? 라고함)
+	-포트번호는 확인만해라
+	-저장
+	-그후 servers 텝에 서버시작버튼있는 곳 가장 오른쪽에 설정 톰켓에 적용시키기 클릭
+	-eclipse menu중 window의 web browser의 기본설정을 Chrome으로 변경
+
+톰캣 구동
+	-서버 시작 버튼 누르기
+	-크롬에서 url입력창에 http://localhost:8080 해서 고양이 화면 나오면 성공!
+
+
+
+STS 파일 생성 : spring legacy project로 해야함
+	-프로젝트이름 : SpringWebBasic
+	-groupid : com.spring
+	-아티팩트 : web
+		-즉 top-level package 이름지어달라할때 com.spring.web 이렇게하면 됨
+
+
+
+##############################################################################
+
+
+답: 답없음 똑같이하면됨
+
+
+
+
+
+
+
+
+##############################################################################
+12)STS 기본설정을 내 입맛대로 변경하여 재설치 및 업데이트(pom.xml)
+
+
+
+** 현재 내피시 자바버전 : 1.8
+	-cmd에 java -version 치면나옴
+
+
+#pom.xml
+
+1)먼저 내 artifactid, groupid, 프로젝트이름이 맞게 되어있는지 확인
+	-gid : com.spring
+	-artifactid : web
+
+2)스프링 legacy project 만들때 만들어짐 pom.xml파일은 java 버전이나 다른 필요한것들이 나의 상황 또는 목적과 다르게 기본
+세팅된다. 이걸 바꾸자.
+	-즉 STS에서 초기에 설정해주는 툴을 내 입맛대로 조금식 바꾸는 거다.
+
+-자바버전 1.8
+-스프링프레임워크 버전 5.1.5.RELEASE
+-dependencies 
+	-version에 ${org.springframework-version} 의미는 위의 스프링프레임워크 버전과 맞추겠다는의미임
+		-왜냐하면 이걸안하면 스프링프레임워크는 버전이 높은데 그에 관련된 라이브러리 설치할때는 버전이 안맞아질수도 있으니
+			항상 똑같이 하기 위해서임
+	-86번 @inject 주석 확인
+		-2강에서 설명한 autowired와 inject의 차이임
+			-autowired: 스프링에서만든거
+			-injext: java에서 만든거 -> 그래서 그룹아이디도 javax 머시기고 이게 있어서 모듈을 불러와야
+				사용가능 기능은 둘다 똑같다.
+	-93번 servlet 주석아래 dependency 버전변경 
+		-2.5 -> 3.1.0
+		-3.1.0으로 변경되면서 추가로 바뀐점이 있어서 그부분도 설정을 변경해야한다.
+			-그 바뀐것은 바로 artifactId로서 기존엔 servlet-api -> javax.servlet-api
+
+-바로아래에 jsp와 jstl은 업뎃안된지 이미 10년 가까이 되어서 그대로 두면됨
+	-특히 jsp가 요즘 안쓰여서 spring boot project에서는 jsp쓸려면 따로 설정해야함. 근데 우리 레거시에서는 jsp로 쓴다.
+
+
+-build태그내(120)의 136번 plugin 태그 : maven compiler에 관한 태그
+	-compiler version : 2.5.1 -> 3.5.1로 변경
+	-java version(source, target 태그말하는거임) : 1.8(내피시버전)
+		-위 두 버전변경은 1,2강에서 했던 maven 프로젝트에서도 똑같이 3.5.1에 자바 1.8버전을 썼다.
+
+
+-이럼 변경할설정 다 변경한거고 저장(ctrl s)해서 위에서 추가시킨 버전과 설정으로 새로 다운로드(업데이트)시켜주고 maven에 업데이트해줘야함
+	-근데 maven 업데이트되는등 maven 기능 다쓸수있는데 왜굳이 1,2강에선 maven project를 만들걸까?
+
+-그후 MavenDependencies의 spring, servlet, jsp, jstl 등등 잘변경또는 있는지 확인
+
+##############################################################################
+
+
+답:
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.spring</groupId>
+	<artifactId>web</artifactId>
+	<name>SpringWebBasic</name>
+	<packaging>war</packaging>
+	<version>1.0.0-BUILD-SNAPSHOT</version>
+	<properties>
+		<java-version>1.8</java-version>
+		<org.springframework-version>5.1.5.RELEASE</org.springframework-version>
+		<org.aspectj-version>1.6.10</org.aspectj-version>
+		<org.slf4j-version>1.6.6</org.slf4j-version>
+	</properties>
+	<dependencies>
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${org.springframework-version}</version>
+			<exclusions>
+				<!-- Exclude Commons Logging in favor of SLF4j -->
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+				
+		<!-- AspectJ -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${org.aspectj-version}</version>
+		</dependency>	
+		
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${org.slf4j-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.15</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.mail</groupId>
+					<artifactId>mail</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.jms</groupId>
+					<artifactId>jms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jdmk</groupId>
+					<artifactId>jmxtools</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jmx</groupId>
+					<artifactId>jmxri</artifactId>
+				</exclusion>
+			</exclusions>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- @Inject -->
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+				
+		<!-- Servlet -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+	
+		<!-- Test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.7</version>
+			<scope>test</scope>
+		</dependency>        
+	</dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <additionalProjectnatures>
+                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+                    </additionalProjectnatures>
+                    <additionalBuildcommands>
+                        <buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
+                    </additionalBuildcommands>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>org.test.int1.Main</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+13)tomcat 서버에 프로젝트 이관하기 및 context root 찾아서 접근하기
+
+context root를 찾기위해
+	-이걸알아야 서버에 접근해서 특정 페이지를 보기위해
+
+-톰캣서버가 SpringWebBasic 프로젝트를 관리하도록해라
+	-servers 탭의 생성한 9.0서버 우클릭 add and remove -> project 클릭 후 add finish
+	-그 후 설정반영버튼 클릭
+-Servers project 클릭 
+	-내부 톰캣 9.0 폴더 아래 보이기
+	-server.xml 열기 : context root 등록을 하는 곳이 이곳이다.
+		-젤아래 context 태그에 docBase는 SpringWebBasic이고 path는 /artifactid 형태로초기에
+			설정되며 이게 context root다.
+			-이 context root는 바꿔도 된다. 없애도됨.
+				-근데 왜필요한가?
+				-톰켓이 여러개의 어플리케이션(docBase)을 관리할수 있는데 걔들을 구분하기 위해서
+				 context root를 두고 톰켓 하나가 하나의 어플리케이션만 관리할 경우(서비스를 제공할경우)
+				 없애는 경우가 많다.
+-위 server.xml에서 context root를 알아냈으면 크롬에서 http://localhost:8080/web 을 검색해서 
+	Hello world!
+	The time on the server is 2022? 2? 5? (?) ?? 4? 32? 47?.
+ 와 같은 웹페이지가 나오는지 확인해라
+	-첨에 페이지 안나오는 에러나오면 아래를 참고해라. jstl이 tomcat의 lib에 없다는 소리임
+
+https://gaga.tistory.com/m/40 -> [500 에러] 절대 URI인 [http://java.sun.com/jsp/jstl/core]을(를), web.xml 또는 이 애플리케이션과 함께 배치된 JAR 파일 내에서 찾을 수 없습니다.
+				-위 에러를 해당 페이지에서 고침
+				-jstl-1.2.jar를 폴더경로 찾아가서 복사한뒤 tomcat 폴더에 lib로 가서 붙여넣기해주면해결!
+					-근데 왜 강사님이랑 학생들은 문제없이 다 됐는데 나만 에러가 됐을까? 슬슬 불안하다.
+						후반부에 뭔일날거같다..
+##############################################################################
+
+
+답: 없음 그냥 해보면 됨
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+14)web.xml 설정(mvc관련스프링설정파일,서블릿설정파일,서블릿처리범위)
+
+6번줄 param태그
+	- mvc와 관련된 스프링 설정파일의 위치를 적어놓은것임
+		- 그쪽(root-context.xml)을 다라가면 bean이 나온다.
+	- root-context.xml을 mvc-config.xml로 이름변경
+		- 서버 재실행 후 12번에서 잘들어가졌던 홈페이지가 안들어가지는것을 확인
+		- 즉 http://localhost:8080/web가 이름바꾸기전엔 hello world하며 나왔는데 그게
+			이름바꾸고나선 안됨. 
+			- 아 이게 서버 접근과 관련된 것이구나~ 하고 느껴라
+				1)이거 안되는 문제를 고쳐라
+					-답 : web.xml(of SpringWebBasic)에서 변경된 이름으로
+						설정된 파일 위치를 다시 알려주면 됨
+
+20번줄 servlet 태그 : 디스패쳐 서블릿 등록 설정
+	-디스패쳐 : mvc패턴에서 브라우저의 모든 요청을 하나의 서블릿이 받는 front controller의 역할을
+		하는데 이때 그 서블릿 이름이 디스패쳐
+		-그런데 이 디스패쳐는 우리가 만들필요 없이 해당 서블릿 클래스를 이미 스프링프레임워크에서 만들어
+			놓았다. 
+	-22번줄 <servlet-class> 태그 
+	-해당 서블릿의 이름은 appServlet 21번줄
+	-27번줄 <load-on-startup>1 : 서블릿중 가장먼저 실행시키겠다는 의미
+		-여러개있을때 효과적으로 사용됨 1개 있을땐 사실상 의미 없음
+	-<init-param> : 초기화 파라미터
+		-서블릿이 실행됐을 때 어떤 설정파일을 읽을 것인가에 대한 내용임
+		-<param-value> 태그의 위치를 따라가서 설정파일엔 뭐가 있는가 확인하자
+			-여기도 beans가 있네(servlet-context.xml) 즉 bean을 등록하는 역할을 하는 곳이란 것이다.
+			-해당 파일의이름 변경
+				-servlet-context.xml -> servlet-config.xml
+			-해당 파일의 경로변경
+				-appServlet내에 있던 해당파일을 상위폴더인 spring내부로 옮기고 appServlet 폴더를
+					삭제
+			2)이렇게 했을때 인터넷연결안되는데 문제를 해결하라
+			-답:web.xml에서 param-value의 경로를 
+			<param-value>/WEB-INF/spring/appServlet/servlet-context.xml</param-value>
+			에서 
+			<param-value>/WEB-INF/spring/servlet-config.xml</param-value>
+			로 바꾸면 됨
+
+30번줄 <servlet-mapping>태그
+	-<servlet-name> 태그의 appServlet은 위의 서블렛 네임을 뜻한다.
+		-3)<servlet>태그의 <servlet-name>을 banana로 변경한뒤 연결문제를 해결하라
+			답: mapping의 servlet-name 태그의 이름도 banana로 바꾸면 됨
+
+	-<url-pattern>태그 : url들어오는것중 여기서 설정한 url 부분을 현재 servlet mapping된 banana가 처리하도록
+		하겠다라는 의미
+		즉 <url-pattern>/</url-pattern> 면 /로 오는 모든걸 처리하겠다는 뜻임. 즉 디스패쳐 서블릿이니까 모든걸
+		처리하겠다는것이고 그렇기에 front controller를 만들 필요가 없는 것임
+			-회원관리든 게시판관련 요청이든 모두 ㅇ디스패쳐 서블릿으로 오는 것이다.
+		-ex)
+			<url-pattern>/hello</url-pattern> : /hello url을 banana 서블릿이 처리하게 하겠다.
+			<url-pattern>*.do</url-pattern> : .do로 끝나는걸 banana 서블릿이 처리하게 하겠다.
+
+	-해당 줄 변경이 끝나면 바나나는 실습을 위해 변경한것이니 원래이름인 appServlet으로 변경해라 다시
+##############################################################################
+
+
+답:
+
+
+
+
+
+
+#web.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee https://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+	<!-- mvc와 관련된 스프링 설정파일의 위치를 지정하는 태그 -->
+	<!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring/mvc-config.xml</param-value>
+	</context-param>
+	
+	<!-- Creates the Spring Container shared by all Servlets and Filters -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!--  디스패쳐 서블릿 등록 설정 -->
+	<!-- Processes application requests -->
+	<servlet>
+		<servlet-name>appServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/spring/servlet-config.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+		
+	<servlet-mapping>
+		<servlet-name>appServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+</web-app>
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+15)서블릿설정파일 개념파악
+
+#src.main.webapp.WEB-INF.spring의 servlet-config.xml 파일임
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	
+	<!--  DispatcherServlet 관련 설정 -->
+	<!-- Enables the Spring MVC @Controller programming model -->
+	
+	<annotation-driven />
+		<!-- 아노테이션을 통한 자동 빈 주입 명령을 처리하는 태그  -->
+		<!-- 위 아노테이션드라이븐이 <context:annotaion-config /> 랑 똑같은거임-->
+		
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<!--  정적자원(html, css, img, js)을 절대경로로 쉽게 매핑하는 태그 -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+
+	<!-- 뷰 리졸버 빈 등록 설정 -->
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	<!--  아노테이션을 사용하여 자동으로 빈 등록을 하게 해주는 설정 태그 -->
+	<context:component-scan base-package="com.spring.web" />
+		
+	
+	
+</beans:beans>
+
+
+##############################################################################
+
+
+답: 위에 한글주석내용은 다 추가로 달린것이니 눈으로 확인하고 넘어가라
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+16)context root 입력했을시 출력되는 화면 원리(mvc패턴 흐름)
+
+*****인터넷의 context root(http://localhost:8080/web)을 입력했을때 정보가 출력되게하는 핵심개념은
+ com.spring.web의 HomeController, src.main.webapp.WEB-INF.views의 home.jsp임
+
+****연결된 우리서버내 SpringWebBsic 홈페이지의 페이지소스보기를 하면 home.jsp 거의 똑같음
+
+1-1)HomeController.java 와 home.jsp를 동시에 켜놓고 class의 method home()의 리턴값 "home"
+	을 "test"로 변경한 뒤 새로고침 해보시오.
+	-그리하면 /WEB-INF/views/test.jsp를 찾을수없다고 나온다. 즉 여기서 리턴하는 값뒤에 .jsp를 붙여서
+		해당 파일을 찾아가는 것이다. HomeController.java가 먼저 실행되고 리턴값에 .jsp를통해
+		home.jsp를 실행하고 home에서는 12번줄에서 serverTime으로 세션처럼 값을 전해받아서 현재시각을 뛰우는 원리이다.
+
+1-2)위 문제를 해결하시오
+	-단, homecontroller.java는 손대지말고 home.jsp 파일을 이용해서 처리하시오
+		답: home.jsp 파일의 이름을 test.jsp로 변경하면 됨
+
+*문제를 푼 뒤엔 다시 home으로 돌려두시오 둘다
+
+
+2)homecontroller.java 파일의 @RequestMapping(value = "/", method = RequestMethod.GET)에서
+						// cf) 슬러쉬로 겟요청이 들어올시 해당 메서드를 작동시킨다는의미임
+	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	로 변경한뒤 서버재시작후 http://localhost:8080/web 해보면 안될것이고
+		http://localhost:8080/web/test하면 나오는 것을 확인하라
+			즉 value의 값은 url에서 context root값 뒤에서부터 나오는 경로에 따라 반응을 하는 것이다.
+
+*문제를 푼 뒤엔 다시 value를 /로 돌려나라
+
+
+3)homecontroller가 동작을 수행하고나면 view 리절버로 "home" 값을 리턴한다.
+	뷰리절버에 관련한 설정은 servlet-config에 있다. 
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	위에서 prefix는 ViewResorver로 반환된 값에 대한 접두어를 정의해놓은 것이고 suffix는 접미어를 정의해놓은 것으로
+	최종적으로 /WEB-INF/views/home.jsp가 된다.
+	그래서 home.jsp에 관한 bean을 생성한다는 것을 이해해라(view를 뷰리절브가 생성한 것이다)
+	그후 view인 bean 객체가 브라우저(클라이언트)에게 답변한다.
+
+	**젤첨엔 handle adapter가 uri를 보고 해당 uri를 처리하는 controller가 뭔지 알려주고
+		그걸 handle mapping이 컨트롤러에 직접 연결한다.
+
+4)그렇다면 디스패처 서블릿이 homecontroller를 어떻게 찾았을까? 
+	-둘사이에 의존성이 있기 때문이다.의존관계가 있다.
+	-어딘가에서 의존성 주입을 해야한다.
+	-의존성주입이 되려면 homecontroller를 bean 객체로 만들어야하고 디스패쳐도 bean객체로 만들어야한다.		
+
+4-1)beans graph 확인
+
+	-그렇다면 두놈이 bean 객체로 만들어졌는지 함 보자! servlet-config.xml을 spring config editor로 들어가서 
+		beans graph를 클릭하라
+		-이클립스 20.6월버전하면 자바8에 호환되는 최신버전이긴하다만 spring config editor를 지원하지 않아서
+			beans graph를 볼수 없다. 그러니 아랫버전사용해야하는데 나는 18.09버전을 사용했다.
+
+4-2)beans graph 구성요소
+	1)InternalResourceViewResolver
+		-이놈은 servelet-config.xml의 27번쯤의 코드에서 bean을 등록하는 코드가 있으니 미래에 bean객체로
+			 생겨난다는 의미이다.
+			-참고로 어디다 의존성 주입할거아니면 27번쯤의 코드처럼 id를 생략해도 된다.
+	2)homeController
+		-이걸 디스패쳐가 찾을수 있었던 이유는 디스패쳐와 homecontroller가 의존성관계에 있기 때문이다.
+		-이놈이 어덯게 빈으로 만들어 졌는가?
+			-servlet-config.xml의 
+				<context:component-scan base-package="com.spring.web" />
+			 를 보면 요소 스캔을 하되 com.spring.web pacage에서 해라고 되어있고
+			 com.spring.web.HomeController.java에 보면 @Controller라는 annotation이 있다.
+			 즉 원래라면 <bean id = "home" class = "com.spring.web.HomeController" />
+			 라고 있어야하는 빈등록코드가 위 context 태그와 아노테이션 controller덕분에 대체되었다는 뜻이다.
+
+	3)annotation-driven mvcUriComponentsContributor
+
+
+
+
+##############################################################################
+
+
+답: 답이너무 간단해서 문제에 적어둠
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+17)context root 입력했을시 출력되는 화면 원리(mvc패턴 흐름)2
+
+views 폴더에 test.jsp 생성
+
+#test.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>안녕안녕 메렁메렁 ~~ </h2>
+<p>
+	오늘은 2022년 2월 7일 일요일 스프링 수업이야 ~~ <br>
+	완전 재밌다!!
+</p>
+
+</body>
+</html>
+
+
+
+
+1)위상태에서 서버키고 http://localhost:8080/web/test를 하면 에러난다.
+	컨텍스트루트 뒤에 /로 들어오는 놈은 home()메서드에서 다 처리하도록 해놨지만 /test를 처리할
+	메서드를 만들지 않았기 때문이다.
+	그럼 이제 위에 만든 test.jsp가 보여질수있도록 클라이언트가 검색했을때 /test를 HomeController에서 처리할수 
+	있도록 하여라
+
+
+package com.spring.web;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+/**
+ * Handles requests for the application home page.
+ */
+@Controller
+public class HomeController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+	
+	/**
+	 * Simply selects the home view to render by returning its name.
+	 */
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String home(Locale locale, Model model) {
+		logger.info("Welcome home! The client locale is {}.", locale);
+		
+		Date date = new Date();
+		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
+		
+		String formattedDate = dateFormat.format(date);
+		
+		model.addAttribute("serverTime", formattedDate );
+		
+		return "home";
+	}
+	
+	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	public String test() {
+		System.out.println("/web/test 요청들어옴");
+		return "test";
+	}
+	
+}
+
+##############################################################################
+
+
+답: helloController만 손보면됨
+	-그럼 리턴하는거 views폴더에서 출력하는거는 이미 설계되어있으니(servlet-config.xml) helloController만 만지면됨
+
+
+
+package com.spring.web;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+/**
+ * Handles requests for the application home page.
+ */
+@Controller
+public class HomeController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+	
+	/**
+	 * Simply selects the home view to render by returning its name.
+	 */
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String home(Locale locale, Model model) {
+		logger.info("Welcome home! The client locale is {}.", locale);
+		
+		Date date = new Date();
+		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
+		
+		String formattedDate = dateFormat.format(date);
+		
+		//session.setAttribute //request.setAttribute 형태와 비슷함
+		model.addAttribute("serverTime", formattedDate );
+		
+		
+		return "home";
+	}
+	
+	
+	//test.jsp를 열기 위한 요청 메서드 구성
+	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	// '/test'라는 요청이 get으로 들어오면 바로아래 메서드가 좀 처리해줘라고
+	// 디스패쳐 서블릿에게 부탁하는 문구임
+	public String test() { // 이름은 맘대로
+		System.out.println("/test 요청이 들어옴 : GET방식!!!");
+		return "test";
+	}
+}
+
+
+
+
+
+
+
+
+
+##############################################################################
+18)클라이언트 측에서 요청을 보냈을때 그것을 처리하는 컨트롤러 만들기
+
+
+
+
+1)자동으로 스프링 컨테이너에 해당 클래스의 빈을 등록하는 아노테이션을 이용하여 spring container에 bean을 등록해라
+	-등록하고나서 beans graph로 등록됐는지 확인하라
+
+Class : RequestController
+//디스패쳐서블릿이라는 프론트 컨트롤러가 RequestController를 찾게하려면
+//디스패쳐서블릿과 requestController의 의존관계를 설정을 해야한다.
+//의존관계설정을 우리가 따로할 필요는 없고 해당 클래스에 대한 빈객체를 실행시 만들어지게만 하면된다.
+//근데 helloController는 빈등록 코드를 자동으로 이루어지게 했으니 다른 컨트롤러들도 
+//자동 빈등록 코드와 아노테이션을 이용하여 만들면 된다.
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class RequestController {
+
+}
+
+
+2)http://localhost:8080/web/test/request/test로 검색했을때 test.jsp가 출력되도록 하라
+
+
+
+
+	//RequestMapping은 어떤 URI로 이 메서드를 동작시킬 것인가에 대한 설정임
+	//이거 value = "", GET 이런 설정안하면 post든 get이든 모두 받겠다는 의미임
+
+<출력결과> uri가 /test일경우와 /request/test일 경우의 내부 출력결과
+/test 요청이 들어옴 : GET방식!!!
+/request/test 요청이 들어옴!
+
+재밌는것이 controller가 homecontroller에서 test.jsp를 출력할수있고 RequestController에서도 test.jsp를 출력할수있다.
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class RequestController {
+	
+	@RequestMapping("/test/request/test")
+	public String test() {
+		System.out.println("/test/request/test를 요청함");
+		return "test";
+	}
+}
+
+##############################################################################
+
+
+답: RequestController.java만 만지면됨 
+
+
+1)자동으로 스프링 컨테이너에 해당 클래스의 빈을 등록하는 아노테이션을 이용하여 spring container에 bean을 등록해라
+	-등록하고나서 beans graph로 등록됐는지 확인하라
+
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+
+@Controller	
+public class RequestController {
+
+}
+
+
+
+2)http://localhost:8080/web/test/request/test로 검색했을때 test.jsp가 출력되도록 하라
+
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller	
+public class RequestController {
+
+	//RequestMapping은 어떤 URI로 이 메서드를 동작시킬 것인가에 대한 설정임
+	//이거 value = "", GET 이런 설정안하면 post든 get이든 모두 받겠다는 의미임
+	@RequestMapping("/request/test")
+	public String testCall() {
+		System.out.println("/request/test 요청이 들어옴!");
+		return "test";
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+19)uri에 따라서 특정 controller의 반환값 조절하여 jsp 파일 view로 응답하기
+
+views 폴더 안에 request 폴더만들어라
+request 폴더안에 req-ex01.jsp 만들어라
+
+#req-ex01.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>Request컨트롤러를 이용한 요청 처리 작업</h2>
+<p>- 컨틀롤러 테스트중입닏. </p>
+
+</body>
+</html>
+
+
+
+1)만약 /request/req 요청이 들어왔을때 views폴더 아래에 있는 request 폴더 아래에 req-ex01.jsp파일을 열도록 메서드를
+	구성해 보세요
+	-단 RequestController.java를 이용한다
+		-메서드이름: req
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class RequestController {
+	
+	@RequestMapping("/test/request/test")
+	public String test() {
+		System.out.println("/test/request/test를 요청함");
+		return "test";
+	}
+	
+	@RequestMapping("/request/req")
+	public String req() {
+		System.out.println("/request/req 요청됨");
+		return "request/req-ex01";
+	}
+	
+}
+
+##############################################################################
+
+
+답: 이것도 servlet-config.xml은 안만지고 RequestController만 만지면 된다
+
+
+
+
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+//클라이언트 측에서 요청을 보냈을때 그것을 처리하는 컨트롤러
+//디스패쳐서블릿이라는 프론트 컨트롤러가 RequestController를 찾게하려면
+//디스패쳐서블릿과 requestController의 의존관계를 설정을 해야한다.
+//의존관계설정을 우리가 따로할 필요는 없고 해당 클래스에 대한 빈객체를 실행시 만들어지게만 하면된다.
+//근데 helloController는 빈등록 코드를 자동으로 이루어지게 했으니 다른 컨트롤러들도 
+//자동 빈등록 코드와 아노테이션을 이용하여 그러헥 만들면 된다.
+
+@Controller	
+public class RequestController {
+
+	//RequestMapping은 어떤 URI로 이 메서드를 동작시킬 것인가에 대한 설정임
+	//이거 value = "", GET 이런 설정안하면 post든 get이든 모두 받겠다는 의미임
+	@RequestMapping("/request/test")
+	public String testCall() {
+		System.out.println("/request/test 요청이 들어옴!");
+		return "test";
+	}
+	
+	@RequestMapping("/request/req")
+	public String req() {
+		System.out.println("/request/req 요청이 들어옴~!");
+		return "request/req-ex01";
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+20)하나의 uri로 두개의 결과물을 내는법
+	-하나의 uri지만 get 또는 post전송방식의 차이에 따라서 두개의 결과물을 낼수 있다.
+
+req-ex01.jsp에 코드를 추가해라
+버튼 두개를 만들어서 GET요청누르면 get방식으로 /web/request/basic01이라는 uri로 보내고
+POST요청누르면 post방식으로 /web/request/basic01라는 uri로 보내려한다.
+
+1)이때 RquestController.java를 이용해서 두 메서드를 만들고 각각의 로그를 남기며 해당 페이지로 다시 보내라
+	-이때 아노테이션을 스프링 4버전에서부터 나온 신기술을 사용해서도 풀어봐라
+	-메서드이름 : basicGet(), basicPost()
+		-원래는 두개다 이름같이해도되는데(get방식과 post방식의 매개변수가다르기때문에)
+			지금은 실습이니까 그냥 이렇게 해라
+
+	-내부로그
+		-"/request/basic01요청이 들어옴: GET"
+		-"/request/basic01요청이 들어옴: POST"
+
+
+#/views/request/req-ex01.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>Request컨트롤러를 이용한 요청 처리 작업</h2>
+<p>- 컨틀롤러 테스트중입닏. </p>
+
+<form action = "/web/request/basic01" method = "get" >
+	<p><input type = "submit" value = "GET요청!!"></p>
+</form>
+
+<form action = "/web/request/basic01" method = "post" >
+	<p><input type = "submit" value = "POST요청!!"></p>
+</form>
+
+</body>
+</html>
+
+
+/request/basic
+
+
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+@Controller
+public class RequestController {
+	
+	@RequestMapping("/test/request/test")
+	public String test() {
+		System.out.println("/test/request/test를 요청함");
+		return "test";
+	}
+	
+	@RequestMapping("/request/req")
+	public String req() {
+		System.out.println("/request/req 요청됨");
+		return "request/req-ex01";
+	}
+
+//	@RequestMapping(value = "/request/basic01", method = RequestMethod.GET)
+	@GetMapping("/request/basic01")
+	public String basicGet() {
+		System.out.println("/reqeust/basic01 요청됨 : GET방식");
+		return "request/req-ex01";
+	}
+	
+//	@RequestMapping(value = "/request/basic01", method = RequestMethod.POST)
+	@PostMapping("/request/basic01")
+	public String basicPost() {
+		System.out.println("/reqeust/basic01 요청됨 : POST방식");
+		return "request/req-ex01";
+	}
+	
+}
+
+
+##############################################################################
+
+
+답: 
+
+
+
+
+
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+//클라이언트 측에서 요청을 보냈을때 그것을 처리하는 컨트롤러
+//디스패쳐서블릿이라는 프론트 컨트롤러가 RequestController를 찾게하려면
+//디스패쳐서블릿과 requestController의 의존관계를 설정을 해야한다.
+//의존관계설정을 우리가 따로할 필요는 없고 해당 클래스에 대한 빈객체를 실행시 만들어지게만 하면된다.
+//근데 helloController는 빈등록 코드를 자동으로 이루어지게 했으니 다른 컨트롤러들도 
+//자동 빈등록 코드와 아노테이션을 이용하여 그러헥 만들면 된다.
+
+@Controller	
+public class RequestController {
+
+	//RequestMapping은 어떤 URI로 이 메서드를 동작시킬 것인가에 대한 설정임
+	//이거 value = "", GET 이런 설정안하면 post든 get이든 모두 받겠다는 의미임
+	@RequestMapping("/request/test")
+	public String testCall() {
+		System.out.println("/request/test 요청이 들어옴!");
+		return "test";
+	}
+	
+	@RequestMapping("/request/req")
+	public String req() {
+		System.out.println("/request/req 요청이 들어옴~!");
+		return "request/req-ex01";
+	}
+	
+//	@RequestMapping(value = "/request/basic01", method = RequestMethod.GET)
+	@GetMapping("/request/basic01")
+	public String basicGet() {
+		System.out.println("/request/basic01요청이 들어옴: GET");
+		return "request/req-ex01";
+	}
+	
+//	@RequestMapping(value = "/request/basic01", method = RequestMethod.POST)
+	@PostMapping("/request/basic01") 
+	public String basicPost() {
+		System.out.println("/request/basic01요청이 들어옴: POST");
+		return "request/req-ex01";
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+21)요청파라미터 받아보기
+
+1)http://localhost:8080/web/request/param(이하uri생략_파라미터입력부분)을 입력해서 접속시도 시에
+	view로 보낼 .jsp는 만들지말고(이말은 controller의 return값을 ""로 두라는거임, 브라우저요청시 응답화면은 에러가 나겠고!)
+	아래 시스템로그를 남기도록 하여라
+get방식이니 uri입력시에 파라미터를 입력해서 접속해라
+	-파라미터 입력시 field명 2개
+		-name
+		-age 
+	-RequestController.java를 이용한다.
+
+request/param 요청: GET
+이름 : 박영희
+나이 : 22
+
+package com.spring.web.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+@Controller
+public class RequestController {
+	
+	@RequestMapping("/test/request/test")
+	public String test() {
+		System.out.println("/test/request/test를 요청함");
+		return "test";
+	}
+	
+	@RequestMapping("/request/req")
+	public String req() {
+		System.out.println("/request/req 요청됨");
+		return "request/req-ex01";
+	}
+
+//	@RequestMapping(value = "/request/basic01", method = RequestMethod.GET)
+	@GetMapping("/request/basic01")
+	public String basicGet() {
+		System.out.println("/reqeust/basic01 요청됨 : GET방식");
+		return "request/req-ex01";
+	}
+	
+//	@RequestMapping(value = "/request/basic01", method = RequestMethod.POST)
+	@PostMapping("/request/basic01")
+	public String basicPost() {
+		System.out.println("/reqeust/basic01 요청됨 : POST방식");
+		return "request/req-ex01";
+	}
+	
+	
+	@RequestMapping(value = "/request/param", method = RequestMethod.GET)
+	public String ex(HttpServletRequest request) {
+		String name = request.getParameter("name");
+		String age = request.getParameter("age");
+		System.out.println("/request/param 요청");
+		System.out.println("name : " + name);
+		System.out.println("age : " + age);
+		return "";
+	}
+	
+}
+
+##############################################################################
+
+
+
+
+답: 
+
+
+
+
+
+
+package com.spring.web.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+//클라이언트 측에서 요청을 보냈을때 그것을 처리하는 컨트롤러
+//디스패쳐서블릿이라는 프론트 컨트롤러가 RequestController를 찾게하려면
+//디스패쳐서블릿과 requestController의 의존관계를 설정을 해야한다.
+//의존관계설정을 우리가 따로할 필요는 없고 해당 클래스에 대한 빈객체를 실행시 만들어지게만 하면된다.
+//근데 helloController는 빈등록 코드를 자동으로 이루어지게 했으니 다른 컨트롤러들도 
+//자동 빈등록 코드와 아노테이션을 이용하여 그러헥 만들면 된다.
+
+@Controller	
+public class RequestController {
+
+	//RequestMapping은 어떤 URI로 이 메서드를 동작시킬 것인가에 대한 설정임
+	//이거 value = "", GET 이런 설정안하면 post든 get이든 모두 받겠다는 의미임
+	@RequestMapping("/request/test")
+	public String testCall() {
+		System.out.println("/request/test 요청이 들어옴!");
+		return "test";
+	}
+	
+	@RequestMapping("/request/req")
+	public String req() {
+		System.out.println("/request/req 요청이 들어옴~!");
+		return "request/req-ex01";
+	}
+	
+//	@RequestMapping(value = "/request/basic01", method = RequestMethod.GET)
+	@GetMapping("/request/basic01")
+	public String basicGet() {
+		System.out.println("/request/basic01요청이 들어옴: GET");
+		return "request/req-ex01";
+	}
+	
+//	@RequestMapping(value = "/request/basic01", method = RequestMethod.POST)
+	@PostMapping("/request/basic01") 
+	public String basicPost() {
+		System.out.println("/request/basic01요청이 들어옴: POST");
+		return "request/req-ex01";
+	}
+	
+	// 요청 파라미터 받아보기
+	@GetMapping("/request/param")
+	public String paramTest(HttpServletRequest request) {
+		System.out.println("request/param 요청: GET");
+		
+		String name = request.getParameter("name");
+		String age = request.getParameter("age");
+		System.out.println("이름 : " + name);
+		System.out.println("이름 : " + age);
+		
+		return "";
+	}
+	
+}
+

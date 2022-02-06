@@ -23,15 +23,21 @@
 
 
 	<!-- 뷰 리졸버 빈 등록 설정 -->
+	<!--
+		-컨트롤러가 리턴한 문자열을 해석하여 경로를 만들어서
+			파일을 찾아 응답하는 viewResolver의 빈 등록 코드
+		-prefix필드와 suffix필드의 setter 주입을 통해 
+			컨트롤러에서 리턴된 문자열을 조립해줌
+	 -->
 	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<beans:property name="prefix" value="/WEB-INF/views/" />
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 	
+	
 	<!--  아노테이션을 사용하여 자동으로 빈 등록을 하게 해주는 설정 태그 -->
 	<context:component-scan base-package="com.spring.web" />
-	
-	
+
 	
 </beans:beans>
