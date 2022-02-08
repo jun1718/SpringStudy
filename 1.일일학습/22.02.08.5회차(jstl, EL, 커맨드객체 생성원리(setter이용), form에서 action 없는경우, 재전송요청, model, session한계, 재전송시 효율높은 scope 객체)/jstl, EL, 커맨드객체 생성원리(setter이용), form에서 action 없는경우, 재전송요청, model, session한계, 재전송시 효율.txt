@@ -1,0 +1,1872 @@
+21.02.08.5회차
+===============================================================================
+*jstl, EL, 커맨드객체 생성원리(setter이용), form에서 action 없는경우, 재전송요청, model, session한계, 재전송시 효율높은 scope 객체
+===============================================================================
+
+
+1.
+
+
+res-ex02.jsp생성
+test3.jsp 생성
+res-ex02.jsp 아이디정보입력 -> test3.jsp로 이동
+userVO를 이용해서 user를 model로 jsp에 보내고 jsp에서 user만해서 내용물뽑아라
+	-UserVO에 toString()을 재정의하면 user했을때 user 주소가 나오는게아니라 user내부요소들이 나옴
+취미 hobby인 String[]을 jsp에서 반복자이용해서 뽑아내기
+	-이때 hobby가 비어있지 않으면 출력하고 비어있으면 "이사람은 취미가 없는 사람입니다"출력
+	-자바코드를 html코드처럼 일관성있게 쓰는 방법이 jstl이다.
+<c:if test = "${user.hobby.size() == null}" >
+<c:if test = "${empty user.hobby}" > // 위두개 같다
+
+	/*
+	@PostMapping("/join")
+	public String join(UserVO user, Model model) {
+		model.addAttribute("user", user);
+		return "response/test3";
+	}
+	*/
+	@PostMapping("/join")
+	public String join(@ModelAttribute("user") UserVO user) {
+		return "response/test3";
+	}
+
+<출력결과>
+회원가입정보 출력하기
+# 회원정보 : UserVO [userId=ohala33, userPw=kyh232, userName=홍길동, hobby=[soccer]]
+# 아이디 : ohala33
+# 비밀번호 : kyh232
+# 이름 : 홍길동
+# 취미 : soccer  
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action = "<c:url value = '#' />" method = "post"> 	
+	<fieldset>
+		<legend>회원가입 양식</legend>
+		<p>
+			- ID : <input type = "text" name = "userId" size = "10"> <br>
+			- PW : <input type = "password" name = "userPw" size = "10"> <br>
+			- NAME : <input type = "text" name = "userName" size = "10"> <br>
+			- HOBY :
+			<input type = "checkbox" name = "hobby" value = "soccer" > 축구&nbsp;
+			<input type = "checkbox" name = "hobby" value = "book" > 독서&nbsp;
+			<input type = "checkbox" name = "hobby" value = "music" > 음악&nbsp;
+			<br>
+			<input type = "submit" value = "회원가입" />
+		</p>
+	</fieldset>
+</form>
+
+</body>
+</html>
+
+
+
+	@Override
+	public String toString() {
+		return "UserVO [userId=" + userId + ", userPw=" + userPw + ", userName=" + userName + ", hobby=" + hobby + "]";
+	}
+	
+
+
+2.
+res-quiz 생성
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%--
+1. res-quiz 파일의 화면처리를 할 수 있는 메서드를 생성하세요.(res-quiz 맵핑)
+2. 폼태그의 액션URL은 res-login 으로 설정하세요.
+3. ID:kim123, PW:kkk1234 라면 res-quiz-success.jsp페이지로 
+     이동해서 "로그인 성공" "(회원ID)님 환영합니다" 출력
+4. 아니라면 res-quiz-fail.jsp페이지로 이동해서 
+   "로그인 실패" "(회원ID)는 회원이 아닙니다" 출력
+	-이때 id만 실어서 보내는방법과 idpw를 보내는방법 모두이용해라
+		1.커맨드객체와 Model을 사용한 방식
+		2.아노테이션을 사용한 방식
+			2-1)userId는 아노테이션으로 받고, userPw는 아노테이션 requestParam으로 받는다
+				-어차피 userId만 넘기면되니까!
+			2-2)userVO를 아노테이션으로 받아서 한번에 attribute까지 처리한다.
+--%>
+
+<form action="#" method="post">
+	<p>
+		# ID: <input type="text" name="userId" size="10"><br>
+		# PW: <input type="password" name="userPw" size="10"><br>
+		<input type="submit" value="로그인">
+	</p>
+</form>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+3.
+-option에 value?였나? 를 넣으면 2월에서 2값만 보낼수 있다.
+-유의할점:커맨드 객체를 이용하여 파라미터 처리할때 setter가 작동된다.
+	-0을 추가로 붙이는 작업을 setter에서 하라는 소리다.
+
+
+
+Controller.java
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%--
+	1. 다음 생년월일을 받아서 콘솔에 출력하는 
+	   메서드를 생성 (url: /birth : POST)
+          조건) BirthVO 커맨드객체 사용, 
+          콘솔에 전송된 값을 붙여서 출력합니다 ex)20180615
+	2. birth-result.jsp 페이지에 
+	"당신의 생일은 ~~~~년 ~~월 ~~일입니다." 을 출력하세요
+--%>
+
+<form action = "#" method = "post" >
+	<fieldset>
+		<legend>생일 등록 양식</legend>
+		<p>
+			# 생년월일 :
+			<input type = "text" name = "year" size = "6" maxlength = "4" placeholder = "연도(4자리)"/>
+			<select name = "month">
+				<c:forEach var = "m" begin = "1" end = "12" step = "1"> <%-- step이 1이면 생략가능 --%>
+					<option>${m}월</option>
+				</c:forEach>
+			</select>
+			<input type = "text" name = "day" maxlength = "2" size = "4" placeholder = "일(1-31)" />
+			<input type = "submit" value = "확인" />
+		</p>
+	</fieldset>
+</form>
+
+</body>
+</html>
+
+
+
+
+4.redirect를 이용한 재전송요청
+-로그인 화면요청처리
+-로그인 검증처리
+	-form에 action 없이 해보자
+		-스프링에서 GetMapping과 PostMapping uri가 같으면 jsp에서 form의 action을 안해도 알아서 찾아간다.
+	-Controller에서 Post방식으로 들어오는 /response/login볼경우 userId는 성공시 res-quiz-success.jsp로 보낸다
+			-abc123 1234 인경우 성공시켜라
+				-같지않으면 null을 리턴해서 null 리턴한경우 viewResolver로 뭐가 반환되서 가는지봐라
+					-답: null이면 null에 .jsp를 붙일순없으니 Mapping된 uri를 반환한다.
+						즉 /response/login.jsp가 되는 것이다. 하지만 우리파일에
+						이런 경로와 jsp파일은 없다. 그래서 에러가 날것인데 그게 맞다.
+	-id 입력하지 않은경우 처리해라
+		-이거 졸라이상함.. post보내면 다시 get으로 받고 로그인누르면 다시 post 가는데 기존 post보낸 userId가 살아
+			있음 계속.. 그래서 uri의 파라미터부분을 지워서 직접 get방식으로 다시 접근해서 아이디비번비번확인쳐야됨
+	-비번 다른경우처리
+	-위 abc123 1234와 같은경우 처리
+	-위 abc123 1234와 같지않은경우 처리
+
+		**핵심개념은 redirect:/response/login을 반환할경우 (즉 redierect:이 있을경우)
+			viewResolver로 보내서 .jsp등을 붙이지않고 viewResolver가기전에 바로 다시 Controller에게 
+			오는 것이다.
+		**추가 핵심은 redirect될때는 반드시 get방식으로 된다. post방식이 아니다.
+	
+res-redirect-form.jsp생성(response 폴더)
+
+#res-redirect-form.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%-- ResponseController 사용 --%>
+
+
+<form action = "" method = "post">
+<p>
+	# ID : <input type = "text" name = "userId" size = "10"> <br>
+	# 비밀번호 : <input type = "text" name = "userPw" size = "10"> <br>
+	# 비밀번호 확인 : <input type = "text" name = "userPwChk" size = "10"> <br>
+	<input type = "submit" value = "로그인">
+</p>
+</form>
+</body>
+</html>
+
+
+
+
+5.model의 한계
+매개변수 Model model 추가
+msg라는 모델id에 대해서 각상황이오면 상황에맞게 아래 3개 중 하나를 넣어라
+	-"비밀번호 확인란을 체크하세요!"
+	-"그런 아이디와 비번은 등록되지 않았습니다."
+	-"아이디는 필수 값이에요!"
+그후 모델 id에 대한 값을 res-redirect-form에서 실패한경우(3가지)에 대해서 model value를 빨간글자로 
+출력하게하라
+	-빨간글자 안뜬다 그 이유는 model이 request객체와같이 재전송시에는 데이터를 잃어버리기때문이다.
+		즉 바로다음 영역으로 갔을때는 살아있고 거기서 다시 다른영역으로 가면 사라진다.
+		그럼 최초 get() 상태에서 로그인눌러스 post()방식으로 파라미터를 login()에 보냈고
+		해당 파라미터를 login()에서 모델에 담았고 여기서 2가지다
+		ㄱ.원래방식
+			-모델이 담고 String값을 viewResolver에게 반환하여 .jsp를 찾아가서 거기서 model값을 활용한다.
+		ㄴ.재전소압ㅇ식
+			-모델이 담고 .jsp로 가는게 아니라 바로 다시 컨트롤러로 오니까 영역이 바껴서 컨트롤러에서는 model 사용
+				가능하지만 거기서 다시 jsp를 열었을때는 이미 소실되고 난이후다. 두영역을 갔으니까
+
+
+
+6. f5눌렀을때 msg가 사라지도록하라
+위문제에서 model을 잠시 주석처리하고 session처럼 여러영역을 돌아다닐수있는놈들은 어떤가 보자.
+session을 이용해서 똑같이 msg에 담아봐라
+그럼 msg 내용이 계속 남아있고 f5할때마다 변하지 않는다.
+그렇기때문에 잠깐 재전송할때만 쓰는 redirectAttribute를 사용한다.
+redirectAttribute사용이유중 또하나는 session과 앱은 되는데 그렇게하면 정보가 브라우저 닫힐때까지 계속 남아있을테니 
+잠시 리다이렉트할때 재전송용으로만 사용할 객체가 필요한 것이다. 
+
+	-근데 진짜 희한한게 msg를 msg1 msg2 msg3안바꿔주면 나중에 했던 값들이 계속 남아있는데 그게 세션값인듯하고(주석번갈아끼우면서
+											생긴세션값)
+		그놈을 없애려고 브라우저도 껐다키고 서버도 껏다켰는데 안사라진다.
+	-그리고 세션을 해도 userId가 계속 붙는걸 해결함. 왜 @ModelAttribute 문제를 session과 얘들 msg를 세팅하는걸로
+		해결이 되는가?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+25)jstl, EL, 커맨드객체 생성원리(setter이용)
+
+1)아래 흐름과 조건을 지켜서 정상적으로 회원정보를 출력하라
+	-회원정보 EL로 넣을떼는 해당 클래스에서 toString을 재정의해야한다.
+	-test3에서 hobby 출력시에는 jstl로 조건문과 for문을 이용한다.
+
+res-ex02.jsp생성
+test3.jsp 생성
+ResponseController.java 이용
+
+순서 : 클라이언트 uri요청 -> Controller -> res-ex02.jsp -> Controller -> test3.jsp 
+client uri 요청 : /response/res-ex02
+res-ex02.jsp에서 요청 uri : /response/join
+
+메소드 : resEx02(), join()
+
+ 
+#res-ex02.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action = "" method = "post"> 	
+	<fieldset>
+		<legend>회원가입 양식</legend>
+		<p>
+			- ID : <input type = "text" name = "userId" size = "10"> <br>
+			- PW : <input type = "password" name = "userPw" size = "10"> <br>
+			- NAME : <input type = "text" name = "userName" size = "10"> <br>
+			- HOBY :
+			<input type = "checkbox" name = "hobby" value = "soccer" > 축구&nbsp;
+			<input type = "checkbox" name = "hobby" value = "book" > 독서&nbsp;
+			<input type = "checkbox" name = "hobby" value = "music" > 음악&nbsp;
+			<br>
+			<input type = "submit" value = "회원가입" />
+		</p>
+	</fieldset>
+</form>
+
+</body>
+</html>
+
+
+#test3
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+  
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>회원가입정보 출력하기</h2>
+<p>
+	# 회원정보 : ${} <br>
+	# 아이디 : ${} <br>
+	# 비밀번호 : ${} <br>
+	# 이름 : ${} <br>
+	# 취미 :
+	<%-- 자바코드를 html코드처럼 일관성있게 쓰는 방법이 jstl이다. --%>
+
+		이 사람은 취미가 없는 사람입니다.
+
+	<br>
+</p>
+
+</body>
+</html>
+
+	
+
+##############################################################################
+
+
+
+답:
+
+-----------------------------------------------
+
+#res-ex02.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action = "<c:url value = '/response/join' />" method = "post"> 	
+	<fieldset>
+		<legend>회원가입 양식</legend>
+		<p>
+			- ID : <input type = "text" name = "userId" size = "10"> <br>
+			- PW : <input type = "password" name = "userPw" size = "10"> <br>
+			- NAME : <input type = "text" name = "userName" size = "10"> <br>
+			- HOBY :
+			<input type = "checkbox" name = "hobby" value = "soccer" > 축구&nbsp;
+			<input type = "checkbox" name = "hobby" value = "book" > 독서&nbsp;
+			<input type = "checkbox" name = "hobby" value = "music" > 음악&nbsp;
+			<br>
+			<input type = "submit" value = "회원가입" />
+		</p>
+	</fieldset>
+</form>
+
+</body>
+</html>
+
+
+
+
+
+
+-----------------------------------------------
+
+
+
+#test3.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>    
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>회원가입정보 출력하기</h2>
+<p>
+	# 회원정보 : ${user} <br>
+	# 아이디 : ${user.getUserId()} <br>
+	# 비밀번호 : ${user.userPw} <br>
+	# 이름 : ${user.userName} <br>
+	# 취미 :
+	<%-- 자바코드를 html코드처럼 일관성있게 쓰는 방법이 jstl이다. --%>
+	<c:if test = "${user.hobby.size() != 0}" >
+		<c:forEach var="h" items="${user.hobby}">
+			${h} &nbsp;
+		</c:forEach>
+	</c:if>
+	<c:if test = "${user.hobby.size() == null}" >
+	
+		이 사람은 취미가 없는 사람입니다.
+	</c:if>
+	<br>
+</p>
+
+</body>
+</html>
+
+
+-----------------------------------------------
+
+
+#ResponseController.java
+
+package com.spring.web.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.spring.web.model.UserVO;
+import com.spring.web.model.UserVO2;
+
+@Controller("resCon")
+@RequestMapping("/response")
+
+public class ResponseController {
+	
+	public ResponseController() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	@GetMapping("/res-ex01")
+	public void resEx01() {
+		
+	}
+	
+	//1.Model 객체를 사용하여 화면에 데이터 전송하기
+	/*
+	@GetMapping("/test")
+	public void test(@RequestParam("age") int age,
+						Model model) {
+		model.addAttribute("nick", "뽀삐");
+		model.addAttribute("age", age);
+	}
+	*/
+	
+	//@ModelAttribute : @RequestParam("age") int age + model.addAttribute("age", age)
+					//와 같은 것이다. 포함관계
+	//2.@ModelAttribute를 사용한 화면에 데이터 전송처리
+	@GetMapping("/test")
+	public void test(@ModelAttribute("age") int age,
+			Model model) {
+		model.addAttribute("nick", "뽀삐");
+//		model.addAttribute("age", age);
+	}
+	
+	//3.ModelAndView 객체를 활용한 처리
+	@GetMapping("/test2")
+	public ModelAndView test2() {
+//		ModelAndView mv = new ModelAndView();
+//		mv.addObject("userName", "박영희"); //화면에 전달할 데이터 래핑
+//		mv.setViewName("/response/test2"); //viewResolver에게 전달할 문자열
+//		return mv;
+		
+		return new ModelAndView("/response/test2", "userName", "박영희");
+	}
+	
+	
+	//res-ex02.jsp파일을 열람하는 요청메서드 작성
+	@GetMapping("/res-ex02")
+	public void resEx02() {
+		
+	}
+	
+	
+	/*
+	@PostMapping("/join")
+	public String join(UserVO user, Model model) {
+		model.addAttribute("user", user);
+		return "response/test3";
+	}
+	*/
+	@PostMapping("/join")
+	public String join(@ModelAttribute("user") UserVO user) {
+		return "response/test3";
+	}
+	
+	@GetMapping("/res-quiz")
+	public void resQuiz() {
+		
+	}
+	
+	@PostMapping("/res-login")
+	public String resLogin(@ModelAttribute("user") UserVO2 user) {
+		String id = user.getUserId();
+		String pw = user.getUserPw();
+		
+		if (id.equals("kim123") && pw.equals("kkk1234")) {
+			return "response/res-quiz-success";			
+		}
+		
+		return "response/res-quiz-fail";
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////
+	//Redirect처리 
+	//원래는 viewResolver에게 보내는 방식이 포워드 방식이다.
+	//글쓰기 요청이 끝난다음에 글목록 페이지가 떠야하는데 포워드면 요청끝나고 디스패쳐왔다가 다시 db에 가야함
+	//글쓰기 요청(insert)가 되고나면 다시 돌아오지않고 재요청으로  select하여 목록을 가져오면 좋다.
+	//그 재요청방법이 Redirect처리다.
+	//글 삭제같은경우도 delete로 게시글 지우고 목록을 보여줄때 디스패쳐까지 돌아오지않고 재요청을해서 바로 db에서 목록을
+	//가져오는 것도 포워드로는 않되고 Redirect로 가능하다.
+	
+	//로그인 화면 요청처리
+	@GetMapping("/login")
+	public String login() {
+		System.out.println("/response/login 요청 발생 : GET");
+		return "response/res-redirect-form";
+	}
+	
+	//로그인 검증처리
+	/*
+	@PostMapping("/login")
+	public String login(@ModelAttribute("userId") String id
+							, @RequestParam("userPw") String pw
+							, @RequestParam("userPwChk") String pwChk
+							, Model model
+							//, HttpServletResponse response)원래 이게 jsp방식인데 spirng에선 이렇게 안해도됨
+							, HttpSession session
+							){
+		System.out.println("/response/login 요청 발생 : POST");
+		System.out.println("id : " + id); 
+		System.out.println("pw : " + pw);
+		System.out.println("pwChk : " + pwChk);
+		
+		
+		
+		if (id.equals("")) { // 아이디 입력하지 않은 경우
+//			response.sendRedirect(); 원래 이게 jsp방식인데 spirng에선 이렇게 안해도됨
+			System.out.println("아이디가 비었습니다.");
+//			model.addAttribute("msg", "아이디는 필수 값이에요!");
+			session.setAttribute("msg", "아이디는 필수 값이에요!");
+			return "redirect:/response/login"; // jsp를 열러가지않고 바로 다시 controller의 
+												// /resposne/login uri를 받을수있는 메서드를
+												// 찾는다.
+												//이때 redirect로 보내면 무조건 get요청이다.
+												//그래서 위에 로그인화면요청처리로 간다.
+		} else if (!pw.equals(pwChk)) { // 비번과 확인비번이 다른 경우
+			System.out.println("두 비밀번호가 같지 않습니다.");
+//			model.addAttribute("msg", "비밀번호 확인란을 체크하세요!");
+			session.setAttribute("msg", "두 비밀번호가 같지 않습니다.");
+			return "redirect:/response/login";
+		} else if (id.equals("abc123") && pw.equals("1234")) {
+			System.out.println("로그인성공!");
+			return "response/res-quiz-success";
+		} else { // 안전빵
+			System.out.println("그런 아이디와 비번은 등록되지 않았습니다.");
+//			model.addAttribute("msg", "그런 아이디와 비번은 등록되지 않았습니다.");
+			return null;
+		}
+	}
+	*/
+	@PostMapping("/login")
+	public String login(@ModelAttribute("userId") String id
+							, @RequestParam("userPw") String pw
+							, @RequestParam("userPwChk") String pwChk
+							, RedirectAttributes ra
+//							, HttpSession session
+							, Model model
+							){
+		System.out.println("/response/login 요청 발생 : POST");
+		System.out.println("id : " + id); 
+		System.out.println("pw : " + pw);
+		System.out.println("pwChk : " + pwChk);
+		
+		
+		
+		if (id.equals("")) { // 아이디 입력하지 않은 경우
+			System.out.println("아이디가 비었습니다.");
+			ra.addFlashAttribute("msg2", "아이디는 필수 값이에요!");
+//			session.setAttribute("msg1", "아이디는 필수 값이에요!");
+//			model.
+			return "redirect:/response/login"; 
+		} else if (!pw.equals(pwChk)) { // 비번과 확인비번이 다른 경우
+			System.out.println("두 비밀번호가 같지 않습니다.");
+			ra.addFlashAttribute("msg2", "두 비밀번호가 같지 않습니다.");
+//			session.setAttribute("msg1", "두 비밀번호가 같지 않습니다.");
+			return "redirect:/response/login";
+		} else if (id.equals("abc123") && pw.equals("1234")) {
+			System.out.println("로그인성공!");
+			
+			return "response/res-quiz-success";
+		} else { // 안전빵
+			System.out.println("그런 아이디와 비번은 등록되지 않았습니다.");
+			return null;
+		}
+	}
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+26)jstl, EL, 커맨드객체 생성원리(setter이용)
+
+1. res-quiz 파일의 화면처리를 할 수 있는 메서드를 생성하세요.(res-quiz 맵핑)
+2. 폼태그의 액션URL은 res-login 으로 설정하세요.
+3. ID:kim123, PW:kkk1234 라면 res-quiz-success.jsp페이지로 
+     이동해서 "로그인 성공" "(회원ID)님 환영합니다" 출력
+4. 아니라면 res-quiz-fail.jsp페이지로 이동해서 
+   "로그인 실패" "(회원ID)는 회원이 아닙니다" 출력
+	-이때 id만 실어서 보내는방법과 idpw를 보내는방법 모두이용해라
+		1.커맨드객체와 Model을 사용한 방식
+		2.아노테이션을 사용한 방식
+			2-1)userId는 아노테이션으로 받고, userPw는 아노테이션 requestParam으로 받는다
+				-어차피 userId만 넘기면되니까!
+			2-2)userVO를 아노테이션으로 받아서 한번에 attribute까지 처리한다.
+
+
+
+
+
+#res-quiz.jsp
+
+<form action="#" method="post">
+	<p>
+		# ID: <input type="text" name="userId" size="10"><br>
+		# PW: <input type="password" name="userPw" size="10"><br>
+		<input type="submit" value="로그인">
+	</p>
+</form>
+
+
+</body>
+</html>
+##############################################################################
+
+
+
+답:
+
+
+
+
+
+#res-quiz.jsp
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%--
+1. res-quiz 파일의 화면처리를 할 수 있는 메서드를 생성하세요.(res-quiz 맵핑)
+2. 폼태그의 액션URL은 res-login 으로 설정하세요.
+3. ID:kim123, PW:kkk1234 라면 res-quiz-success.jsp페이지로 
+     이동해서 "로그인 성공" "(회원ID)님 환영합니다" 출력
+4. 아니라면 res-quiz-fail.jsp페이지로 이동해서 
+   "로그인 실패" "(회원ID)는 회원이 아닙니다" 출력
+	
+--%>
+
+<form action="<c:url value = '/response/res-login'/>" method="post">
+	<p>
+		# ID: <input type="text" name="userId" size="10"><br>
+		# PW: <input type="password" name="userPw" size="10"><br>
+		<input type="submit" value="로그인">
+	</p>
+</form>
+
+
+</body>
+</html>
+
+
+
+
+#res-quiz-success.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<h2>로그인 성공!!</h2>
+	<p>
+		( ${userId} )님 환영합니다!!!!!!
+	</p>
+
+</body>
+</html>
+
+
+#ResponseController.java : 25코드와 같음
+
+
+
+package com.spring.web.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.spring.web.model.UserVO;
+import com.spring.web.model.UserVO2;
+
+@Controller("resCon")
+@RequestMapping("/response")
+
+public class ResponseController {
+	
+	public ResponseController() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	@GetMapping("/res-ex01")
+	public void resEx01() {
+		
+	}
+	
+	//1.Model 객체를 사용하여 화면에 데이터 전송하기
+	/*
+	@GetMapping("/test")
+	public void test(@RequestParam("age") int age,
+						Model model) {
+		model.addAttribute("nick", "뽀삐");
+		model.addAttribute("age", age);
+	}
+	*/
+	
+	//@ModelAttribute : @RequestParam("age") int age + model.addAttribute("age", age)
+					//와 같은 것이다. 포함관계
+	//2.@ModelAttribute를 사용한 화면에 데이터 전송처리
+	@GetMapping("/test")
+	public void test(@ModelAttribute("age") int age,
+			Model model) {
+		model.addAttribute("nick", "뽀삐");
+//		model.addAttribute("age", age);
+	}
+	
+	//3.ModelAndView 객체를 활용한 처리
+	@GetMapping("/test2")
+	public ModelAndView test2() {
+//		ModelAndView mv = new ModelAndView();
+//		mv.addObject("userName", "박영희"); //화면에 전달할 데이터 래핑
+//		mv.setViewName("/response/test2"); //viewResolver에게 전달할 문자열
+//		return mv;
+		
+		return new ModelAndView("/response/test2", "userName", "박영희");
+	}
+	
+	
+	//res-ex02.jsp파일을 열람하는 요청메서드 작성
+	@GetMapping("/res-ex02")
+	public void resEx02() {
+		
+	}
+	
+	
+	/*
+	@PostMapping("/join")
+	public String join(UserVO user, Model model) {
+		model.addAttribute("user", user);
+		return "response/test3";
+	}
+	*/
+	@PostMapping("/join")
+	public String join(@ModelAttribute("user") UserVO user) {
+		return "response/test3";
+	}
+	
+	@GetMapping("/res-quiz")
+	public void resQuiz() {
+		
+	}
+	
+	@PostMapping("/res-login")
+	public String resLogin(@ModelAttribute("user") UserVO2 user) {
+		String id = user.getUserId();
+		String pw = user.getUserPw();
+		
+		if (id.equals("kim123") && pw.equals("kkk1234")) {
+			return "response/res-quiz-success";			
+		}
+		
+		return "response/res-quiz-fail";
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////
+	//Redirect처리 
+	//원래는 viewResolver에게 보내는 방식이 포워드 방식이다.
+	//글쓰기 요청이 끝난다음에 글목록 페이지가 떠야하는데 포워드면 요청끝나고 디스패쳐왔다가 다시 db에 가야함
+	//글쓰기 요청(insert)가 되고나면 다시 돌아오지않고 재요청으로  select하여 목록을 가져오면 좋다.
+	//그 재요청방법이 Redirect처리다.
+	//글 삭제같은경우도 delete로 게시글 지우고 목록을 보여줄때 디스패쳐까지 돌아오지않고 재요청을해서 바로 db에서 목록을
+	//가져오는 것도 포워드로는 않되고 Redirect로 가능하다.
+	
+	//로그인 화면 요청처리
+	@GetMapping("/login")
+	public String login() {
+		System.out.println("/response/login 요청 발생 : GET");
+		return "response/res-redirect-form";
+	}
+	
+	//로그인 검증처리
+	/*
+	@PostMapping("/login")
+	public String login(@ModelAttribute("userId") String id
+							, @RequestParam("userPw") String pw
+							, @RequestParam("userPwChk") String pwChk
+							, Model model
+							//, HttpServletResponse response)원래 이게 jsp방식인데 spirng에선 이렇게 안해도됨
+							, HttpSession session
+							){
+		System.out.println("/response/login 요청 발생 : POST");
+		System.out.println("id : " + id); 
+		System.out.println("pw : " + pw);
+		System.out.println("pwChk : " + pwChk);
+		
+		
+		
+		if (id.equals("")) { // 아이디 입력하지 않은 경우
+//			response.sendRedirect(); 원래 이게 jsp방식인데 spirng에선 이렇게 안해도됨
+			System.out.println("아이디가 비었습니다.");
+//			model.addAttribute("msg", "아이디는 필수 값이에요!");
+			session.setAttribute("msg", "아이디는 필수 값이에요!");
+			return "redirect:/response/login"; // jsp를 열러가지않고 바로 다시 controller의 
+												// /resposne/login uri를 받을수있는 메서드를
+												// 찾는다.
+												//이때 redirect로 보내면 무조건 get요청이다.
+												//그래서 위에 로그인화면요청처리로 간다.
+		} else if (!pw.equals(pwChk)) { // 비번과 확인비번이 다른 경우
+			System.out.println("두 비밀번호가 같지 않습니다.");
+//			model.addAttribute("msg", "비밀번호 확인란을 체크하세요!");
+			session.setAttribute("msg", "두 비밀번호가 같지 않습니다.");
+			return "redirect:/response/login";
+		} else if (id.equals("abc123") && pw.equals("1234")) {
+			System.out.println("로그인성공!");
+			return "response/res-quiz-success";
+		} else { // 안전빵
+			System.out.println("그런 아이디와 비번은 등록되지 않았습니다.");
+//			model.addAttribute("msg", "그런 아이디와 비번은 등록되지 않았습니다.");
+			return null;
+		}
+	}
+	*/
+	@PostMapping("/login")
+	public String login(@ModelAttribute("userId") String id
+							, @RequestParam("userPw") String pw
+							, @RequestParam("userPwChk") String pwChk
+							, RedirectAttributes ra
+//							, HttpSession session
+							, Model model
+							){
+		System.out.println("/response/login 요청 발생 : POST");
+		System.out.println("id : " + id); 
+		System.out.println("pw : " + pw);
+		System.out.println("pwChk : " + pwChk);
+		
+		
+		
+		if (id.equals("")) { // 아이디 입력하지 않은 경우
+			System.out.println("아이디가 비었습니다.");
+			ra.addFlashAttribute("msg2", "아이디는 필수 값이에요!");
+//			session.setAttribute("msg1", "아이디는 필수 값이에요!");
+//			model.
+			return "redirect:/response/login"; 
+		} else if (!pw.equals(pwChk)) { // 비번과 확인비번이 다른 경우
+			System.out.println("두 비밀번호가 같지 않습니다.");
+			ra.addFlashAttribute("msg2", "두 비밀번호가 같지 않습니다.");
+//			session.setAttribute("msg1", "두 비밀번호가 같지 않습니다.");
+			return "redirect:/response/login";
+		} else if (id.equals("abc123") && pw.equals("1234")) {
+			System.out.println("로그인성공!");
+			
+			return "response/res-quiz-success";
+		} else { // 안전빵
+			System.out.println("그런 아이디와 비번은 등록되지 않았습니다.");
+			return null;
+		}
+	}
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+27)jstl, EL, 커맨드객체 생성원리(setter이용)
+
+views: birth 폴더생성
+	-birth-form.jsp
+	-birth-result.jsp
+
+class : BirthController.java 생성
+
+
+	1. 다음 생년월일을 받아서 콘솔에 출력하는 
+	   메서드를 생성 (url: /birth : POST)
+          조건) BirthVO 커맨드객체 사용, 
+          콘솔에 전송된 값을 붙여서 출력합니다 ex)20180615
+	2. birth-result.jsp 페이지에 
+	"당신의 생일은 ~~~~년 ~~월 ~~일입니다." 을 출력하세요
+
+-option에 value?였나? 를 넣으면 2월에서 2값만 보낼수 있다.
+-유의할점:커맨드 객체를 이용하여 파라미터 처리할때 setter가 작동된다.
+	-0을 추가로 붙이는 작업을 setter에서 하라는 소리다.
+	-월입력시 버튼으로 1~12월중선택할수있게하고 그 선택한 값에 월을 붙이지않고 숫자만 파라미터로 보내게
+		설정해라
+
+
+
+
+
+#birth-form.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+
+<form action = "#" method = "post" >
+	<fieldset>
+		<legend>생일 등록 양식</legend>
+		<p>
+			# 생년월일 :
+			<input type = "text" name = "year" size = "6" maxlength = "4" placeholder = "연도(4자리)"/>
+			<select name = "month">
+	
+					<option>${m}월</option>
+	
+			</select>
+			<input type = "text" name = "day" maxlength = "2" size = "4" placeholder = "일(1-31)" />
+			<input type = "submit" value = "확인" />
+		</p>
+	</fieldset>
+</form>
+
+</body>
+</html>
+
+
+
+
+#birth-result.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	당신의 생일은 ?년 ?월 ?일입니다.
+</body>
+</html>
+
+##############################################################################
+
+
+
+답:
+
+
+
+
+
+
+#birth-form.jsp
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+
+<form action = "<c:url value = '/birth'/>" method = "post" >
+	<fieldset>
+		<legend>생일 등록 양식</legend>
+		<p>
+			# 생년월일 :
+			<input type = "text" name = "year" size = "6" maxlength = "4" placeholder = "연도(4자리)"/>
+			<select name = "month">
+				<c:forEach var = "m" begin = "1" end = "12" step = "1">
+					<option value = "${m}">${m}월</option>
+				</c:forEach>
+			</select>
+			<input type = "text" name = "day" maxlength = "2" size = "4" placeholder = "일(1-31)" />
+			<input type = "submit" value = "확인" />
+		</p>
+	</fieldset>
+</form>
+
+</body>
+</html>
+
+
+
+
+
+#birth-result.jsp
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	당신의 생일은 ${birth.year}년 ${birth.month}월 ${birth.day}일입니다.
+</body>
+</html>
+
+
+
+
+
+#BirthController.java
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.spring.web.model.BirthVO;
+
+@Controller("birC")
+public class BirthController {
+	@RequestMapping(value = "/birth", method = RequestMethod.GET)
+	public String birth() {
+		return "birth/birth-form";
+	}
+	
+	@RequestMapping(value = "/birth", method = RequestMethod.POST)
+	public String birth(@ModelAttribute("birth") BirthVO birth) {
+		System.out.println(birth.getYear()+birth.getMonth()+birth.getDay());
+		return "birth/birth-result";
+	}
+}
+
+
+
+
+
+
+
+
+
+#BirthVO
+package com.spring.web.model;
+
+public class BirthVO {
+	private String year;
+	private String month;
+	private String day;
+	
+	
+	public BirthVO() {
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public String getYear() {
+		return year;
+	}
+
+
+	public void setYear(String year) {
+		this.year = year;
+	}
+
+
+	public String getMonth() {
+		return month;
+	}
+
+
+	public void setMonth(String month) {
+		if (Integer.valueOf(month) < 10) {
+			this.month = 0 + month;
+			return;
+		}
+		this.month = month;
+	}
+
+
+	public String getDay() {
+		return day;
+	}
+
+
+	public void setDay(String day) {
+		this.day = day;
+	}
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+28)form에서 action 없는경우, 재전송요청, null반환
+
+#res-redirect-form.jsp 생성
+#res-quiz-success.jsp 생성
+#ResponseController.java 이용
+	-method : login()
+		
+
+
+사용자입력 uri : /web/response/login
+흐름 : client uri -> CM -> /response/res-redirect-form.jsp -> CM
+	-> 2가지
+		-/resposne/login uri로 재전송요청(get으로들어감)
+		-/response/res-quiz-success 열기
+
+	1)id 입력하지 않은경우 처리해라
+		-이거 졸라이상함.. post보내면 다시 get으로 받고 로그인누르면 다시 post 가는데 기존 post보낸 userId가 살아
+			있음 계속.. 그래서 uri의 파라미터부분을 지워서 직접 get방식으로 다시 접근해서 아이디비번비번확인쳐야됨
+	2)비번 다른경우처리
+	3)위 abc123 1234와 같은경우 처리
+	4)위 abc123 1234와 같지않은경우 처리
+		-같지않으면 null을 리턴해서 null 리턴한경우 viewResolver로 뭐가 반환되서 가는지봐라
+			-답: null이면 null에 .jsp를 붙일순없으니 Mapping된 uri를 반환한다.
+						즉 /response/login.jsp가 되는 것이다. 하지만 우리파일에
+						이런 경로와 jsp파일은 없다. 그래서 에러가 날것인데 그게 맞다.
+				-근데 나중에 뒤에서 RedirectAttributes하면 또 null.jsp로 됨
+					ㅋㅋ 좀더 지켜보자이건.
+		**핵심개념은 redirect:/response/login을 반환할경우 (즉 redierect:이 있을경우)
+			viewResolver로 보내서 .jsp등을 붙이지않고 viewResolver가기전에 바로 다시 Controller에게 
+			오는 것이다.
+		**추가 핵심은 redirect될때는 반드시 get방식으로 된다. post방식이 아니다.
+
+
+
+
+
+
+#res-redirect-form.jsp 생성
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%-- ResponseController 사용 --%>
+
+
+<form method = "post">
+<p>
+	# ID : <input type = "text" name = "userId" size = "10"> <br>
+	# 비밀번호 : <input type = "password" name = "userPw" size = "10"> <br>
+	# 비밀번호 확인 : <input type = "password" name = "userPwChk" size = "10"> <br>
+	<input type = "submit" value = "로그인">
+</p>
+</form>
+
+</body>
+</html>
+
+
+
+
+#res-quiz-success.jsp 생성
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<h2>로그인 성공!!</h2>
+	<p>
+		( ? )님 환영합니다!!!!!!
+	</p>
+
+</body>
+</html>
+
+
+
+##############################################################################
+
+
+
+답:
+
+
+
+#res-quiz-success.jsp 생성
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<h2>로그인 성공!!</h2>
+	<p>
+		( ${userId} )님 환영합니다!!!!!!
+	</p>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+#ResponseController.java 이용 : 앞 ResponseController.java와 같음
+
+package com.spring.web.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.spring.web.model.UserVO;
+import com.spring.web.model.UserVO2;
+
+@Controller("resCon")
+@RequestMapping("/response")
+
+public class ResponseController {
+	
+	public ResponseController() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	@GetMapping("/res-ex01")
+	public void resEx01() {
+		
+	}
+	
+	//1.Model 객체를 사용하여 화면에 데이터 전송하기
+	/*
+	@GetMapping("/test")
+	public void test(@RequestParam("age") int age,
+						Model model) {
+		model.addAttribute("nick", "뽀삐");
+		model.addAttribute("age", age);
+	}
+	*/
+	
+	//@ModelAttribute : @RequestParam("age") int age + model.addAttribute("age", age)
+					//와 같은 것이다. 포함관계
+	//2.@ModelAttribute를 사용한 화면에 데이터 전송처리
+	@GetMapping("/test")
+	public void test(@ModelAttribute("age") int age,
+			Model model) {
+		model.addAttribute("nick", "뽀삐");
+//		model.addAttribute("age", age);
+	}
+	
+	//3.ModelAndView 객체를 활용한 처리
+	@GetMapping("/test2")
+	public ModelAndView test2() {
+//		ModelAndView mv = new ModelAndView();
+//		mv.addObject("userName", "박영희"); //화면에 전달할 데이터 래핑
+//		mv.setViewName("/response/test2"); //viewResolver에게 전달할 문자열
+//		return mv;
+		
+		return new ModelAndView("/response/test2", "userName", "박영희");
+	}
+	
+	
+	//res-ex02.jsp파일을 열람하는 요청메서드 작성
+	@GetMapping("/res-ex02")
+	public void resEx02() {
+		
+	}
+	
+	
+	/*
+	@PostMapping("/join")
+	public String join(UserVO user, Model model) {
+		model.addAttribute("user", user);
+		return "response/test3";
+	}
+	*/
+	@PostMapping("/join")
+	public String join(@ModelAttribute("user") UserVO user) {
+		return "response/test3";
+	}
+	
+	@GetMapping("/res-quiz")
+	public void resQuiz() {
+		
+	}
+	
+	@PostMapping("/res-login")
+	public String resLogin(@ModelAttribute("user") UserVO2 user) {
+		String id = user.getUserId();
+		String pw = user.getUserPw();
+		
+		if (id.equals("kim123") && pw.equals("kkk1234")) {
+			return "response/res-quiz-success";			
+		}
+		
+		return "response/res-quiz-fail";
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////
+	//Redirect처리 
+	//원래는 viewResolver에게 보내는 방식이 포워드 방식이다.
+	//글쓰기 요청이 끝난다음에 글목록 페이지가 떠야하는데 포워드면 요청끝나고 디스패쳐왔다가 다시 db에 가야함
+	//글쓰기 요청(insert)가 되고나면 다시 돌아오지않고 재요청으로  select하여 목록을 가져오면 좋다.
+	//그 재요청방법이 Redirect처리다.
+	//글 삭제같은경우도 delete로 게시글 지우고 목록을 보여줄때 디스패쳐까지 돌아오지않고 재요청을해서 바로 db에서 목록을
+	//가져오는 것도 포워드로는 않되고 Redirect로 가능하다.
+	
+	//로그인 화면 요청처리
+	@GetMapping("/login")
+	public String login() {
+		System.out.println("/response/login 요청 발생 : GET");
+		return "response/res-redirect-form";
+	}
+	
+	//로그인 검증처리
+	/*
+	@PostMapping("/login")
+	public String login(@ModelAttribute("userId") String id
+							, @RequestParam("userPw") String pw
+							, @RequestParam("userPwChk") String pwChk
+							, Model model
+							//, HttpServletResponse response)원래 이게 jsp방식인데 spirng에선 이렇게 안해도됨
+							, HttpSession session
+							){
+		System.out.println("/response/login 요청 발생 : POST");
+		System.out.println("id : " + id); 
+		System.out.println("pw : " + pw);
+		System.out.println("pwChk : " + pwChk);
+		
+		
+		
+		if (id.equals("")) { // 아이디 입력하지 않은 경우
+//			response.sendRedirect(); 원래 이게 jsp방식인데 spirng에선 이렇게 안해도됨
+			System.out.println("아이디가 비었습니다.");
+//			model.addAttribute("msg", "아이디는 필수 값이에요!");
+			session.setAttribute("msg", "아이디는 필수 값이에요!");
+			return "redirect:/response/login"; // jsp를 열러가지않고 바로 다시 controller의 
+												// /resposne/login uri를 받을수있는 메서드를
+												// 찾는다.
+												//이때 redirect로 보내면 무조건 get요청이다.
+												//그래서 위에 로그인화면요청처리로 간다.
+		} else if (!pw.equals(pwChk)) { // 비번과 확인비번이 다른 경우
+			System.out.println("두 비밀번호가 같지 않습니다.");
+//			model.addAttribute("msg", "비밀번호 확인란을 체크하세요!");
+			session.setAttribute("msg", "두 비밀번호가 같지 않습니다.");
+			return "redirect:/response/login";
+		} else if (id.equals("abc123") && pw.equals("1234")) {
+			System.out.println("로그인성공!");
+			return "response/res-quiz-success";
+		} else { // 안전빵
+			System.out.println("그런 아이디와 비번은 등록되지 않았습니다.");
+//			model.addAttribute("msg", "그런 아이디와 비번은 등록되지 않았습니다.");
+			return null;
+		}
+	}
+	*/
+	@PostMapping("/login")
+	public String login(@ModelAttribute("userId") String id
+							, @RequestParam("userPw") String pw
+							, @RequestParam("userPwChk") String pwChk
+							, RedirectAttributes ra
+//							, HttpSession session
+							, Model model
+							){
+		System.out.println("/response/login 요청 발생 : POST");
+		System.out.println("id : " + id); 
+		System.out.println("pw : " + pw);
+		System.out.println("pwChk : " + pwChk);
+		
+		
+		
+		if (id.equals("")) { // 아이디 입력하지 않은 경우
+			System.out.println("아이디가 비었습니다.");
+			ra.addFlashAttribute("msg2", "아이디는 필수 값이에요!");
+//			session.setAttribute("msg1", "아이디는 필수 값이에요!");
+//			model.
+			return "redirect:/response/login"; 
+		} else if (!pw.equals(pwChk)) { // 비번과 확인비번이 다른 경우
+			System.out.println("두 비밀번호가 같지 않습니다.");
+			ra.addFlashAttribute("msg2", "두 비밀번호가 같지 않습니다.");
+//			session.setAttribute("msg1", "두 비밀번호가 같지 않습니다.");
+			return "redirect:/response/login";
+		} else if (id.equals("abc123") && pw.equals("1234")) {
+			System.out.println("로그인성공!");
+			
+			return "response/res-quiz-success";
+		} else { // 안전빵
+			System.out.println("그런 아이디와 비번은 등록되지 않았습니다.");
+			return null;
+		}
+	}
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+29)model, session한계, 재전송시 효율높은 scope 객체
+
+
+1)위 문제 res-redirect를 아래 설명처럼 살짝 손봐서 화면에 추가내용을 넣음으로
+	model의 한계와 session의 단점과 재전송시 가장 효율적인 데이터전송방법을 알아보시오.
+
+매개변수 Model model 추가
+msg라는 모델id에 대해서 각상황이오면 상황에맞게 아래 3개 중 하나를 넣어라
+	-"비밀번호 확인란을 체크하세요!"
+	-"그런 아이디와 비번은 등록되지 않았습니다."
+	-"아이디는 필수 값이에요!"
+그후 모델 id에 대한 값을 res-redirect-form에서 실패한경우(3가지)에 대해서 model value를 빨간글자로 
+출력하게하라
+	-빨간글자 안뜬다 그 이유는 model이 request객체와같이 재전송시에는 데이터를 잃어버리기때문이다.
+		즉 바로다음 영역으로 갔을때는 살아있고 거기서 다시 다른영역으로 가면 사라진다.
+		그럼 최초 get() 상태에서 로그인눌러스 post()방식으로 파라미터를 login()에 보냈고
+		해당 파라미터를 login()에서 모델에 담았고 여기서 2가지다
+		ㄱ.원래방식
+			-모델이 담고 String값을 viewResolver에게 반환하여 .jsp를 찾아가서 거기서 model값을 활용한다.
+		ㄴ.재전송방식
+			-모델이 담고 .jsp로 가는게 아니라 바로 다시 컨트롤러로 오니까 영역이 바껴서 컨트롤러에서는 model 사용
+				가능하지만 거기서 다시 jsp를 열었을때는 이미 소실되고 난이후다. 두영역을 갔으니까
+
+	
+model을 잠시 주석처리하고 session처럼 여러영역을 돌아다닐수있는놈들은 어떤가 보자.
+session을 이용해서 똑같이 msg에 담아봐라
+그럼 msg 내용이 계속 남아있고 f5할때마다 변하지 않는다.
+그렇기때문에 잠깐 재전송할때만 쓰는걸 사용해서 풀어라.
+	-f5할때 그때그때 변하도록해라
+
+	-근데 진짜 희한한게 msg를 msg1 msg2 msg3안바꿔주면 나중에 했던 값들이 계속 남아있는데 그게 세션값인듯하고(주석번갈아끼우면서
+											생긴세션값)
+		그놈을 없애려고 브라우저도 껐다키고 서버도 껏다켰는데 안사라진다.
+	-그리고 세션을 해도 userId가 계속 붙는걸 해결함. 왜 @ModelAttribute 문제를 session과 얘들 msg를 세팅하는걸로
+		해결이 되는가?
+		-session에 한번담기고나면 msg1 msg2 식으로 이름바꾸는게 편하다.
+
+
+##############################################################################
+
+
+
+답:
+
+
+#res-redirect-form.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%-- ResponseController 사용 --%>
+
+
+<form method = "post">
+<p>
+	# ID : <input type = "text" name = "userId" size = "10"> <br>
+	# 비밀번호 : <input type = "password" name = "userPw" size = "10"> <br>
+	# 비밀번호 확인 : <input type = "password" name = "userPwChk" size = "10"> <br>
+	<input type = "submit" value = "로그인">
+</p>
+</form>
+
+
+<p style="color:red;">${msg2}</p>
+
+</body>
+</html>
+
+
+
+#ResponseController.java
+package com.spring.web.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.spring.web.model.UserVO;
+import com.spring.web.model.UserVO2;
+
+@Controller("resCon")
+@RequestMapping("/response")
+
+public class ResponseController {
+	
+	public ResponseController() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	@GetMapping("/res-ex01")
+	public void resEx01() {
+		
+	}
+	
+	//1.Model 객체를 사용하여 화면에 데이터 전송하기
+	/*
+	@GetMapping("/test")
+	public void test(@RequestParam("age") int age,
+						Model model) {
+		model.addAttribute("nick", "뽀삐");
+		model.addAttribute("age", age);
+	}
+	*/
+	
+	//@ModelAttribute : @RequestParam("age") int age + model.addAttribute("age", age)
+					//와 같은 것이다. 포함관계
+	//2.@ModelAttribute를 사용한 화면에 데이터 전송처리
+	@GetMapping("/test")
+	public void test(@ModelAttribute("age") int age,
+			Model model) {
+		model.addAttribute("nick", "뽀삐");
+//		model.addAttribute("age", age);
+	}
+	
+	//3.ModelAndView 객체를 활용한 처리
+	@GetMapping("/test2")
+	public ModelAndView test2() {
+//		ModelAndView mv = new ModelAndView();
+//		mv.addObject("userName", "박영희"); //화면에 전달할 데이터 래핑
+//		mv.setViewName("/response/test2"); //viewResolver에게 전달할 문자열
+//		return mv;
+		
+		return new ModelAndView("/response/test2", "userName", "박영희");
+	}
+	
+	
+	//res-ex02.jsp파일을 열람하는 요청메서드 작성
+	@GetMapping("/res-ex02")
+	public void resEx02() {
+		
+	}
+	
+	
+	/*
+	@PostMapping("/join")
+	public String join(UserVO user, Model model) {
+		model.addAttribute("user", user);
+		return "response/test3";
+	}
+	*/
+	@PostMapping("/join")
+	public String join(@ModelAttribute("user") UserVO user) {
+		return "response/test3";
+	}
+	
+	@GetMapping("/res-quiz")
+	public void resQuiz() {
+		
+	}
+	
+	@PostMapping("/res-login")
+	public String resLogin(@ModelAttribute("user") UserVO2 user) {
+		String id = user.getUserId();
+		String pw = user.getUserPw();
+		
+		if (id.equals("kim123") && pw.equals("kkk1234")) {
+			return "response/res-quiz-success";			
+		}
+		
+		return "response/res-quiz-fail";
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////
+	//Redirect처리 
+	//원래는 viewResolver에게 보내는 방식이 포워드 방식이다.
+	//글쓰기 요청이 끝난다음에 글목록 페이지가 떠야하는데 포워드면 요청끝나고 디스패쳐왔다가 다시 db에 가야함
+	//글쓰기 요청(insert)가 되고나면 다시 돌아오지않고 재요청으로  select하여 목록을 가져오면 좋다.
+	//그 재요청방법이 Redirect처리다.
+	//글 삭제같은경우도 delete로 게시글 지우고 목록을 보여줄때 디스패쳐까지 돌아오지않고 재요청을해서 바로 db에서 목록을
+	//가져오는 것도 포워드로는 않되고 Redirect로 가능하다.
+	
+	//로그인 화면 요청처리
+	@GetMapping("/login")
+	public String login() {
+		System.out.println("/response/login 요청 발생 : GET");
+		return "response/res-redirect-form";
+	}
+	
+	//로그인 검증처리
+	/*
+	@PostMapping("/login")
+	public String login(@ModelAttribute("userId") String id
+							, @RequestParam("userPw") String pw
+							, @RequestParam("userPwChk") String pwChk
+							, Model model
+							//, HttpServletResponse response)원래 이게 jsp방식인데 spirng에선 이렇게 안해도됨
+							, HttpSession session
+							){
+		System.out.println("/response/login 요청 발생 : POST");
+		System.out.println("id : " + id); 
+		System.out.println("pw : " + pw);
+		System.out.println("pwChk : " + pwChk);
+		
+		
+		
+		if (id.equals("")) { // 아이디 입력하지 않은 경우
+//			response.sendRedirect(); 원래 이게 jsp방식인데 spirng에선 이렇게 안해도됨
+			System.out.println("아이디가 비었습니다.");
+//			model.addAttribute("msg", "아이디는 필수 값이에요!");
+			session.setAttribute("msg", "아이디는 필수 값이에요!");
+			return "redirect:/response/login"; // jsp를 열러가지않고 바로 다시 controller의 
+												// /resposne/login uri를 받을수있는 메서드를
+												// 찾는다.
+												//이때 redirect로 보내면 무조건 get요청이다.
+												//그래서 위에 로그인화면요청처리로 간다.
+		} else if (!pw.equals(pwChk)) { // 비번과 확인비번이 다른 경우
+			System.out.println("두 비밀번호가 같지 않습니다.");
+//			model.addAttribute("msg", "비밀번호 확인란을 체크하세요!");
+			session.setAttribute("msg", "두 비밀번호가 같지 않습니다.");
+			return "redirect:/response/login";
+		} else if (id.equals("abc123") && pw.equals("1234")) {
+			System.out.println("로그인성공!");
+			return "response/res-quiz-success";
+		} else { // 안전빵
+			System.out.println("그런 아이디와 비번은 등록되지 않았습니다.");
+//			model.addAttribute("msg", "그런 아이디와 비번은 등록되지 않았습니다.");
+			return null;
+		}
+	}
+	*/
+	@PostMapping("/login")
+	public String login(@ModelAttribute("userId") String id
+							, @RequestParam("userPw") String pw
+							, @RequestParam("userPwChk") String pwChk
+							, RedirectAttributes ra
+//							, HttpSession session
+							, Model model
+							){
+		System.out.println("/response/login 요청 발생 : POST");
+		System.out.println("id : " + id); 
+		System.out.println("pw : " + pw);
+		System.out.println("pwChk : " + pwChk);
+		
+		
+		
+		if (id.equals("")) { // 아이디 입력하지 않은 경우
+			System.out.println("아이디가 비었습니다.");
+			ra.addFlashAttribute("msg2", "아이디는 필수 값이에요!");
+//			session.setAttribute("msg1", "아이디는 필수 값이에요!");
+//			model.
+			return "redirect:/response/login"; 
+		} else if (!pw.equals(pwChk)) { // 비번과 확인비번이 다른 경우
+			System.out.println("두 비밀번호가 같지 않습니다.");
+			ra.addFlashAttribute("msg2", "두 비밀번호가 같지 않습니다.");
+//			session.setAttribute("msg1", "두 비밀번호가 같지 않습니다.");
+			return "redirect:/response/login";
+		} else if (id.equals("abc123") && pw.equals("1234")) {
+			System.out.println("로그인성공!");
+			
+			return "response/res-quiz-success";
+		} else { // 안전빵
+			System.out.println("그런 아이디와 비번은 등록되지 않았습니다.");
+			return null;
+		}
+	}
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
