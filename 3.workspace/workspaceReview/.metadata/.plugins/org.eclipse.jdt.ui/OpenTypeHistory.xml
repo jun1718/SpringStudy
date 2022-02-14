@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<typeInfoHistroy/>
+<typeInfoHistroy>
+<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.repository{IScoreDAO.java[IScoreDAO" modifiers="513" timestamp="1644399642665"/>
+<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.service{IScoreService.java[IScoreService" modifiers="513" timestamp="1644399700510"/>
+<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.repository{IBoardDAO.java[IBoardDAO" modifiers="513" timestamp="1644482312698"/>
+<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.service{IBoardService.java[IBoardService" modifiers="513" timestamp="1644482303788"/>
+</typeInfoHistroy>

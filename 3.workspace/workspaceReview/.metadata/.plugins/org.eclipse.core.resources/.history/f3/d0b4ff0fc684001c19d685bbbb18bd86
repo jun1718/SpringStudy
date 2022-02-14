@@ -1,9 +1,0 @@
-package com.spring.basicReview.ex01;
-
-public class Hotel {
-
-	public Hotel() {
-		// TODO Auto-generated constructor stub
-	}
-
-}

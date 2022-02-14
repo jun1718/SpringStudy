@@ -1,0 +1,777 @@
+21.02.10.7회차
+===============================================================================
+*복습
+===============================================================================
+
+
+
+
+
+
+
+
+
+##############################################################################
+31)SpringFrameWork를 통한 게시판 웹어플리케이션 구현(DB없는상태)
+	-기존 SpringWebBasic 프로젝트 이용
+<model>
+BoardVO
+
+<controller>
+BoardController
+
+<service>
+IBoardService
+BoardService
+
+<repository>
+IBoardDAO
+BoardDAO
+
+<views/board>
+write.jsp
+list.jsp
+content.jsp
+modify.jsp
+
+
+1)글 등록, 목록보기, 삭제기능 구현
+	-bean등록 주입 등 필요한건알아서 채운다.
+	-write에서 게시글등록후 확인으로 post 보내면 바로 list.jsp열리도록해라
+		-이렇게하면 write-resultl.jsp 만들필요없다.
+	-list.jsp에서는 아래조건이 지켜져야함
+		<%-- 컨트롤러가 가져온 게시글 데이터를 반복하여 출력 --%>
+		<%-- 게시물 개수가 0개일 경우 목록대신 "게시물이 존재하지 않습니다." 출력--%>
+	-DB는 list로 대체 (articles)
+		-하나의 게시물은 article로 표현하며 
+			getContent()는 content인 내용만 
+			가져오는게 아니라
+			content를 확인하기위해서 article 객체를 
+			반환하는 기능임
+	-사용자 uri : http://localhost:8080/web/write
+
+<model>
+BoardVO
+
+<controller>
+BoardController
+
+<service>
+IBoardService
+BoardService
+
+<repository>
+IBoardDAO
+BoardDAO
+
+
+
+
+<IBoardService method>
+	//게시글 목록 가져오기
+	List<BoardVO> getArticles();
+	
+	//게시글 등록
+	void insertArticle(BoardVO article);
+	
+	//게시글 삭제
+	void deleteArticle(int boardNo);
+	
+	//게시글 내용보기
+	BoardVO getContent(int boardNO);
+	
+	//게시글 수정
+	void modifyArticle(BoardVO article, int boardNo);
+
+<IBoardDAO method> : int 매개변수이름만다르다. 데이터베이스로가야하니 그렇다
+	//게시글 목록 가져오기
+	List<BoardVO> getArticles();
+	
+	//게시글 등록
+	void insertArticle(BoardVO article);
+	
+	//게시글 삭제
+	void deleteArticle(int index);
+	
+	//게시글 내용보기
+	BoardVO getContent(int index);
+	
+	//게시글 수정
+	void modifyArticle(BoardVO article, int boardNo);
+
+
+
+
+<views/board>
+write.jsp
+list.jsp
+
+
+#write.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>게시글 등록</h2>
+
+<form action = "#" method="post">
+
+	<p>
+		# 작성자: <input type="text" name="writer"><br>
+		# 제목: <input type="text" name="title"><br>
+		# 내용: <textarea rows="3" name="content"></textarea>
+		<br>
+		<input type="submit" value="등록">
+	</p>
+</form>
+
+<a href="#">글 목록보기</a>
+</body>
+</html>
+
+
+
+
+#list.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>게시글 목록</h2>
+<table border = "1">
+
+	<tr>
+		<td>번호</td>
+		<td>작성자</td>
+		<td>제목</td>
+		<td>비고</td>
+	</tr>
+	
+	<%-- 컨트롤러가 가져온 게시글 데이터를 반복하여 출력 --%>
+	<%-- 게시물 개수가 0개일 경우 목록대신 "게시물이 존재하지 않습니다." 출력--%>
+	<tr>
+		<td>1</td>
+		<td>홍길동</td>
+		<td>
+			<a href = "#">메롱메롱</a>
+		</td>
+		<td>
+			<a href = "#">[삭제]</a>
+		</td>
+	</tr>
+</table>
+
+<p>
+	<a href = "#">게시글 작성하기</a>
+</p>
+
+
+
+</body>
+</html>
+
+
+
+2.게시글 내용보기 기능과 게시글 수정하기 기능을 추가하여 아래 jsp가 잘 출력되도록하라.
+	-글번호는 VO에 없다 이걸유념해서해야함. vo에 글번호추가하란뜻이아님
+	-글을 수정(수정버튼 클릭)하고나면 게시물 내용이 보여야한다.
+
+
+
+<views/board>
+#content.jsp 추가
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>?번 게시물 내용</h2>
+
+<p>
+	# 글번호: ?<br>
+	# 작성자: ?<br>
+	# 제목: ?<br>
+	# 내용: <textarea rows="3" disabled>?</textarea>	
+</p>
+
+<a href="#">글 목록보기</a>&nbsp;
+<a href="#">글 수정하기</a>
+
+</body>
+</html>
+
+
+
+#modify.jsp 추가
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>${boardNo}번 게시물 내용 수정</h2>
+<form action = "#" method="post">
+	<p>
+		# 글번호: ?<br>
+		# 작성자: <input type="text" name="writer" value="?"><br>
+		# 제목: <input type="text" name="title" value="?"><br>
+		# 내용: <textarea rows="3" name="content">?</textarea>	
+		<br>
+		<input type="submit" value="수정">
+	</p>
+</form>
+
+<a href="#">글 목록보기</a>&nbsp;
+
+
+</body>
+</html>
+
+##############################################################################
+
+
+답:
+
+<model>
+BoardVO
+
+<controller>
+BoardController
+
+<service>
+IBoardService
+BoardService
+
+<repository>
+IBoardDAO
+BoardDAO
+
+<views/board>
+write.jsp
+list.jsp
+content.jsp
+modify.jsp
+
+
+
+-------------------------------------------
+
+<model>
+
+#BoardVO
+
+
+package com.spring.web.model;
+
+public class BoardVO {
+	private String writer;
+	private String title;
+	private String content;
+	
+	public BoardVO() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public String getWriter() {
+		return writer;
+	}
+
+	public void setWriter(String writer) {
+		this.writer = writer;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	@Override
+	public String toString() {
+		return "BoardVO [writer=" + writer + ", title=" + title + ", content=" + content + "]";
+	}
+	
+	
+	
+
+}
+
+
+
+-------------------------------------------
+<controller>
+
+
+#BoardController
+
+package com.spring.web.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.spring.web.model.BoardVO;
+import com.spring.web.service.IBoardService;
+
+@Controller
+@RequestMapping("/board")
+public class BoardController {
+	@Autowired
+	private IBoardService service;
+	
+	//등록
+	@RequestMapping(value = "/write", method = RequestMethod.GET)
+	public void write() {
+		System.out.println("/board/write 요청됨 : GET");
+	}
+	
+	@RequestMapping(value = "/write", method = RequestMethod.POST)
+	public String write(BoardVO article) {
+		System.out.println("/board/write 요청됨 : POST");
+		service.insertArticle(article);
+		return "redirect:/board/list";
+	}
+	
+	//목록보기
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	public void list(Model model) {
+		List<BoardVO> articles = service.getArticles();
+		model.addAttribute("articles", articles);
+	}
+	
+	//삭제
+	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	public String delete(int boardNo) {
+		System.out.println("/board/delete?boardNo=" + boardNo + " 요청됨 : GET");
+		service.deleteArticle(boardNo);
+		return "redirect:/board/list";
+	}
+	
+	//게시글확인(상세보기)
+	@RequestMapping(value = "/content", method = RequestMethod.GET)
+	public void content(@ModelAttribute("boardNo") int boardNo, Model model) {
+		System.out.println("/board/content 요청됨 : GET");
+		BoardVO article = service.getContent(boardNo);
+		model.addAttribute("article", article);
+	}
+	
+	//게시글 수정
+	@RequestMapping(value = "/modify", method = RequestMethod.GET)
+	public void modify(@ModelAttribute("boardNo") int boardNo,
+			Model model) {
+		System.out.println("/board/modify 요청됨 : GET");
+		BoardVO article = service.getContent(boardNo);
+		model.addAttribute("article", article);
+	}
+	
+	@RequestMapping(value = "/modify", method = RequestMethod.POST)
+	public String modify(BoardVO article, int boardNo) {
+		System.out.println("/board/modify 요청됨 : POST");
+		service.modifyArticle(article, boardNo);
+		return "redirect:/board/content?boardNo=" + boardNo;
+	}
+	
+	
+}
+
+
+
+-------------------------------------------
+<service>
+
+
+
+#IBoardService
+
+package com.spring.web.service;
+
+import java.util.List;
+
+import com.spring.web.model.BoardVO;
+
+public interface IBoardService {
+	//게시글 목록 가져오기
+	List<BoardVO> getArticles();
+	
+	//게시글 등록
+	void insertArticle(BoardVO article);
+	
+	//게시글 삭제
+	void deleteArticle(int boardNo);
+	
+	//게시글 내용보기
+	BoardVO getContent(int boardNo);
+	
+	//게시글 수정
+	void modifyArticle(BoardVO article, int boardNo);
+}
+
+
+
+#BoardService
+
+
+
+package com.spring.web.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.spring.web.model.BoardVO;
+import com.spring.web.repository.IBoardDAO;
+
+@Service
+public class BoardService implements IBoardService {
+	@Autowired
+	private IBoardDAO dao;
+	
+	@Override
+	public List<BoardVO> getArticles() {
+		// TODO Auto-generated method stub
+		return dao.getArticles();
+	}
+
+	@Override
+	public void insertArticle(BoardVO article) {
+		// TODO Auto-generated method stub
+		dao.insertArticle(article);
+	}
+
+	@Override
+	public void deleteArticle(int boardNo) {
+		// TODO Auto-generated method stub
+		dao.deleteArticle(boardNo - 1);
+	}
+
+	@Override
+	public BoardVO getContent(int boardNo) {
+		// TODO Auto-generated method stub
+		return dao.getContent(boardNo - 1);
+	}
+
+	@Override
+	public void modifyArticle(BoardVO article, int boardNo) {
+		// TODO Auto-generated method stub
+		dao.modifyArticle(article, boardNo - 1);
+	}
+
+}
+
+-------------------------------------------
+<repository>
+
+
+
+#IBoardDAO
+
+
+package com.spring.web.repository;
+
+import java.util.List;
+
+import com.spring.web.model.BoardVO;
+
+public interface IBoardDAO {
+	//게시글 목록 가져오기
+	List<BoardVO> getArticles();
+	
+	//게시글 등록
+	void insertArticle(BoardVO article);
+	
+	//게시글 삭제
+	void deleteArticle(int index);
+	
+	//게시글 내용보기
+	BoardVO getContent(int index);
+	
+	//게시글 수정
+	void modifyArticle(BoardVO article, int boardNo);
+}
+
+
+
+
+#BoardDAO
+
+
+package com.spring.web.repository;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import com.spring.web.model.BoardVO;
+
+@Repository
+public class BoardDAO implements IBoardDAO {
+	//게시글을 저장할 리스트: DB대용
+	private List<BoardVO> articles = new ArrayList<>();
+	
+	
+	@Override
+	public List<BoardVO> getArticles() {
+		// TODO Auto-generated method stub
+		return articles;
+	}
+
+	@Override
+	public void insertArticle(BoardVO article) {
+		// TODO Auto-generated method stub
+		articles.add(article);
+		System.out.println(article); // 로그찍기
+		System.out.println("게시글 저장 완료!!");
+	}
+
+	@Override
+	public void deleteArticle(int index) {
+		// TODO Auto-generated method stub
+		articles.remove(index);
+		System.out.println((index + 1) + "번 삭제 완료!");
+	}
+
+	@Override
+	public BoardVO getContent(int index) {
+		// TODO Auto-generated method stub
+		return articles.get(index);
+	}
+
+	@Override
+	public void modifyArticle(BoardVO article, int index) {
+		// TODO Auto-generated method stub
+		articles.set(index, article);
+	}
+
+}
+
+
+-------------------------------------------
+<views/board>
+
+
+
+#write.jsp
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>게시글 등록</h2>
+
+<form method="post">
+
+	<p>
+		# 작성자: <input type="text" name="writer"><br>
+		# 제목: <input type="text" name="title"><br>
+		# 내용: <textarea rows="3" name="content"></textarea>
+		<br>
+		<input type="submit" value="등록">
+	</p>
+</form>
+<a href = "<c:url value = '/board/list'/>">글 목록보기</a>
+
+</body>
+</html>
+
+
+
+
+
+
+
+#list.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<c:if test = "${articles.size() <= 0}">
+	<p>게시물이 존재하지 않습니다.</p>
+</c:if>
+
+<c:if test = "${articles.size() > 0}">
+	<h2>게시글 목록</h2>
+	<table border = "1">
+	
+		<tr>
+			<td>번호</td>
+			<td>작성자</td>
+			<td>제목</td>
+			<td>비고</td>
+		</tr>
+		
+		<%-- 컨트롤러가 가져온 게시글 데이터를 반복하여 출력 --%>
+		<%-- 게시물 개수가 0개일 경우 목록대신 "게시물이 존재하지 않습니다." 출력--%>
+	
+		
+		<c:forEach var = "article" items = "${articles}" varStatus = "num">
+			<tr>
+				<td>${num.index + 1}</td>
+				<td>${article.writer}</td>
+				<td>
+					<a href = "<c:url value = '/board/content?boardNo=${num.index + 1}'/>">${article.title}</a>
+				</td>
+				<td>
+					<a href = "<c:url value = '/board/delete?boardNo=${num.index + 1}'/>">[삭제]</a>
+				</td>
+			</tr>
+		</c:forEach>
+		
+	</table>
+</c:if>
+<p>
+	<a href = "<c:url value = '/board/write'/>">게시글 작성하기</a>
+</p>
+
+
+
+</body>
+</html>
+
+#content.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>${boardNo}번 게시물 내용</h2>
+
+<p>
+	# 글번호: ${boardNo}<br>
+	# 작성자: ${article.writer}<br>
+	# 제목: ${article.title}<br>
+	# 내용: <textarea rows="3" disabled>${article.content}</textarea>	
+</p>
+
+<a href="<c:url value = '/board/list'/>">글 목록보기</a>&nbsp;
+<a href="<c:url value = '/board/modify?boardNo=${boardNo}'/>">글 수정하기</a>
+
+</body>
+</html>
+
+
+
+
+
+#modify.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>${boardNo}번 게시물 내용 수정</h2>
+<form method="post">
+	<input type = "hidden" name = "boardNo" value = "${boardNo}">
+	<p>
+		# 글번호: ${boardNo}<br>
+		# 작성자: <input type="text" name="writer" value="${article.writer}"><br>
+		# 제목: <input type="text" name="title" value="${article.title}"><br>
+		# 내용: <textarea rows="3" name="content">${article.content}</textarea>
+		<br>
+		<input type="submit" value="수정">
+	</p>
+</form>
+
+<a href="<c:url value = '/board/list'/>">글 목록보기</a>&nbsp;
+
+
+</body>
+</html>
+
+
+
+
+
+
+##############################################################################
+32)MySQL 설치
+	-mysql.com
+mySQL 8.0.11.0
+	-custom
+		-server
+		-workbench
+환경설정
+C:\Program Files\MySQL\MySQL Server 8.0\bin //혹은 command 머시기 아이콘눌러서 들어가면
+						//비번만 쳐도 됨
+에서 mysql -u root -p
+비번(설치할때 쓴거): mysql
+SELECT NOW();
+해서 현재시간나오면 문제없이 잘된거임
+
+workbench 확인
+root사람모양있는거 들어가서 새 sql파일 만들고 SELECT NOW(); 입력후 번개모양아니면
+ctrl enter해서 현재시각 나오면 이상없는것임
+
+##############################################################################
+
+답: 없음 위에 있는거 그대로 하면 됨

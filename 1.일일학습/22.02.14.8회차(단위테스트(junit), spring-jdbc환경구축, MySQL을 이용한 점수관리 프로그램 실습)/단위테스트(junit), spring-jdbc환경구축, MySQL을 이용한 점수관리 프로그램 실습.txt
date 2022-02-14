@@ -1,0 +1,1110 @@
+21.02.14.8회차
+===============================================================================
+*단위테스트(junit), spring-jdbc환경구축, MySQL을 이용한 점수관리 프로그램 실습
+===============================================================================
+
+
+
+
+1.
+junit 4.7 -> 4.12
+아티팩트아이디 : db
+gid : com.spring
+*제일 처음에 만들때는 com.spring.database로 하고 나중에 설정에서 아티팩트아이디를 db로 바꿔라
+	-첨부터 강사가 잘만들었으면 됐는데 database를 아티팩트아이디로하면 에러날수있는걸 깜빡했단다
+	-그래서 지금형태는 artifact는 db인데 context root는 database인상황이다.
+
+maven
+5.1.5
+<AspectJ> 위에다가 붙여넣기후
+${org.springframework-version}
+
+MySQL Connector/J 
+	-8.0.15
+
+HikariCP
+	-2.7.8
+
+DbConnectTest
+
+root-context.xml 빈등록 및 의존성설정하고나서 서버실행시켜서 hell world 잘나오는지확인
+/web으로 있는거 다고치라
+
+
+<list.jsp 변경 3가지>
+context root
+varStatus
+delete 숫자값
+
+
+
+1.
+*db생성
+	-이름: spring
+		-새로고침해야 생성된게 보임
+	-set as default Schema
+
+*springlegacy project 생성
+	-이름: SpringDBAccess
+	-com.spring.database
+
+
+*톰캣서버추가
+
+*버전변경
+	-자바버전
+	-서블릿설정
+		-3.1.0
+		-artifactId
+	-컴파일러플러그인
+		-3.5.1
+		-자바버전 1.8
+	-art f5해서 메이븐 업데이트 적용
+
+*한글 인코딩 필터설정
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+33) Spring-JDBC 사용을 위한 환경구축 및 spring 단위테스트
+
+*db생성
+	-이름: spring
+		-새로고침해야 생성된게 보임
+	-set as default Schema
+
+*springlegacy project 생성
+	-이름: SpringDBAccess
+	-com.spring.database
+
+
+*톰캣서버추가
+
+*버전변경(pom.xml)
+	-artifactId : database에서 db로 변경(database로 하면 설정충돌난데)
+	-자바버전
+	-서블릿설정
+		-3.1.0
+		-artifactId javax.
+	-컴파일러플러그인
+		-3.5.1
+		-자바버전 1.8
+	-junit 4.7 -> 4.12
+	-art f5해서 메이븐 업데이트 적용
+
+*한글 인코딩 필터설정(web.xml)
+
+*서버 돌려서 문제없는가 확인
+
+*maven(pom.xml 의존성파일)
+-spring-jdbc 검색
+	-5.1.5 버전 복사
+	-<AspectJ> 위에다가 붙여넣기
+		-메이븐에 의존성파일 설치해야하는거 소스 복사붙여넣기하는 곳에 붙여넣기 ㄱㄱ
+	-버전 5.1.5로 되어있는거 <version>5.1.5.RELEASE</version> 를 아래처럼 변경
+		    <version>${org.springframework-version}</version> 
+		-왜 변경하는지 : 제일위에 springframework에 대한 설정한부분에서 version을 5.1.5로 했기때문에
+			그아래 spring 관련 프로그램(라이브러리)들도 버전을 똑같이 5.1.5로 해주어야하고 차후 springframework
+			의 버전을 높혔을때 관련 프로그램들도 자동으로 올라가게 하기위해서 버전을 일치포매팅 해주는 것이다.
+
+-MySQL Connector/J 검색
+	-8.0.15 버전 복사
+
+
+-HikariCP 검색
+	-2.7.8 버전 복사
+
+
+*클래스 생성 : 위에 db 관련된 설정들 또는 jdbc가 잘 되는지 테스트하기 위함이다.
+	-package com.spring.database.test;
+	-클래스이름 : DbConnectTest 
+		-내부 메소드 이름 : connectTest()
+	-여기서 driver, url, uid(root), upw(mysql)를 이용하여 전통적인 jdbc 방법을 테스트하기위한 작업을 해야함(코드작성)
+		-try,catch에서 conn 만들고 해당 conn의 주소값을 넣어라
+		-conn객체를 제거하기도 해야한다
+
+*spring 단위테스트
+	-위에거 테스트하려면 객체만들고 귗낳아지는데 아래처럼 하면 걍 겜 끝!
+	-@Test
+	-<출력내용>
+		DB 커넥션 성공!
+		conn : com.mysql.cj.jdbc.ConnectionImpl@10db82ae
+##############################################################################
+
+
+답:
+
+
+
+
+#pom.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.spring</groupId>
+	<artifactId>db</artifactId>
+	<name>SpringDBAccess</name>
+	<packaging>war</packaging>
+	<version>1.0.0-BUILD-SNAPSHOT</version>
+	<properties>
+		<java-version>1.8</java-version>
+		<org.springframework-version>5.1.5.RELEASE</org.springframework-version>
+		<org.aspectj-version>1.6.10</org.aspectj-version>
+		<org.slf4j-version>1.6.6</org.slf4j-version>
+	</properties>
+	<dependencies>
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${org.springframework-version}</version>
+			<exclusions>
+				<!-- Exclude Commons Logging in favor of SLF4j -->
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+				
+		<!-- spring-jdbc -->
+		<dependency>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-jdbc</artifactId>
+		    <version>${org.springframework-version}</version>
+		</dependency>
+		
+		<!--  MySQL Connector/J  -->
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>8.0.15</version>
+		</dependency>
+		
+		<!--  HikariCP : Connection pool -->
+		<!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
+		<dependency>
+		    <groupId>com.zaxxer</groupId>
+		    <artifactId>HikariCP</artifactId>
+		    <version>2.7.8</version>
+		</dependency>
+				
+		<!-- AspectJ -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${org.aspectj-version}</version>
+		</dependency>	
+		
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${org.slf4j-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.15</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.mail</groupId>
+					<artifactId>mail</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.jms</groupId>
+					<artifactId>jms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jdmk</groupId>
+					<artifactId>jmxtools</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jmx</groupId>
+					<artifactId>jmxri</artifactId>
+				</exclusion>
+			</exclusions>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- @Inject -->
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+				
+		<!-- Servlet -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+	
+		<!-- Test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>        
+	</dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <additionalProjectnatures>
+                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+                    </additionalProjectnatures>
+                    <additionalBuildcommands>
+                        <buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
+                    </additionalBuildcommands>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>org.test.int1.Main</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+
+#web.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee https://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+	<!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring/root-context.xml</param-value>
+	</context-param>
+	
+	<!-- Creates the Spring Container shared by all Servlets and Filters -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!-- Processes application requests -->
+	<servlet>
+		<servlet-name>appServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/spring/appServlet/servlet-context.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+		
+	<servlet-mapping>
+		<servlet-name>appServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+
+	<!-- 한글 인코딩 필터 설정(톰캣 내부의 한글처리) -->
+	<filter>
+	    <filter-name>encodingFilter</filter-name>
+	    <filter-class>
+				org.springframework.web.filter.CharacterEncodingFilter
+			</filter-class>
+	    <init-param>
+	      <param-name>encoding</param-name>
+	      <param-value>UTF-8</param-value>
+	    </init-param>
+	    <init-param>
+	      <param-name>forceEncoding</param-name>
+	      <param-value>true</param-value>
+	    </init-param>
+    </filter>
+    <!-- 위에 지정한  encodingFilter이름을 모든 패턴에 적용-->
+    <filter-mapping>
+	    <filter-name>encodingFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>
+
+
+
+#DbConnectTest.java
+
+package com.spring.database.test;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+import org.junit.Test;
+
+public class DbConnectTest {
+	private String driver = "com.mysql.cj.jdbc.Driver";
+	private String url = "jdbc:mysql://localhost:3306/spring?serverTimezone=Asia/Seoul";
+		//8버전 커넥터에서만 서버시간과 장소를알려줘야함
+	private String uid = "root";
+	private String upw = "mysql";
+	
+	//DB연결 테스트
+	@Test
+	public void connectTest() {
+		Connection conn = null;
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, uid, upw);
+			System.out.println("DB 커넥션 성공!");
+			System.out.println("conn : " + conn);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (Exception e) {}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+34) JDBC 사용을 위한 bean 객체 등록 
+
+
+*root-context.xml : JDBC, DB관련 빈을 등록하고 관리하는 설정파일 이용
+	-히카리 커넥션 풀 빈 등록 : 배달원들 중개업소
+		-id : hikariConfig
+		-class위치 : 메이븐의 hikariCP 파일보고 찾아서 적어라
+		-eclipse 이름완성기능 
+			참고해서 커넥션 풀 빈을 등록할때 setter를 이용하여 의존성 주입 실시		
+
+
+	-히카리 데이터 소스 빈 등록 : 배달원들이 쓰는 가방 중개업소. 가방 만들때 배달원 지문등록해야해서 배달원들 중개업소를 의존성지님
+		-id : ds
+		-class위치 : 메이븐 보고 알아서적어라
+		
+			
+	
+	-JDBC 템플릿 클래스 빈 등록 : 배달원들이 쓰는 가방 중개업소를 가지고 있으면 자동으로 배달원들도 연결되니까 그걸 총지휘해서 적재적소
+				에 사용할 지휘부
+		-id : jdbcTemplate
+		-class 위치 : ? (메이븐의 템플릿경로보고 적어라)
+
+
+
+*서버 잘실행되는가 hello 시간뜨는 컨텍스트 루트 접속
+##############################################################################
+
+
+답:
+
+
+#root-context.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- JDBC, DB관련 빈을 등록하고 관리하는 설정파일 -->
+	<!-- 히카리 커넥션풀 빈 등록  : 이건 우리가만든 클래스가 아니라서 안에서 Repository service로 자동빈등록
+		불가하니까 직접 빈등록해줘야함-->
+	<bean id = "hikariConfig" class = "com.zaxxer.hikari.HikariConfig">
+		<property name = "driverClassName" value = "com.mysql.cj.jdbc.Driver" />
+		<property name = "jdbcUrl" value = "jdbc:mysql://localhost:3306/spring?serverTimezone=Asia/Seoul" />
+		<property name = "username" value = "root" />
+		<property name = "password" value = "mysql" />
+	</bean>
+	
+	<!--  히카리 데이터 소스 빈 등록 -->
+	<bean id = "ds" class = "com.zaxxer.hikari.HikariDataSource">
+		<constructor-arg ref = "hikariConfig"/> <!--  남이만든 라이브러리는 우리가직접의존성
+				주입해야하니까 처음에 이런것들을 배운거다. -->
+	</bean>
+	
+	<!--  JDBC 템플릿 클래스 빈 등록 -->
+	<bean id = "jdbcTemplate" class = "org.springframework.jdbc.core.JdbcTemplate">
+		<property name = "dataSource" ref = "ds"/>
+	</bean>
+</beans>
+
+
+
+
+
+
+
+
+
+##############################################################################
+35)점수관리프로그램과 DB 연결하기위한 구조생성 및 호환성 점검
+
+*DB 테이블 scores 생성 및 확인
+	-테이블 필드명 : 
+			stu_id
+				-int형(학번이라보면됨)
+				-중복되지 않는 키 등록
+				-자동으로 처음엔 1나오고 그담부터 1식올라가면서 부여되도록
+			stu_name
+				-문자형 크기 : 60
+				-아무것도 입력안하면 안되게끔 설정
+			kor
+			eng
+			math
+			total
+				-모두 INT 형
+			average
+				-최대 5자리, 소수점표현은 2자리까지 표현하도록, 100.00을 위해
+
+	-ctrl enter해서 테이블생성
+	-생성됐는지 확인 
+
+*ScoreVO.java 클래스 생성
+	-package com.spring.database.jdbc.score.model;
+	-MySQL의 필드와 대응되는 필드들생성(SpringWebBasic에서의 ScoreVO는 stuId가 없다. 왜냐면 jsp에서 만들게했기때문임
+					하지만 이젠 db에서 받아와야하니 stuId 필드를 만들어야 하는 것이다)
+		stuId, stuName, kor, eng, math, total, average
+	-getter setter 생성
+	-toString() 생성
+	-총점, 평균 구하는 메서드 붙여넣기
+		-SpringWebBasic project -> 이거 사실 그대로 다 긁어와도 됐는데 db랑 연관지어 생각해보라고 다시만들게한거
+						아래서부터는 다 복사해올거임
+
+*package생성
+	-com.spring.database.jdbc.score.controller
+	-com.spring.database.jdbc.score.repository
+	-com.spring.database.jdbc.score.service
+
+*SpringWebBasic에 있는 ScoreController 및 DAO, service 관련 인터페이스 및 클래스 복사후 붙여넣기
+	-문제있는건 경로문제들이니 그거 import 에러 고쳐주어라
+
+*SpringWebBasic의 jsp파일 가져오기
+	-views아래의 score 폴더 자체 복사
+		-이러면 나중에 서버 실행해서 찾아가려하면 context root가 /web으로 jsp form이나 a href에 입력되어있을테니
+			그걸 /database 로 바꾸어줘야한다.
+			-이런문제때문에 c를 이용해서 컨텍스트 루트를 매핑해주는게 좋다
+
+*http://localhost:8080/database/score/register 입력하면 이름등 입력하는 로직 나오는지 확인
+
+*DAO 에서 DB대용으로 썼던 리스트  삭제, method 리턴은 null로 두고 매개변수로 오는 list 없애고 등 다 list 관련된거 없애라
+	-실제 DB를 쓸거니까!
+	-반환값은 쓰이는것도 있으니 쓸모를 잘생각해서 나두어라
+
+
+##############################################################################
+
+
+답:
+
+#MySQL
+
+SELECT NOW();
+
+-- 데이터베이스 스키마 생성
+CREATE DATABASE spring;
+
+-- 점수 테이블 생성
+CREATE TABLE scores (
+	stu_id INT PRIMARY KEY AUTO_INCREMENT,
+    stu_name VARCHAR(60) NOT NULL,
+    kor INT,
+    eng INT,
+    math INT,
+    total INT,
+    average FLOAT(5, 2) -- 다섯자리수까지, 소수점표현은 두번째자리까지 최대수 -> 100.00 5자리에 소수점 2개 99.99면 4자리에 2 
+);
+
+SELECT * FROM scores;
+
+
+#ScoreVO
+
+package com.spring.database.jdbc.score.model;
+
+public class ScoreVO {
+/*
+ -- 점수 테이블 생성 : DB에 이렇게 작성하면됨 : 이름규칙도 java에서는 카멜인데 db에서는 _를 씀 그래도 다르게설정
+CREATE TABLE scores (
+	stu_id INT PRIMARY KEY AUTO_INCREMENT,
+    stu_name VARCHAR(60) NOT NULL,
+    kor INT,
+    eng INT,
+    math INT,
+    total INT,
+    average FLOAT(5, 2) -- 다섯자리수까지, 소수점표현은 두번째자리까지 최대수 -> 100.00 5자리에 소수점 2개 99.99면 4자리에 2 
+);
+ */
+	
+	private Integer stuId;
+	private String stuName;
+	private Integer kor;
+	private Integer eng;
+	private Integer math;
+	private Integer total;
+	private Double average;
+	
+	//총점 평균을 구하는 메서드
+	public void calcData() {
+		this.total = this.kor + this.eng + this.math;
+		this.average = Math.round((this.total / 3.0) * 100) / 100.0;
+		
+	}
+	
+	
+	public Integer getStuId() {
+		return stuId;
+	}
+	public void setStuId(Integer stuId) {
+		this.stuId = stuId;
+	}
+	public String getStuName() {
+		return stuName;
+	}
+	public void setStuName(String stuName) {
+		this.stuName = stuName;
+	}
+	public Integer getKor() {
+		return kor;
+	}
+	public void setKor(Integer kor) {
+		this.kor = kor;
+	}
+	public Integer getEng() {
+		return eng;
+	}
+	public void setEng(Integer eng) {
+		this.eng = eng;
+	}
+	public Integer getMath() {
+		return math;
+	}
+	public void setMath(Integer math) {
+		this.math = math;
+	}
+	public Integer getTotal() {
+		return total;
+	}
+	public void setTotal(Integer total) {
+		this.total = total;
+	}
+	public Double getAverage() {
+		return average;
+	}
+	public void setAverage(Double average) {
+		this.average = average;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "ScoreVO [stuId=" + stuId + ", stuName=" + stuName + ", kor=" + kor + ", eng=" + eng + ", math=" + math
+				+ ", total=" + total + ", average=" + average + "]";
+	}
+	
+	
+	
+}
+
+
+#수많은 DAO와 Service,Controller의 인터페이스 혹은 클래스 답은 아래 문제에 적어놓을게
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+36) 전통방식의 JDBC와 Spring-JDBC의 차이
+
+1) 전통방식의 JDBC로 insertScore() 처리하기
+-넘어온 scores의 파라미터를 모두 확인할수있도록 insertScore 첫라인에(함수 블록에서 제일위에)
+	System.out.println("Repository param: " + scores); 추가
+-conn, pstmt 필드생성 후 try catch에서 객체 참조
+-try 문 위에서 sql 구문 만들어서 sql 필드 만들어 저장
+	-값은 ?이용하고 try구문에서 pstmt만들어지면 그때 scores를 이용해서 집어넣어라
+	-자원해제까지 해라 conn, pstmt
+
+-그후 웹브라우저에서 정보넣어서 db에 등록되는지 확인해라
+
+2) spring-jdbc로 insertScore() 간편하게 처리하기
+-빈등록한 객체중 필요한놈을 데려와라.그 데려온놈을 집어넣을 필드 template를 만들어라
+						- 타입은 알아서 찾아보고 적어라
+-sql문 적고(붙여넣기하던지 알아서하고) 그것과 위 빈객체를 이용해서 insertScore()가 실행되도록 해라
+-웹브라우저에서 등록하고 db에서도 등록됐는지 확인하라
+
+
+3)selectAllScores()가 전통적방식 JDBC로 처리되도록 해봐라
+	-중간에 필요없는건 없애라, jsp(varStatus)나 Controller나 등등
+		-학번은 db에서 이제 받아올거니까!
+	-링크클릭해서 잘 작동하는지 확인해라
+
+4)insert, delete, update 3가지 구문중 하나와 ?에 대응되는 값들을 받아서 db와 연결을 진행하는 빈객체의 특정
+	메소드를 이용하여(2번에서 만든 template 필드에 참조된 객체의 메소드) deleteScore()가 정상작동하도록 만들어라
+	-String sql = "DELETE FORM scores WHERE stu_id = ?";
+
+5)전통적인 방식으로 개별조회기능(selectOne())메서드가 잘 수행되도록 처리하라
+
+
+##############################################################################
+
+
+답:
+
+#IScoreDAO
+
+
+package com.spring.database.jdbc.score.repository;
+
+import java.util.List;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+
+public interface IScoreDAO {
+	//점수 등록 기능
+	void insertScore(ScoreVO scores);
+	
+	//점수 전체 조회 기능
+	List<ScoreVO> selectAllScores();
+	
+	//점수 삭제기능
+	void deleteScore(int stuNum);
+	
+	ScoreVO selectOneScore(int stuNum);
+}
+
+
+
+
+
+
+
+
+
+#ScoreDAO
+
+
+package com.spring.database.jdbc.score.repository;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+@Repository
+public class ScoreDAO implements IScoreDAO {
+	
+	//#전통적 방식의 JDBC
+	private String driver = "com.mysql.cj.jdbc.Driver";
+	private String url = "jdbc:mysql://localhost:3306/spring?serverTimezone=Asia/Seoul";
+		//8버전 커넥터에서만 서버시간과 장소를알려줘야함
+	private String uid = "root";
+	private String upw = "mysql";
+	
+	/*
+	 * 	
+	@Override
+	public void insertScore(ScoreVO scores) {
+		// TODO Auto-generated method stub
+		System.out.println("Repository param: " + scores);
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = "INSERT INTO scores "
+				+ "(stu_name, kor, eng, math, total, average) "
+				+ "VALUES (?, ?, ?, ?, ?, ?)";
+		
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, uid, upw);
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, scores.getStuName());
+			pstmt.setInt(2,  scores.getKor());
+			pstmt.setInt(3,  scores.getEng());
+			pstmt.setInt(4,  scores.getMath());
+			pstmt.setInt(5,  scores.getTotal());
+			pstmt.setDouble(6,  scores.getAverage());
+			
+			pstmt.executeUpdate();
+			System.out.println("점수 등록 성공!");
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+			} catch (Exception e) {}
+		}
+	}
+	*/
+	
+	//#Spring-JDBC 방식의 처리 : JdbcTemplate 사용!
+	@Autowired
+	private JdbcTemplate template; // 이거는 빈등록직접했다. 그래서 자동스캔됨
+	
+	
+	@Override
+	public void insertScore(ScoreVO scores) {
+		// TODO Auto-generated method stub
+		String sql = "INSERT INTO scores "
+				+ "(stu_name, kor, eng, math, total, average) "
+				+ "VALUES (?, ?, ?, ?, ?, ?)";
+		template.update(sql, scores.getStuName(), scores.getKor(), 
+				scores.getEng(), scores.getMath(), scores.getTotal(),
+				scores.getAverage());
+		
+		System.out.println("점수 등록 성공!");
+	}
+	
+	@Override
+	public List<ScoreVO> selectAllScores() {
+		// TODO Auto-generated method stub
+		List<ScoreVO> list = new ArrayList<>();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		String sql = "SELECT * FROM scores";
+		
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, uid, upw);
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				ScoreVO vo = new ScoreVO();
+				vo.setStuId(rs.getInt("stu_id"));
+				vo.setStuName(rs.getString("stu_name"));
+				vo.setKor(rs.getInt("kor"));
+				vo.setEng(rs.getInt("eng"));
+				vo.setMath(rs.getInt("math"));
+				vo.setTotal(rs.getInt("total"));
+				vo.setAverage(rs.getDouble("average"));
+				
+				
+				list.add(vo);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+				rs.close();
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
+		
+		return list;
+	}
+
+	@Override
+	public void deleteScore(int stuNum) {
+		// TODO Auto-generated method stub
+		String sql = "DELETE FROM scores WHERE stu_id=?";
+		template.update(sql, stuNum);
+		System.out.println("삭제성공!");
+	}
+
+	public ScoreVO selectOneScore(int stuNum) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		String sql = "SELECT * FROM scores WHERE stu_id = ?";
+		
+		
+		ScoreVO vo = new ScoreVO();
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, uid, upw);
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, stuNum);
+			rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				vo.setStuId(rs.getInt("stu_id"));
+				vo.setStuName(rs.getString("stu_name"));
+				vo.setKor(rs.getInt("kor"));
+				vo.setEng(rs.getInt("eng"));
+				vo.setMath(rs.getInt("math"));
+				vo.setTotal(rs.getInt("total"));
+				vo.setAverage(rs.getDouble("average"));
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+				rs.close();
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
+		return vo;
+	}
+}
+
+
+
+
+
+#IScoreService
+
+package com.spring.database.jdbc.score.service;
+
+import java.util.List;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+
+public interface IScoreService {
+	//점수 등록 기능
+	void insertScore(ScoreVO scores);
+	
+	//점수 전체 조회 기능
+	List<ScoreVO> selectAllScores();
+	
+	//점수 삭제기능
+	void deleteScore(int stuNum);
+	
+	ScoreVO selectOneScore(int stuNum);
+	
+}
+
+
+
+
+#ScoreService
+
+
+
+package com.spring.database.jdbc.score.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+import com.spring.database.jdbc.score.repository.IScoreDAO;
+
+
+@Service
+public class ScoreService implements IScoreService {
+
+	@Autowired
+	private IScoreDAO dao;
+	
+	@Override
+	public void insertScore(ScoreVO scores) {
+		// TODO Auto-generated method stub
+		scores.calcData();
+		dao.insertScore(scores);
+	}
+
+	@Override
+	public List<ScoreVO> selectAllScores() {
+		// TODO Auto-generated method stub
+		return dao.selectAllScores();
+	}
+
+	@Override
+	public void deleteScore(int stuNum) {
+		// TODO Auto-generated method stub
+		dao.deleteScore(stuNum);
+	}
+	
+	public ScoreVO selectOneScore(int stuNum) {
+		return dao.selectOneScore(stuNum);
+	}
+
+}
+
+
+
+
+#ScoreController.java(??수정있는지 없는지 확인필요)
+
+package com.spring.database.jdbc.score.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+import com.spring.database.jdbc.score.service.IScoreService;
+
+@Controller
+@RequestMapping("/score")
+public class ScoreController {
+	@Autowired
+	private IScoreService service;
+	
+	//점수 등록 화면을 열어주는 처리를 하는 요청메서드
+	@GetMapping("/register")
+	public String register() {
+		System.out.println("/score/register: GET");
+		return "score/write-form";
+	}
+	
+	//점수 등록을 처리하는 요청 메서드
+	@PostMapping("/register")
+	public String register(ScoreVO scores) {
+		System.out.println("/score/register: POST");
+		System.out.println("Controller param: " + scores);
+		
+		service.insertScore(scores);
+		return "score/write-result";
+	}
+	
+	//점수 전체 조회를 처리하는 요청 메서드
+	@GetMapping("/list")
+	public void list(Model model) {
+		System.out.println("/score/list: GET");
+		List<ScoreVO> list = service.selectAllScores();
+		model.addAttribute("sList", list);
+		
+	}
+	
+	//점수 삭제 요청 처리 메서드
+	@GetMapping("/delete")
+	public String delete(@RequestParam("stuNum") int stuNum, RedirectAttributes ra) {
+//		List<ScoreVO> list = service.selectAllScores();
+		service.deleteScore(stuNum);
+		ra.addFlashAttribute("message", "delSuccess");
+		return "redirect:/score/list";
+	}
+	
+	//점수 개별 조회 화면 열람요청 메서드
+	@GetMapping("/search")
+	public void search() {
+		System.out.println("/score/search: GET");
+		
+	}
+	
+	@PostMapping("/selectOne")
+	public String selectOne(String stuNum, Model model, RedirectAttributes ra) {
+		
+		/*
+		try {
+			ScoreVO stu = service.selectOneScore(Integer.parseInt(stuNum));			
+			model.addAttribute("stu", stu);
+			return "/score/select-result";
+		} catch(NumberFormatException e) {
+			ra.addFlashAttribute("message", "숫자로만 입력하세요!");
+			return "redirect:/score/search"; 
+		} catch(IndexOutOfBoundsException e) {
+			ra.addFlashAttribute("message", "학번정보가 없습니다.");
+			return "redirect:/score/search";
+		} 
+		*/
+		List<ScoreVO> list = service.selectAllScores();
+		
+		try {
+			int n = Integer.parseInt(stuNum);
+			if (n > list.size()) {
+				ra.addFlashAttribute("message", "학번정보가 없습니다.");
+				return "redirect:/score/search";
+			}
+			
+			ScoreVO stu = service.selectOneScore(n);			
+			model.addAttribute("stu", stu);
+			return "score/select-result";
+		} catch(NumberFormatException e) {
+			ra.addFlashAttribute("message", "숫자로만 입력하세요!");
+			return "redirect:/score/search"; 
+		} 
+	}
+}
+
+
+
+
