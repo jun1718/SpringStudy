@@ -22,11 +22,14 @@ public class ScoreService implements IScoreService {
 		dao.insertScore(scores);
 	}
 
+	
 	@Override
 	public List<ScoreVO> selectAllScores() {
 		// TODO Auto-generated method stub
 		return dao.selectAllScores();
 	}
+	
+	
 
 	@Override
 	public void deleteScore(int stuNum) {

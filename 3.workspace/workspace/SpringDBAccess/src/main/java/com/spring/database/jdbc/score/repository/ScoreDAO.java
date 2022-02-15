@@ -1,25 +1,43 @@
 package com.spring.database.jdbc.score.repository;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+//import com.spring.database.jdbc.score.commons.ScoreMapper;
 import com.spring.database.jdbc.score.model.ScoreVO;
 @Repository
 public class ScoreDAO implements IScoreDAO {
+	class ScoreMapper implements RowMapper<ScoreVO>{
+		@Override
+		public ScoreVO mapRow(ResultSet rs, int rowNum) throws SQLException {
+			// TODO Auto-generated method stub
+			ScoreVO score = new ScoreVO();
+			score.setStuId(rs.getInt("stu_id"));
+			score.setStuName(rs.getString("stu_name"));
+			score.setKor(rs.getInt("kor"));
+			score.setEng(rs.getInt("eng"));
+			score.setMath(rs.getInt("math"));
+			score.setTotal(rs.getInt("total"));
+			score.setAverage(rs.getDouble("average"));
+			
+			return score;
+		}
+	}
+
 	
+	/*
 	//#전통적 방식의 JDBC
 	private String driver = "com.mysql.cj.jdbc.Driver";
 	private String url = "jdbc:mysql://localhost:3306/spring?serverTimezone=Asia/Seoul";
 		//8버전 커넥터에서만 서버시간과 장소를알려줘야함
 	private String uid = "root";
 	private String upw = "mysql";
+	 */
 	
 	/*
 	 * 	
@@ -78,6 +96,7 @@ public class ScoreDAO implements IScoreDAO {
 		System.out.println("점수 등록 성공!");
 	}
 	
+	/*
 	@Override
 	public List<ScoreVO> selectAllScores() {
 		// TODO Auto-generated method stub
@@ -121,7 +140,64 @@ public class ScoreDAO implements IScoreDAO {
 		
 		return list;
 	}
+	*/
+	/*
+	@Override
+	public List<ScoreVO> selectAllScores() {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM scores";
+		
+		//인터페이스를 구현한 클래스를 만들어서 template.query 사용하는법
+//		List<ScoreVO> list = template.query(sql, new ScoreMapper());
+		
+		//익명클래스
+		
+		List<ScoreVO> list = template.query(sql, new RowMapper<ScoreVO>() {
+			@Override
+			public ScoreVO mapRow(ResultSet rs, int rowNum) throws SQLException {
+				// TODO Auto-generated method stub
+				ScoreVO score = new ScoreVO();
+				score.setStuId(rs.getInt("stu_id"));
+				score.setStuName(rs.getString("stu_name"));
+				score.setKor(rs.getInt("kor"));
+				score.setEng(rs.getInt("eng"));
+				score.setMath(rs.getInt("math"));
+				score.setTotal(rs.getInt("total"));
+				score.setAverage(rs.getDouble("average"));
+				
+				return score;
+			}
+		});
+		
+		
 
+		return list;
+	}
+	*/
+
+	
+	//람다를 이용한 익명클래스
+	@Override
+	public List<ScoreVO> selectAllScores() {
+		String sql = "SELECT * FROM scores";
+		
+		return template.query(sql, (rs, rowNum) -> {
+			{
+				ScoreVO score = new ScoreVO();
+				score.setStuId(rs.getInt("stu_id"));
+				score.setStuName(rs.getString("stu_name"));
+				score.setKor(rs.getInt("kor"));
+				score.setEng(rs.getInt("eng"));
+				score.setMath(rs.getInt("math"));
+				score.setTotal(rs.getInt("total"));
+				score.setAverage(rs.getDouble("average"));
+				
+				return score;
+			}
+		});
+	}
+	
+	
 	@Override
 	public void deleteScore(int stuNum) {
 		// TODO Auto-generated method stub
@@ -130,6 +206,7 @@ public class ScoreDAO implements IScoreDAO {
 		System.out.println("삭제성공!");
 	}
 
+	/*
 	public ScoreVO selectOneScore(int stuNum) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -168,5 +245,26 @@ public class ScoreDAO implements IScoreDAO {
 			}
 		}
 		return vo;
+	} */
+	
+	@Override
+	public ScoreVO selectOneScore(int stuNum) {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM scores WHERE stu_id = ?";
+		
+		
+		//아래 두가지방법으로 ?를 채운 뒤 ScoreMapper에서 정의한 제너릭타입을 제너릭으로갖는 list 반환받기
+		//1)sql, 오브젝트배열, RowMapper구현한 클래스 형식
+		//2)sql, RowMapper구현한 클래스, 가변인수 형식
+//		template.query(sql,  new Object[] {stuNum}, new ScoreMapper());
+//		template.query(sql, new ScoreMapper(), stuNum);
+		
+		//queryForObject는 Single row를 리턴할때 사용
+				//조회결과가 한줄인걸 single row라함
+		//query는 multi row를 리턴할때 사용
+				//조회결과가 두개 이상인경우 multi row라하고 이때 list에 담는거임
+		template.queryForObject(sql, new ScoreMapper(), stuNum);
+				//RowMapper를 구현한 클래스 ScoreMapper의 제너릭이 queryForObject의 반환값을 결정함
+		return null;
 	}
 }

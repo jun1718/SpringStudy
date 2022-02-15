@@ -4,13 +4,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.spring.database.jdbc.score.commons.ScoreMapper;
 import com.spring.database.jdbc.score.model.ScoreVO;
 
 @Repository
@@ -72,6 +72,7 @@ public class ScoreDAO implements IScoreDAO {
 
 	}
 
+	/*
 	@Override
 	public List<ScoreVO> selectAllScores() {
 		// TODO Auto-generated method stub
@@ -113,7 +114,16 @@ public class ScoreDAO implements IScoreDAO {
 		}
 		return list;
 	}
-
+	*/
+	
+	@Override
+	public List<ScoreVO> selectAllScores() {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM scores";
+		
+		return template.query(sql, new ScoreMapper());
+	}
+	
 	@Override
 	public void deleteScore(int stuNum) {
 		// TODO Auto-generated method stub
@@ -121,6 +131,7 @@ public class ScoreDAO implements IScoreDAO {
 		template.update(sql);
 	}
 
+	/*
 	public ScoreVO selectOneScore(int stuNum) {
 		
 		String sql = "SELECT * FROM scores WHERE stu_id = " + stuNum;
@@ -156,5 +167,15 @@ public class ScoreDAO implements IScoreDAO {
 		}
 		
 		return score;
+	}
+	*/
+	
+	@Override
+	public ScoreVO selectOneScore(int stuNum) {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM scores WHERE stu_id = ?";
+		
+		
+		return template.queryForObject(sql, new ScoreMapper(), stuNum);
 	}
 }

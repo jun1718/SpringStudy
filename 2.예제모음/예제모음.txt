@@ -8780,3 +8780,1989 @@ public class ScoreController {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+21.02.15.9회차
+===============================================================================
+*익명클래스, 람다식(람다 간편식), select구문 spring-jdbc형태로 변경하기(score, board)
+===============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+37)익명클래스, 람다
+
+
+1)AnonymousTest.java 만들어서(MainClass역할) Car인터페이스를 구현한 식별자 클래스를 만들지않고
+익명클래스, 람다식으로 ferrari, sonata, tucson을 만들어서 run()메소드를 실행시킴으로 ~~가 팍팍 달립니다 등등 을 출력해라
+
+
+com.spring.database.test에 Car interface 생성
+	-클래스를 만들어서 구현(일반적인 방식)
+	-익명클래스로 interface 구현
+	-람다로 interface 구현
+package com.spring.database.test;
+
+public interface Car {
+	void run();
+}
+
+
+
+
+
+
+
+2)더하는 기능을가진 인터페이스 Calculator를 만들고 해당하는놈을 익명클래스, 람다식, 간편람다식으로 n1, n2의 값을 더해봐라
+	-람다식에서 매개변수명은 꼭 인터페이스에 있는 매개변수명과 같을 필요가 없다는 것도 인지해라
+	-sharp 계산기, casio계산기, shaomi계산기
+
+com.spring.database.test에 Calculator interface 생성
+package com.spring.database.test;
+
+public interface Calculator {
+	int add(int n1, int n2);
+}
+
+##############################################################################
+
+답:
+
+
+package com.spring.database.test;
+
+public class AnonymousTest {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Car s = new Sonata();
+		s.run();
+		
+		Car ferrari = new Car() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				System.out.println("페라리가 쌩쌩 달립니다.");
+			}
+		};
+		
+		ferrari.run();
+		
+		new Car() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				System.out.println("말리부가 팍팍달립니다.");
+			}
+		}.run();
+		
+		//lambda식 적용 : 인터페이스 안에 추상메서드가 단 하나일 경우만 가능!
+		Car tucson = () -> {System.out.println("투싼이 달립니다.");};
+		tucson.run();
+		
+		
+		//////////////////////////////
+		
+		
+		//계산기 인터페이스와 람다식
+		Calculator sharp = new Calculator() {
+			
+			@Override
+			public int add(int n1, int n2) {
+				// TODO Auto-generated method stub
+				System.out.println("샤프 계산기의 덧셈!");
+				return n1 + n2;
+			}
+		};
+		
+		System.out.println("=========================");
+		System.out.println(sharp.add(10, 15));
+		
+		Calculator casio = (x, y) -> {
+			System.out.println("카시오 계산기의 덧셈!");
+			return x + y;
+		};
+		
+		System.out.println(casio.add(100, 200));
+		
+		// 위치럼 람다조건인상황에서 리턴말고 내부 메서드에서 할게 추가로 없을때 이렇게까지도 줄일수 있음
+		/*
+		Calculator shaomi = (x, y) -> {
+			return x + y;
+		};
+		*/
+		Calculator shaomi = (x, y) -> x + y;
+		
+		System.out.println("샤오미 결과: " + shaomi.add(30,  50));
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+38)SelectAllScores spring-jdbc형태로 변경
+-일반클래스, 익명클래스, 람다클래스 3가지 방식으로 template.query(sql, new RowMapper<ScoreVO>()); 써보기
+
+com.spring.database.jdbc.score.commons
+ScoreMapper
+	-일반클래스로구현
+		-public ScoreVO mapRow(ResultSet rs, int rowNum) throws SQLException {
+	-익명클래스로구현
+	-람다로 구현
+
+
+/database/score/list 되는지 확인
+
+##############################################################################
+
+답: 39번답에 함께 있다. repository(익명,람다), commons(일반클래스)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+39) 가변인수 또는 Object배열로 ? 채우기, single row뽑기(list형태가아니라), 내부클래스
+
+SelectOneScore string-jdbc형태로 변경
+
+1-1)아래 두가지방법으로 ?를 채운 뒤 ScoreMapper에서 정의한 제너릭타입을 제너릭으로갖는 list 반환받기
+	-일반클래스 ScoreMapper()를 import 해서 사용
+		-package com.spring.database.jdbc.score.commons;
+		-import의 귀찮음을 느껴라
+	-multi row 반환
+
+1-2)지금 SelectOneScore의 반환값은 list가 아니니까 query값이 ScoreVO가 되어야함. 이게 되도록 해바라
+	-일반클래스 ScoreMapper()를 import 해서 사용
+	-single row 반환
+
+2) 아래방식으로 위의 1-2를 다해보고 내부클래스할때는 import된 ScoreMapper를 주석하고 풀어라
+일반클래스 : 클래스 파일 다시 만들어야되서 귀찬(import 등)
+익명클래스 : 코드가 겹침
+	-RowMapper를 한번만쓰면 익명클래스가 편한데 지금 DAO에서는 계속 사용해야해서 코드가 겹치고 더 귀찮아짐
+	-그래서 일반클래스를 만들자니 파일도 새로만들어야하고 또 DAO에서 쓸때는 import해야하고 귀찮으니 내부에 클래스만들자! 라는 의미
+내부클래스 : 클래스 소스만 적어놓으면 편하게 계속 사용가능
+	-어차피 DAO에서밖에 안쓸 클래스이니까
+
+##############################################################################
+
+답:
+
+<model>
+#ScoreVO
+
+
+package com.spring.database.jdbc.score.model;
+
+public class ScoreVO {
+/*
+ -- 점수 테이블 생성 : DB에 이렇게 작성하면됨 : 이름규칙도 java에서는 카멜인데 db에서는 _를 씀 그래도 다르게설정
+CREATE TABLE scores (
+	stu_id INT PRIMARY KEY AUTO_INCREMENT,
+    stu_name VARCHAR(60) NOT NULL,
+    kor INT,
+    eng INT,
+    math INT,
+    total INT,
+    average FLOAT(5, 2) -- 다섯자리수까지, 소수점표현은 두번째자리까지 최대수 -> 100.00 5자리에 소수점 2개 99.99면 4자리에 2 
+);
+ */
+	
+	private Integer stuId;
+	private String stuName;
+	private Integer kor;
+	private Integer eng;
+	private Integer math;
+	private Integer total;
+	private Double average;
+	
+	//총점 평균을 구하는 메서드
+	public void calcData() {
+		this.total = this.kor + this.eng + this.math;
+		this.average = Math.round((this.total / 3.0) * 100) / 100.0;
+		
+	}
+	
+	
+	public Integer getStuId() {
+		return stuId;
+	}
+	public void setStuId(Integer stuId) {
+		this.stuId = stuId;
+	}
+	public String getStuName() {
+		return stuName;
+	}
+	public void setStuName(String stuName) {
+		this.stuName = stuName;
+	}
+	public Integer getKor() {
+		return kor;
+	}
+	public void setKor(Integer kor) {
+		this.kor = kor;
+	}
+	public Integer getEng() {
+		return eng;
+	}
+	public void setEng(Integer eng) {
+		this.eng = eng;
+	}
+	public Integer getMath() {
+		return math;
+	}
+	public void setMath(Integer math) {
+		this.math = math;
+	}
+	public Integer getTotal() {
+		return total;
+	}
+	public void setTotal(Integer total) {
+		this.total = total;
+	}
+	public Double getAverage() {
+		return average;
+	}
+	public void setAverage(Double average) {
+		this.average = average;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "ScoreVO [stuId=" + stuId + ", stuName=" + stuName + ", kor=" + kor + ", eng=" + eng + ", math=" + math
+				+ ", total=" + total + ", average=" + average + "]";
+	}
+	
+	
+	
+}
+
+
+------------------------------------------------
+<controller>
+#ScoreController
+
+package com.spring.database.jdbc.score.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+import com.spring.database.jdbc.score.service.IScoreService;
+
+@Controller
+@RequestMapping("/score")
+public class ScoreController {
+	@Autowired
+	private IScoreService service;
+	
+	//점수 등록 화면을 열어주는 처리를 하는 요청메서드
+	@GetMapping("/register")
+	public String register() {
+		System.out.println("/score/register: GET");
+		return "score/write-form";
+	}
+	
+	//점수 등록을 처리하는 요청 메서드
+	@PostMapping("/register")
+	public String register(ScoreVO scores) {
+		System.out.println("/score/register: POST");
+		System.out.println("Controller param: " + scores);
+		
+		service.insertScore(scores);
+		return "score/write-result";
+	}
+	
+	//점수 전체 조회를 처리하는 요청 메서드
+	@GetMapping("/list")
+	public void list(Model model) {
+		System.out.println("/score/list: GET");
+		List<ScoreVO> list = service.selectAllScores();
+		model.addAttribute("sList", list);
+		
+	}
+	
+	//점수 삭제 요청 처리 메서드
+	@GetMapping("/delete")
+	public String delete(@RequestParam("stuNum") int stuNum, RedirectAttributes ra) {
+//		List<ScoreVO> list = service.selectAllScores();
+		service.deleteScore(stuNum);
+		ra.addFlashAttribute("message", "delSuccess");
+		return "redirect:/score/list";
+	}
+	
+	//점수 개별 조회 화면 열람요청 메서드
+	@GetMapping("/search")
+	public void search() {
+		System.out.println("/score/search: GET");
+		
+	}
+	
+	@PostMapping("/selectOne")
+	public String selectOne(String stuNum, Model model, RedirectAttributes ra) {
+		
+		/*
+		try {
+			ScoreVO stu = service.selectOneScore(Integer.parseInt(stuNum));			
+			model.addAttribute("stu", stu);
+			return "/score/select-result";
+		} catch(NumberFormatException e) {
+			ra.addFlashAttribute("message", "숫자로만 입력하세요!");
+			return "redirect:/score/search"; 
+		} catch(IndexOutOfBoundsException e) {
+			ra.addFlashAttribute("message", "학번정보가 없습니다.");
+			return "redirect:/score/search";
+		} 
+		*/
+		List<ScoreVO> list = service.selectAllScores();
+		
+		try {
+			int n = Integer.parseInt(stuNum);
+			if (n > list.size()) {
+				ra.addFlashAttribute("message", "학번정보가 없습니다.");
+				return "redirect:/score/search";
+			}
+			
+			ScoreVO stu = service.selectOneScore(n);			
+			model.addAttribute("stu", stu);
+			return "score/select-result";
+		} catch(NumberFormatException e) {
+			ra.addFlashAttribute("message", "숫자로만 입력하세요!");
+			return "redirect:/score/search"; 
+		} 
+	}
+}
+
+
+
+------------------------------------------------
+<service>
+#IScoreService
+package com.spring.database.jdbc.score.service;
+
+import java.util.List;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+
+public interface IScoreService {
+	//점수 등록 기능
+	void insertScore(ScoreVO scores);
+	
+	//점수 전체 조회 기능
+	List<ScoreVO> selectAllScores();
+	
+	//점수 삭제기능
+	void deleteScore(int stuNum);
+	
+	ScoreVO selectOneScore(int stuNum);
+	
+}
+
+
+
+
+#ScoreService
+
+
+
+package com.spring.database.jdbc.score.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+import com.spring.database.jdbc.score.repository.IScoreDAO;
+
+
+@Service
+public class ScoreService implements IScoreService {
+
+	@Autowired
+	private IScoreDAO dao;
+	
+	@Override
+	public void insertScore(ScoreVO scores) {
+		// TODO Auto-generated method stub
+		scores.calcData();
+		dao.insertScore(scores);
+	}
+
+	
+	@Override
+	public List<ScoreVO> selectAllScores() {
+		// TODO Auto-generated method stub
+		return dao.selectAllScores();
+	}
+	
+	
+
+	@Override
+	public void deleteScore(int stuNum) {
+		// TODO Auto-generated method stub
+		dao.deleteScore(stuNum);
+	}
+	
+	public ScoreVO selectOneScore(int stuNum) {
+		return dao.selectOneScore(stuNum);
+	}
+
+}
+
+
+------------------------------------------------
+<repositoty>
+#IScoreDAO
+package com.spring.database.jdbc.score.repository;
+
+import java.util.List;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+
+public interface IScoreDAO {
+	//점수 등록 기능
+	void insertScore(ScoreVO scores);
+	
+	//점수 전체 조회 기능
+	List<ScoreVO> selectAllScores();
+	
+	//점수 삭제기능
+	void deleteScore(int stuNum);
+	
+	ScoreVO selectOneScore(int stuNum);
+}
+
+
+
+
+#ScoreDAO
+
+
+package com.spring.database.jdbc.score.repository;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+
+//import com.spring.database.jdbc.score.commons.ScoreMapper;
+import com.spring.database.jdbc.score.model.ScoreVO;
+@Repository
+public class ScoreDAO implements IScoreDAO {
+	class ScoreMapper implements RowMapper<ScoreVO>{
+		@Override
+		public ScoreVO mapRow(ResultSet rs, int rowNum) throws SQLException {
+			// TODO Auto-generated method stub
+			ScoreVO score = new ScoreVO();
+			score.setStuId(rs.getInt("stu_id"));
+			score.setStuName(rs.getString("stu_name"));
+			score.setKor(rs.getInt("kor"));
+			score.setEng(rs.getInt("eng"));
+			score.setMath(rs.getInt("math"));
+			score.setTotal(rs.getInt("total"));
+			score.setAverage(rs.getDouble("average"));
+			
+			return score;
+		}
+	}
+
+	
+	/*
+	//#전통적 방식의 JDBC
+	private String driver = "com.mysql.cj.jdbc.Driver";
+	private String url = "jdbc:mysql://localhost:3306/spring?serverTimezone=Asia/Seoul";
+		//8버전 커넥터에서만 서버시간과 장소를알려줘야함
+	private String uid = "root";
+	private String upw = "mysql";
+	 */
+	
+	/*
+	 * 	
+	@Override
+	public void insertScore(ScoreVO scores) {
+		// TODO Auto-generated method stub
+		System.out.println("Repository param: " + scores);
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = "INSERT INTO scores "
+				+ "(stu_name, kor, eng, math, total, average) "
+				+ "VALUES (?, ?, ?, ?, ?, ?)";
+		
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, uid, upw);
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, scores.getStuName());
+			pstmt.setInt(2,  scores.getKor());
+			pstmt.setInt(3,  scores.getEng());
+			pstmt.setInt(4,  scores.getMath());
+			pstmt.setInt(5,  scores.getTotal());
+			pstmt.setDouble(6,  scores.getAverage());
+			
+			pstmt.executeUpdate();
+			System.out.println("점수 등록 성공!");
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+			} catch (Exception e) {}
+		}
+	}
+	*/
+	
+	//#Spring-JDBC 방식의 처리 : JdbcTemplate 사용!
+	@Autowired
+	private JdbcTemplate template; // 이거는 빈등록직접했다. 그래서 자동스캔됨
+	
+	
+	@Override
+	public void insertScore(ScoreVO scores) {
+		// TODO Auto-generated method stub
+		String sql = "INSERT INTO scores "
+				+ "(stu_name, kor, eng, math, total, average) "
+				+ "VALUES (?, ?, ?, ?, ?, ?)";
+		template.update(sql, scores.getStuName(), scores.getKor(), 
+				scores.getEng(), scores.getMath(), scores.getTotal(),
+				scores.getAverage());
+		
+		System.out.println("점수 등록 성공!");
+	}
+	
+	/*
+	@Override
+	public List<ScoreVO> selectAllScores() {
+		// TODO Auto-generated method stub
+		List<ScoreVO> list = new ArrayList<>();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		String sql = "SELECT * FROM scores";
+		
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, uid, upw);
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				ScoreVO vo = new ScoreVO();
+				vo.setStuId(rs.getInt("stu_id"));
+				vo.setStuName(rs.getString("stu_name"));
+				vo.setKor(rs.getInt("kor"));
+				vo.setEng(rs.getInt("eng"));
+				vo.setMath(rs.getInt("math"));
+				vo.setTotal(rs.getInt("total"));
+				vo.setAverage(rs.getDouble("average"));
+				
+				
+				list.add(vo);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+				rs.close();
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
+		
+		return list;
+	}
+	*/
+	/*
+	@Override
+	public List<ScoreVO> selectAllScores() {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM scores";
+		
+		//인터페이스를 구현한 클래스를 만들어서 template.query 사용하는법
+//		List<ScoreVO> list = template.query(sql, new ScoreMapper());
+		
+		//익명클래스
+		
+		List<ScoreVO> list = template.query(sql, new RowMapper<ScoreVO>() {
+			@Override
+			public ScoreVO mapRow(ResultSet rs, int rowNum) throws SQLException {
+				// TODO Auto-generated method stub
+				ScoreVO score = new ScoreVO();
+				score.setStuId(rs.getInt("stu_id"));
+				score.setStuName(rs.getString("stu_name"));
+				score.setKor(rs.getInt("kor"));
+				score.setEng(rs.getInt("eng"));
+				score.setMath(rs.getInt("math"));
+				score.setTotal(rs.getInt("total"));
+				score.setAverage(rs.getDouble("average"));
+				
+				return score;
+			}
+		});
+		
+		
+
+		return list;
+	}
+	*/
+
+	
+	//람다를 이용한 익명클래스
+	@Override
+	public List<ScoreVO> selectAllScores() {
+		String sql = "SELECT * FROM scores";
+		
+		return template.query(sql, (rs, rowNum) -> {
+			{
+				ScoreVO score = new ScoreVO();
+				score.setStuId(rs.getInt("stu_id"));
+				score.setStuName(rs.getString("stu_name"));
+				score.setKor(rs.getInt("kor"));
+				score.setEng(rs.getInt("eng"));
+				score.setMath(rs.getInt("math"));
+				score.setTotal(rs.getInt("total"));
+				score.setAverage(rs.getDouble("average"));
+				
+				return score;
+			}
+		});
+	}
+	
+	
+	@Override
+	public void deleteScore(int stuNum) {
+		// TODO Auto-generated method stub
+		String sql = "DELETE FROM scores WHERE stu_id=?";
+		template.update(sql, stuNum);
+		System.out.println("삭제성공!");
+	}
+
+	/*
+	public ScoreVO selectOneScore(int stuNum) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		String sql = "SELECT * FROM scores WHERE stu_id = ?";
+		
+		
+		ScoreVO vo = new ScoreVO();
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, uid, upw);
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, stuNum);
+			rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				vo.setStuId(rs.getInt("stu_id"));
+				vo.setStuName(rs.getString("stu_name"));
+				vo.setKor(rs.getInt("kor"));
+				vo.setEng(rs.getInt("eng"));
+				vo.setMath(rs.getInt("math"));
+				vo.setTotal(rs.getInt("total"));
+				vo.setAverage(rs.getDouble("average"));
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+				rs.close();
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
+		return vo;
+	} */
+	
+	@Override
+	public ScoreVO selectOneScore(int stuNum) {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM scores WHERE stu_id = ?";
+		
+		
+		//아래 두가지방법으로 ?를 채운 뒤 ScoreMapper에서 정의한 제너릭타입을 제너릭으로갖는 list 반환받기
+		//1)sql, 오브젝트배열, RowMapper구현한 클래스 형식
+		//2)sql, RowMapper구현한 클래스, 가변인수 형식
+//		template.query(sql,  new Object[] {stuNum}, new ScoreMapper());
+//		template.query(sql, new ScoreMapper(), stuNum);
+		
+		//queryForObject는 Single row를 리턴할때 사용
+				//조회결과가 한줄인걸 single row라함
+		//query는 multi row를 리턴할때 사용
+				//조회결과가 두개 이상인경우 multi row라하고 이때 list에 담는거임
+		template.queryForObject(sql, new ScoreMapper(), stuNum);
+				//RowMapper를 구현한 클래스 ScoreMapper의 제너릭이 queryForObject의 반환값을 결정함
+		return null;
+	}
+}
+
+
+------------------------------------------------
+<commons>
+#ScoreMapper
+
+
+package com.spring.database.jdbc.score.commons;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
+
+import com.spring.database.jdbc.score.model.ScoreVO;
+
+//Jdbc Template에서 ResultSet 사용을 편하게 하기위한 클래스 생성
+public class ScoreMapper implements RowMapper<ScoreVO>{
+	
+	@Override
+	public ScoreVO mapRow(ResultSet rs, int rowNum) throws SQLException {
+		// TODO Auto-generated method stub
+		ScoreVO score = new ScoreVO();
+		score.setStuId(rs.getInt("stu_id"));
+		score.setStuName(rs.getString("stu_name"));
+		score.setKor(rs.getInt("kor"));
+		score.setEng(rs.getInt("eng"));
+		score.setMath(rs.getInt("math"));
+		score.setTotal(rs.getInt("total"));
+		score.setAverage(rs.getDouble("average"));
+		
+		return score;
+	}
+}
+
+
+------------------------------------------------
+<views/score>
+
+#write-form.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>시험 점수 등록</h2>
+<form method = "post">
+	<p>
+		# 이름 : <input type = "text" name = "stuName"><br>
+		# 국어 : <input type = "text" name = "kor"><br>
+		# 영어 : <input type = "text" name = "eng"><br>
+		# 수학 : <input type = "text" name = "math"><br>
+		<input type = "submit" value = "확인">
+	</p>
+</form>
+
+</body>
+</html>
+
+
+
+#write-result.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h2>점수 등록 성공!</h2>
+	<a href = "/database/score/register">다른 점수 등록하기</a>
+	<a href = "/database/score/list">점수 전체 조회</a>
+	<a href = "/database/score/search">점수 개별 조회</a>
+
+</body>
+</html>
+
+
+
+
+#list.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>    
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>학생들의 전체  성적 조회</h2>
+<c:forEach var = "stu" items = "${sList}">
+	<p>
+		# 학번 : ${stu.stuId}, 이름 : ${stu.stuName}, 국어 : ${stu.kor}, 영어 : ${stu.eng},
+		 수학 : ${stu.math}, 총점 : ${stu.total}, 평균 : ${stu.average}
+		&nbsp;
+		<a href = "/database/score/delete?stuNum=${stu.stuId}">[삭제]</a>	
+	</p>
+</c:forEach>
+
+<a href = "/database/score/register">다른 점수 등록하기</a> 
+<a href = "/database/score/list">점수 전체 조회</a>
+<a href = "/database/score/search">점수 개별 조회</a>
+
+<script type = "text/javascript">
+	const msg = "${message}";
+	console.log(msg);
+	if (msg === "delSuccess") {
+		alert("점수 삭제 완료!");
+	}
+</script>
+
+
+</body>
+</html>
+
+
+#search.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>개별 점수 조회</h2>
+<form action = "/database/score/selectOne" method = "post">
+	<p>
+		#조회할 학번 : <input type = "text" name = "stuNum" size = "5">
+				   <input type = "submit" value = "조회">
+	</p>
+</form>
+
+<p style = "color:red;">
+	${message}
+</p>
+
+</body>
+</html>
+
+
+
+
+
+
+#select-result.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>${stu.stuName}학생 성적 정보 조회</h2>
+
+<p>	
+	# 국어 : ${stu.kor} <br>
+	# 영어 : ${stu.eng} <br>
+	# 수학 : ${stu.math} <br>
+	# 총점 : ${stu.total} <br>
+	# 평균 : ${stu.average} 
+</p>
+
+<a href = "/database/score/register">다른 점수 등록하기</a> 
+<a href = "/database/score/list">점수 전체 조회</a>
+<a href = "/database/score/search">점수 개별 조회</a>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+40) SpringWebBasic project의 Board(게시판만드는 앱)를 위 score처럼 DB에 연결하라
+
+com.spring.database.jdbc.board.model
+com.spring.database.jdbc.board.controller
+com.spring.database.jdbc.board.repository
+com.spring.database.jdbc.board.service
+
+저 패키지에 싹다 붙여넣기 호환성점검
+views의 board 폴더도 그대로 붙여넣기 후 호환성점검
+
+
+1)DB에 jdbc_board table 생성(java의 BoardVO의 필드명을보고 만들면됨)하여 jdbc 프로그래밍하라
+	-게시판번호에 관련된 필드명만 알려줌 : board_no
+		-score할때랑 똑같은 방식으로 만들면됨
+			-작성자, 제목은 아무것도 안넣으면 안되게끔하고 내용은 그냥 기본 변수형으로 하고 Type은 TEXT로 하라
+
+	-게시판번호에 대해 BoardVO의 필드명은 boardNo로 해라
+
+	-list.jsp에서 보여줄때 내림차순으로 보여지도록 DAO에서 sql문을 조작해라
+		-7,6,5,4,3 처럼 위에서 아래로 떨어지게 해라
+	-글 내용 자세히보기할때 content() 메소드에서 매개변수로 바로 @ModelAttribute하는걸 빼고 int boardNo만 받아서 해봐라
+		-당연히된다. 왜냐면 article에 boardNo 필드가 있기때문
+		-modify()도 마찬가지
+		-추가로 DAO나 service에 매개변수가 줄어야하면 줄여라
+
+
+2)검색기능 추가
+	-왜 서비스에서 굳이 %를 붙이는지 이해해라
+		-DAO에서 문자열에 %?% 이렇게하면 프리페어스테이트먼트가 ?에 문자열의 경우 ''를 붙이기때문에(문자열 아닌 숫자에서도
+				붙이는게 맘편하다)
+			MYSQL로 넘어가면 최종적으로 %'?'% 형태가된다. 우리가 바라는 것은
+			'%?%'이니까 서비스에서 붙여야하는 것이다.
+	-검색기능 추가하는 jsp페이지는 따로만들지 말고 list에서 바로 검색할수 있도록 하고 아래 나온것처럼 get방식으로 처리해라(이유는 없다)
+											-원래 강사님이 값넘길댄 보안상 
+											 post로하는거같던데 왜 get으로 했는지는
+											 모르겠음
+#MySQL
+	-김뽀삐 3명정도 같은이름 다른내용으로 추가해라(검색을위해서)
+		-박뽀삐도 넣어라 (뽀삐로 검색했을때 4명 나오는걸 보기 위해서)
+	-이름이 김뽀삐와 일치하는 레코드(행)를 내림차순으로 출력한다.
+		SELECT * FROM jdbc_board
+		WHERE writer = '김뽀삐'
+		ORDER BY board_no DESC;
+		
+	-이름중에 뽀삐라는게 들어가있는 레코드(행)을 내림차순으로 출력한다.
+		SELECT * FROM jdbc_board
+		WHERE writer LIKE '%뽀삐%'
+		ORDER BY board_no DESC;
+
+	-제목, 내용 등으로도 검색해서 연습해봐라
+
+#IBoardService, IBoardDAO
+	-List<BoardVO> getSearchList(String keyword);
+
+#list.jsp의 </table>과 </c:if> 사이에 넣어라
+
+	</table>
+
+	<br>
+	<form action = "<c:url value = '/board/searchList'/>">
+		<input type = "text" name = "keyword" placeholder = "작성자 이름을 입력하세요">
+		<input type = "submit" value = "검색">	
+	</form>
+</c:if>
+
+##############################################################################
+
+답:
+
+
+<MySQL>
+-- jdbc 게시판 테이블 생성
+
+CREATE TABLE jdbc_board(
+	board_no INT PRIMARY KEY AUTO_INCREMENT,
+    writer VARCHAR(100) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT
+);
+
+SELECT * FROM jdbc_board;
+
+------------------------------
+<model>
+#BoardVO
+package com.spring.database.jdbc.board.model;
+
+public class BoardVO {
+	private Integer boardNo;
+	private String writer;
+	private String title;
+	private String content;
+	
+	
+	
+	public BoardVO() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	
+	
+
+	public Integer getBoardNo() {
+		return boardNo;
+	}
+
+
+
+
+	public void setBoardNo(Integer boardNo) {
+		this.boardNo = boardNo;
+	}
+
+
+
+
+	public String getWriter() {
+		return writer;
+	}
+
+	public void setWriter(String writer) {
+		this.writer = writer;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	@Override
+	public String toString() {
+		return "BoardVO [writer=" + writer + ", title=" + title + ", content=" + content + "]";
+	}
+	
+	
+	
+
+}
+
+
+------------------------------
+<controller>
+#BoardController
+package com.spring.database.jdbc.board.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.spring.database.jdbc.board.model.BoardVO;
+import com.spring.database.jdbc.board.service.IBoardService;
+
+@Controller
+@RequestMapping("/board")
+public class BoardController {
+	@Autowired
+	private IBoardService service;
+	
+	//등록
+	@RequestMapping(value = "/write", method = RequestMethod.GET)
+	public void write() {
+		System.out.println("/board/write 요청됨 : GET");
+	}
+	
+	@RequestMapping(value = "/write", method = RequestMethod.POST)
+	public String write(BoardVO article) {
+		System.out.println("/board/write 요청됨 : POST");
+		service.insertArticle(article);
+		return "redirect:/board/list";
+	}
+	
+	//목록보기
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	public void list(Model model) {
+		List<BoardVO> articles = service.getArticles();
+		model.addAttribute("articles", articles);
+	}
+	
+	//삭제
+	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	public String delete(int boardNo) {
+		System.out.println("/board/delete?boardNo=" + boardNo + " 요청됨 : GET");
+		service.deleteArticle(boardNo);
+		return "redirect:/board/list";
+	}
+	
+	//게시글확인(상세보기)
+	@RequestMapping(value = "/content", method = RequestMethod.GET)
+	public void content(int boardNo, Model model) {
+		System.out.println("/board/content 요청됨 : GET");
+		BoardVO article = service.getContent(boardNo);
+		model.addAttribute("article", article);
+	}
+	
+	//게시글 수정
+	@RequestMapping(value = "/modify", method = RequestMethod.GET)
+	public void modify(int boardNo, Model model) {
+		System.out.println("/board/modify 요청됨 : GET");
+		BoardVO article = service.getContent(boardNo);
+		model.addAttribute("article", article);
+	}
+	
+	@RequestMapping(value = "/modify", method = RequestMethod.POST)
+	public String modify(BoardVO article) {
+		System.out.println("/board/modify 요청됨 : POST");
+		service.modifyArticle(article);
+		return "redirect:/board/content?boardNo=" + article.getBoardNo();
+	}
+	
+	
+	@RequestMapping(value = "/searchList", method = RequestMethod.GET)
+	public String searchList(String keyword, Model model) {
+		List<BoardVO> list = service.getSearchList(keyword);
+		model.addAttribute("articles", list);
+		
+		return "board/list";
+	}
+	
+}
+
+------------------------------
+<service>
+#IBoardService
+package com.spring.database.jdbc.board.service;
+
+import java.util.List;
+
+import com.spring.database.jdbc.board.model.BoardVO;
+
+public interface IBoardService {
+	//게시글 목록 가져오기
+	List<BoardVO> getArticles();
+	
+	//게시글 등록
+	void insertArticle(BoardVO article);
+	
+	//게시글 삭제
+	void deleteArticle(int boardNo);
+	
+	//게시글 내용보기
+	BoardVO getContent(int boardNo);
+	
+	//게시글 수정
+	void modifyArticle(BoardVO article);
+	
+	//게시글 검색
+	List<BoardVO> getSearchList(String keyword);
+}
+
+
+
+#BoardService
+package com.spring.database.jdbc.board.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.spring.database.jdbc.board.model.BoardVO;
+import com.spring.database.jdbc.board.repository.IBoardDAO;
+
+@Service
+public class BoardService implements IBoardService {
+	@Autowired
+	private IBoardDAO dao;
+	
+	@Override
+	public List<BoardVO> getArticles() {
+		// TODO Auto-generated method stub
+		return dao.getArticles();
+	}
+
+	@Override
+	public void insertArticle(BoardVO article) {
+		// TODO Auto-generated method stub
+		dao.insertArticle(article);
+	}
+
+	@Override
+	public void deleteArticle(int boardNo) {
+		// TODO Auto-generated method stub
+		dao.deleteArticle(boardNo);
+	}
+
+	@Override
+	public BoardVO getContent(int boardNo) {
+		// TODO Auto-generated method stub
+		return dao.getContent(boardNo);
+	}
+
+	@Override
+	public void modifyArticle(BoardVO article) {
+		// TODO Auto-generated method stub
+		dao.modifyArticle(article);
+	}
+
+	@Override
+	public List<BoardVO> getSearchList(String keyword) {
+		// TODO Auto-generated method stub
+		keyword = "%" + keyword + "%";
+		return dao.getSearchList(keyword);
+	}
+}
+
+
+
+
+------------------------------
+<repository>
+#IBoardDAO
+package com.spring.database.jdbc.board.repository;
+
+import java.util.List;
+
+import com.spring.database.jdbc.board.model.BoardVO;
+
+public interface IBoardDAO {
+	//게시글 목록 가져오기
+	List<BoardVO> getArticles();
+	
+	//게시글 등록
+	void insertArticle(BoardVO article);
+	
+	//게시글 삭제
+	void deleteArticle(int boardNo);
+	
+	//게시글 내용보기
+	BoardVO getContent(int boardNo);
+	
+	//게시글 수정
+	void modifyArticle(BoardVO article);
+	
+	//게시글 검색
+	List<BoardVO> getSearchList(String keyword);
+}
+
+
+
+
+
+
+#BoardDAO
+package com.spring.database.jdbc.board.repository;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+
+import com.spring.database.jdbc.board.model.BoardVO;
+
+@Repository
+public class BoardDAO implements IBoardDAO {
+	
+	class BoardMapper implements RowMapper<BoardVO> {
+		
+		@Override
+		public BoardVO mapRow(ResultSet rs, int rowNum) throws SQLException {
+			// TODO Auto-generated method stub
+			BoardVO vo = new BoardVO();
+			
+			vo.setBoardNo(rs.getInt("board_no"));
+			vo.setWriter(rs.getString("writer"));
+			vo.setTitle(rs.getString("title"));
+			vo.setContent(rs.getString("content"));
+			
+			return vo;
+		}
+	}
+	
+	@Autowired
+	private JdbcTemplate template;
+	
+	@Override
+	public List<BoardVO> getArticles() {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM jdbc_board ORDER BY board_no DESC";
+
+		/*
+		List<BoardVO> list = template.query(sql, new RowMapper<BoardVO>() {
+			@Override
+			public BoardVO mapRow(ResultSet rs, int rowNum) throws SQLException {
+				// TODO Auto-generated method stub
+				BoardVO vo = new BoardVO();
+				
+				vo.setBoardNo(rs.getInt("board_no"));
+				vo.setWriter(rs.getString("writer"));
+				vo.setTitle(rs.getString("title"));
+				vo.setContent(rs.getString("content"));
+				
+				return vo;
+			}
+		});
+		*/
+		
+		List<BoardVO> list = template.query(sql, (rs, rowNum) -> {
+
+				BoardVO vo = new BoardVO();
+				
+				vo.setBoardNo(rs.getInt("board_no"));
+				vo.setWriter(rs.getString("writer"));
+				vo.setTitle(rs.getString("title"));
+				vo.setContent(rs.getString("content"));
+				
+				return vo;
+		});
+		
+		
+		return list;
+	}
+
+	@Override
+	public void insertArticle(BoardVO article) {
+		// TODO Auto-generated method stub
+		String sql = "INSERT INTO jdbc_board "
+				+ "(writer, title, content) "
+				+ "VALUES (?, ?, ?)";
+		
+		template.update(sql, article.getWriter(), article.getTitle(), 
+				article.getContent());
+		
+		System.out.println(article); // 로그찍기
+		System.out.println("게시글 저장 완료!!");
+	}
+
+	@Override
+	public void deleteArticle(int boardNo) {
+		// TODO Auto-generated method stub
+		String sql = "DELETE FROM jdbc_board WHERE board_no = " + boardNo;
+		template.update(sql);
+		System.out.println(boardNo + "번 삭제 완료!");
+	}
+
+	@Override
+	public BoardVO getContent(int boardNo) {
+		// TODO Auto-generated method stub
+		String sql = "SELECT * FROM jdbc_board WHERE board_no = ?";
+//		String sql = "SELECT * FROM jdbc_board WHERE board_no = " + boardNo;
+		
+		BoardVO vo = template.queryForObject(sql, new Object[] {boardNo}, new BoardMapper());
+//		template.queryForObject(sql, new BoardMapper(), boardNo);
+				
+		return vo;
+	}
+
+	@Override
+	public void modifyArticle(BoardVO article) {
+		// TODO Auto-generated method stub
+		String sql = "UPDATE jdbc_board "
+				+ "SET writer = ?, title = ?, content = ? "
+				+ "WHERE board_no = ?";
+		
+		template.update(sql, article.getWriter(), article.getTitle(),
+								article.getContent(), article.getBoardNo());
+		System.out.println(article.getBoardNo() + "번 게시글 수정 완료!");
+	}
+
+	
+	@Override
+	public List<BoardVO> getSearchList(String keyword) {
+		// TODO Auto-generated method stub
+		System.out.println(keyword);
+		String sql = "SELECT * FROM jdbc_board "
+				+ "WHERE writer LIKE ? "
+				+ "ORDER BY board_no DESC";
+		
+		return template.query(sql, new BoardMapper(), keyword);
+	}
+}
+
+
+
+
+
+------------------------------
+<views/board>
+#write.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>게시글 등록</h2>
+
+<form method="post">
+
+	<p>
+		# 작성자: <input type="text" name="writer"><br>
+		# 제목: <input type="text" name="title"><br>
+		# 내용: <textarea rows="3" name="content"></textarea>
+		<br>
+		<input type="submit" value="등록">
+	</p>
+</form>
+<a href = "<c:url value = '/board/list'/>">글 목록보기</a>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+#list.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<c:if test = "${articles.size() <= 0}">
+	<p>게시물이 존재하지 않습니다.</p>
+</c:if>
+
+<c:if test = "${articles.size() > 0}">
+	<h2>게시글 목록</h2>
+	<table border = "1">
+	
+		<tr>
+			<td>번호</td>
+			<td>작성자</td>
+			<td>제목</td>
+			<td>비고</td>
+		</tr>
+		
+		<%-- 컨트롤러가 가져온 게시글 데이터를 반복하여 출력 --%>
+		<%-- 게시물 개수가 0개일 경우 목록대신 "게시물이 존재하지 않습니다." 출력--%>
+	
+		
+		<c:forEach var = "article" items = "${articles}" >
+			<tr>
+				<td>${article.boardNo}</td>
+				<td>${article.writer}</td>
+				<td>
+					<a href = "<c:url value = '/board/content?boardNo=${article.boardNo}'/>">${article.title}</a>
+				</td>
+				<td>
+					<a href = "<c:url value = '/board/delete?boardNo=${article.boardNo}'/>">[삭제]</a>
+				</td>
+			</tr>
+		</c:forEach>
+		
+	</table>
+	
+	<br>
+	<form action = "<c:url value = '/board/searchList'/>">
+		<input type = "text" name = "keyword" placeholder = "작성자 이름을 입력하세요">
+		<input type = "submit" value = "검색">	
+	</form>
+</c:if>
+
+
+
+<p>
+	<a href = "<c:url value = '/board/write'/>">게시글 작성하기</a>
+</p>
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+#content.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>${article.boardNo}번 게시물 내용</h2>
+
+<p>
+	# 글번호: ${article.boardNo}<br>
+	# 작성자: ${article.writer}<br>
+	# 제목: ${article.title}<br>
+	# 내용: <textarea rows="3" disabled>${article.content}</textarea>	
+</p>
+
+<a href="<c:url value = '/board/list'/>">글 목록보기</a>&nbsp;
+<a href="<c:url value = '/board/modify?boardNo=${article.boardNo}'/>">글 수정하기</a>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+#modify.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>${article.boardNo}번 게시물 내용 수정</h2>
+<form method="post">
+
+	<p>
+		# 글번호: ${article.boardNo}<br>
+		# 작성자: <input type="text" name="writer" value="${article.writer}"><br>
+		# 제목: <input type="text" name="title" value="${article.title}"><br>
+		# 내용: <textarea rows="3" name="content">${article.content}</textarea>
+		<br>
+		<input type="submit" value="수정">
+	</p>
+</form>
+
+<a href="<c:url value = '/board/list'/>">글 목록보기</a>&nbsp;
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
