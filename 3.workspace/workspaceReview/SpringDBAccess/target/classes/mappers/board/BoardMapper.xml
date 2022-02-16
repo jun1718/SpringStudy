@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+    
+<mapper namespace="com.spring.database.jdbc.board.repository.IBoardMapper">
+
+	<resultMap id="BoardMap" type="com.spring.database.jdbc.board.model.BoardVO">
+		<id property = "boardNo" column = "board_no" />
+		<result property = "writer" column = "writer" /> 
+		<result property = "title" column = "title" /> 
+		<result property = "content" column = "content" /> 
+	</resultMap>
+
+	<insert id = "insertArticle">
+		INSERT INTO jdbc_board
+			(writer, content, title)
+		VALUES (#{writer}, #{content}, #{title})
+	</insert>
+	
+	<select id = "getArticles" resultMap = "BoardMap">
+		SELECT * FROM jdbc_board
+	</select>
+	
+	<delete id = "deleteArticle">
+		DELETE FROM  jdbc_board
+		WHERE board_no = #{boardNo}
+	</delete>
+	
+	<select id = "getContent" resultMap = "BoardMap">
+		SELECT * FROM jdbc_board
+		WHERE board_no = #{boardNo}
+	</select>
+	
+	<update id = "modifyArticle">
+		UPDATE jdbc_board
+		SET writer = #{writer}, title = #{title}, content = #{content}
+		WHERE board_no = #{boardNo}
+	</update>
+	
+	<select id = "getSearchList" resultMap = "BoardMap">
+		SELECT * FROM jdbc_board
+		WHERE writer LIKE #{keyword}
+	</select>
+	
+</mapper>

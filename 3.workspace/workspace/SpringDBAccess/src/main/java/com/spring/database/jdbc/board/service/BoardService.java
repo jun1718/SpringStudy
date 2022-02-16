@@ -6,12 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.database.jdbc.board.model.BoardVO;
-import com.spring.database.jdbc.board.repository.IBoardDAO;
+import com.spring.database.jdbc.board.repository.IBoardMapper;
 
 @Service
 public class BoardService implements IBoardService {
+	//jdbc template를 이용한 sql 처리
+//	@Autowired
+//	private IBoardDAO dao;
+	
+	//mybatis를 이용한 sql 처리
 	@Autowired
-	private IBoardDAO dao;
+	private IBoardMapper dao;
 	
 	@Override
 	public List<BoardVO> getArticles() {

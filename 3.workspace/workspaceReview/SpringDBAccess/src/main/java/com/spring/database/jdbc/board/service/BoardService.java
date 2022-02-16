@@ -6,12 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.database.jdbc.board.model.BoardVO;
-import com.spring.database.jdbc.board.repository.IBoardDAO;
+import com.spring.database.jdbc.board.repository.IBoardMapper;
 
 @Service
 public class BoardService implements IBoardService {
+//	@Autowired
+//	private IBoardDAO dao;
+	
 	@Autowired
-	private IBoardDAO dao;
+	private IBoardMapper dao;
 	
 	@Override
 	public List<BoardVO> getArticles() {
