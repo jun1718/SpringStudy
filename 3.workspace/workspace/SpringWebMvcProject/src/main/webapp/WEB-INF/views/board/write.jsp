@@ -16,7 +16,7 @@ header.masthead {
       <div class="card-header text-white" style="background-color: #ff52a0;"> 게시글 등록</div>
       <div class="card-body">
 
-        <form role="form" action="#" method="post">
+        <form role="form" method="post">
         
           <div class="form-group">
             <label>작성자</label>
@@ -47,4 +47,6 @@ header.masthead {
   </div>
 </div>
 </div>
+
+
 <jsp:include page="../include/footer.jsp" />

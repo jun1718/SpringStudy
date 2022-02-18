@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!-- 포매팅 관련 태그라이브러리 -->
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <jsp:include page="../include/header.jsp" />
 <style>
@@ -49,19 +50,30 @@ header.masthead {
 						</thead>
 
 						<!-- 게시물이 들어갈 공간 -->
-							<tr style="color: #ff52a0;">
-								<td>글번호</td>
-								<td>이름</td>
-
-								<td><a style="margin-top: 0; height: 40px; color: orange;" href="#">
-										제목
-									</a>
-								</td>
-
-								<td>날짜</td>
-								<td>조회수</td>
-							</tr>
-						
+						<c:if test = "${articles.size() <= 0}">
+							<h2>게시물이 없습니다.</h2>
+						</c:if>
+						<c:if test = "${articles.size() > 0}">						
+							<c:forEach var = "article" items = "${articles}">
+								<tr style="color: #ff52a0;">
+									<td>${article.boardNo}</td>
+									<td>${article.writer}</td>
+	
+									<td><a style="margin-top: 0; height: 40px; color: orange;" href="<c:url value = '/board/content/${article.boardNo}'/>">
+											${article.title}
+										</a>
+									</td>
+	
+									<!-- 이방식은 날짜시간이 드릅게 나온다
+									<td>${article.regDate}</td>
+									 -->
+									<td>
+										<fmt:formatDate value="${article.regDate}" pattern = "yyyy년 MM월 dd일 a hh:mm"/>
+									</td>
+									<td>${article.viewCnt}</td>
+								</tr>
+							</c:forEach>
+						</c:if>
 					</table>
 					
 					<!-- 페이징 처리 부분  -->
@@ -104,11 +116,22 @@ header.masthead {
 	                        </div>
 	                    </div>
 	                    <div class="col-sm-2">
-							<a href="#" class="btn btn-izone float-right">글쓰기</a>
+							<a href="<c:url value = '/board/write'/>" class="btn btn-izone float-right">글쓰기</a>
 						</div>
 						<div class="col-sm-2"></div>
 					</div>
 					
 		
 	</div>
+	
+<script type="text/javascript">
+	//글쓰기 완료시 띄울 알림창처리
+	const result = "${msg}";
+	
+	if (result === "regSuccess") {
+		alert("게시글 등록이 완료되었습니다.");
+	} else if (result === "delSuccess") {
+		alert("게시글 삭제가 완료되었습니다.");
+	}
+</script>
 <jsp:include page="../include/footer.jsp" />
