@@ -1,7 +1,6 @@
 INDEX VERSION 1.131+C:\IT\1.programming\10.Spring\SpringStudy\3.workspace\workspace\.metadata\.plugins\org.eclipse.jdt.core
 671969239.index
 3173918989.index
-231927503.index
 2631265121.index
 1758395204.index
 664900621.index

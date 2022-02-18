@@ -1,0 +1,232 @@
+22.02.18.12회차
+===============================================================================
+*
+===============================================================================
+
+
+
+
+
+------------------------------
+<model>
+#BoardVO
+
+
+------------------------------
+<controller>
+#BoardController
+
+------------------------------
+<service>
+#IBoardService
+#BoardService
+
+------------------------------
+<repository>
+#IBoardDAO
+
+#BoardDAO
+
+------------------------------
+<views/board>
+#write.jsp
+
+#list.jsp
+
+#content.jsp
+
+#modify.jsp
+
+
+
+
+
+
+
+##############################################################################
+47)벡엔드 구조 설계 및 게시글 목록불러오기 준비운동
+
+com.spring.mvc.board.service.IBoardService
+com.spring.mvc.board.service.BoardService
+com.spring.mvc.board.controller.BoardController
+
+
+1)게시글 목록 불러오기 요청
+	-console : 
+		-URL : /board/list GET -> result : 320
+		-list의 객체들의 .toString() 정보 출력(람다를 이용해서 해라)
+	-웹브라우저 응답 : 
+		-list의 객체들의 .toString() 정보 출력
+	
+
+*아래 list.jsp를 이용하여 풀어라
+#list.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core"  %>    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>게시판 목록보기</h2>
+
+
+
+</body>
+</html>	
+##############################################################################
+
+
+답: 
+
+
+#BoardController
+
+
+package com.spring.mvc.board.controller;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.spring.mvc.board.model.BoardVO;
+import com.spring.mvc.board.service.IBoardService;
+
+@Controller
+@RequestMapping("/board")
+public class BoardController {
+	@Inject
+	private IBoardService service;
+	
+	//게시글 목록 불러오기 요청
+	@GetMapping("/list")
+	public String list(Model model) {
+		List<BoardVO> list = service.getArticleList();
+		System.out.println("URL : /board/list GET -> result : " + list.size());
+//		list.forEach(article -> System.out.println(article));
+		
+		model.addAttribute("articles", list);
+		return "board/list";
+	}
+}
+
+
+
+#list.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core"  %>    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>게시판 목록보기</h2>
+<c:forEach var = "b" items = "${articles}">
+	<p>${b}</p>
+</c:forEach>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+48)외부 ui 템플릿 사용
+
+-views의 board폴더 및 home.jsp 삭제
+-강의 자료 외부템플릿의 views의 내용 전부 복사붙여넣기(12일차 자료)
+-webapp/resources에 강의자료 외부템플릿의 resources 내부 5개자료 복붙
+
+##############################################################################
+
+
+답:
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+49)
+
+
+##############################################################################
+
+
+답:
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+50)
+
+
+##############################################################################
+
+
+답:
+
+
+
+
+
+
+
+
+##############################################################################
+51)
+
+
+##############################################################################
+
+
+답:
+
