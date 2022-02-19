@@ -36,12 +36,12 @@ header.masthead {
           </div>
           
            
-        <form role="form" action="<c:url value = '/board/delete'/>" method="post">
+        <form id = "formObj" role="form" action="<c:url value = '/board/delete'/>" method="post">
 	      <input type="hidden" name="boardNo" value="${article.boardNo}">	
         
           <input type= "button" value = "목록" class="btn" onclick = "location.href='/board/list'"  
 				style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">&nbsp;&nbsp;
-          <input type = "button" value = "수정" class="btn btn-warning" onclick = "" style="color: white;">&nbsp;&nbsp;
+          <input id = "modBtn" type = "button" value = "수정" class="btn btn-warning"  style="color: white;">&nbsp;&nbsp;
           <input type = "submit" value = "삭제" class="btn btn-warning" onclick = "return confirm('정말로 삭제하시겠습니까?')">&nbsp;&nbsp;
         </form>
 		
@@ -52,4 +52,33 @@ header.masthead {
   </div>
 </div>
 </div>
+
+
+
+<script>
+	const result = "${msg}";
+	if (result === "modSuccess") {
+		alert("게시물 수정 완료!");
+	}
+
+//jquery의 시작
+$(function() {
+	//변수는 let, 상수는 const로 선언 2015에 개선된문법(ES2015문법) var를 쓰지말란얘기임 혼용은 됨
+	const formElement = $("#formObj");
+	
+	//수정 버튼 클릭 이벤트 처리
+	//var modifyBtn = document.getElementById("modBtn"); // vanila js 원형, 원래문법임
+	var modifyBtn = $("#modBtn");
+	modifyBtn.click(function() {
+		console.log("수정 버튼이 클릭됨!");
+		formElement.attr("action", "/board/modify");
+		formElement.attr("method", "get");
+		formElement.submit();
+	});
+	
+	
+	
+}); //익명함수, jquery의 끝
+	
+</script>
 <jsp:include page="../include/footer.jsp" />

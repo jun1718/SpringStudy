@@ -23,10 +23,24 @@ public class BoardController {
 	private IBoardService service;
 	
 	//게시글 목록 불러오기 요청
+	/*
 	@GetMapping("/list")
 	public void list(Model model) {
 		List<BoardVO> list = service.getArticleList();
 		System.out.println("URL : /board/list GET -> result : " + list.size());
+//		list.forEach(article -> System.out.println(article));
+		
+		model.addAttribute("articles", list);
+//		return "board/list";
+	}
+	*/
+	
+	//페이징 처리 이후 게시글 목록 불러오기 요청
+	@GetMapping("/list")
+	public void list(Integer page, Model model) {
+		List<BoardVO> list = service.getArticleListPaging(page);
+		System.out.println("URL : /board/list GET -> result : " + list.size());
+		System.out.println("parameter(페이지번호) : " + page);
 //		list.forEach(article -> System.out.println(article));
 		
 		model.addAttribute("articles", list);
@@ -81,6 +95,28 @@ public class BoardController {
 		service.delete(boardNo);
 		ra.addFlashAttribute("msg", "delSuccess");
 		return "redirect:/board/list";
+	}
+	
+	@GetMapping("/modify")
+	public String modify(Integer boardNo, Model model) {
+		System.out.println("URL: /board/modify => GET");
+		System.out.println("Parameter(글 번호) : " + boardNo);
+		model.addAttribute("article", service.getArticle(boardNo));
+		
+		return "board/modify";
+	}
+	
+	//게시물 수정 요청
+	@PostMapping("/modify")
+	public String modify(BoardVO article, RedirectAttributes ra) {
+		System.out.println("URL: /board/modify => POST");
+		System.out.println("parameter(게시글): " + article);
+		
+		service.update(article);
+		
+		ra.addFlashAttribute("msg", "modSuccess");
+		
+		return "redirect:/board/content/" + article.getBoardNo();
 	}
 	
 }

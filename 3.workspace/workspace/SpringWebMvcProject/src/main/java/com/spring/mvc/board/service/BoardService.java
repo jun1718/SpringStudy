@@ -29,6 +29,13 @@ public class BoardService implements IBoardService {
 	}
 
 	@Override
+		public List<BoardVO> getArticleListPaging(int page) {
+			// TODO Auto-generated method stub
+			page = (page - 1) * 10;
+			return mapper.getArticleListPaging(page);
+		}
+	
+	@Override
 	public BoardVO getArticle(Integer boardNo) {
 		// TODO Auto-generated method stub
 		return mapper.getArticle(boardNo);

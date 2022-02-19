@@ -11,6 +11,9 @@ public interface IBoardService {
 		// 게시글 목록 조회
 		List<BoardVO> getArticleList();
 		
+		//게시글 페이징 목록조회기능
+		List<BoardVO> getArticleListPaging(int page);
+		
 		// 게시글 상세 조회기능
 		BoardVO getArticle(Integer boardNo);
 		
