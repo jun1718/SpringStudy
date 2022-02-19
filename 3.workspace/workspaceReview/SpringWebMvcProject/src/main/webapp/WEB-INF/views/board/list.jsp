@@ -73,9 +73,12 @@ header.masthead {
 							style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">이전</a>
 						</li>
 						
+						<c:forEach var = "pageNum" begin = "1" end = "10">
 						<li class="page-item">
-						   <a href="#" class="page-link" style="margin-top: 0; height: 40px; color: pink; border: 1px solid pink;">1</a>
+						   <a href="<c:url value = '/board/list?page=${pageNum}'/>" class="page-link" style="margin-top: 0; height: 40px; color: pink; border: 1px solid pink;">${pageNum}</a>
 						</li>
+						
+						</c:forEach>
 					   
 					    <li class="page-item">
 					      <a class="page-link" href="#" 
@@ -121,5 +124,14 @@ header.masthead {
 	} else if (result == "delSuccess") {
 		alert("게시글 삭제 완료했습니다.");
 	}
+	
+	$(function() {
+		let countPerPage = $("#count-per-page .btn-izone");
+		countPerPage.click(function() {
+			let count = $(this).val();
+			location.href = "/board/list?countPerPage=" + count;
+		});
+	});
+	
 </script>
 <jsp:include page="../include/footer.jsp" />

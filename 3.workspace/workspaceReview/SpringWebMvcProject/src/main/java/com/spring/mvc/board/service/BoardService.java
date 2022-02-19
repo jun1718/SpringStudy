@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.repository.IBoardMapper;
+import com.spring.mvc.commons.PageVO;
 
 @Service
 public class BoardService implements IBoardService {
@@ -25,6 +26,13 @@ public class BoardService implements IBoardService {
 	public List<BoardVO> getArticleList() {
 		// TODO Auto-generated method stub
 		return mapper.getArticleList();
+	}
+	
+	@Override
+	public List<BoardVO> getArticleListPaging(PageVO paging) {
+		// TODO Auto-generated method stub
+		System.out.println("BoardService test paging : " + paging);
+		return mapper.getArticleListPaging(paging);
 	}
 
 	@Override

@@ -33,15 +33,19 @@ header.masthead {
             <textarea class="form-control" rows="5" name='bContent' readonly>${article.content}</textarea>
           </div>
 
-        <form role="form" action="<c:url value = '/board/delete'/>" method="post">
+        <form id = "formObj" role="form" action="<c:url value = '/board/delete'/>" method="post">
         
 
          <input type = "hidden" name = "boardNo" value = "${article.boardNo}">
           <input type = "button" value = "목록" class="btn" onclick = "location.href = '/board/list'"
 		style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">&nbsp;&nbsp;
-          <input type = "button" value = "수정" class="btn btn-warning" onclick = ""
+         <!--  
+          <input type = "button" value = "수정" class="btn btn-warning" onclick = "location.href = '/board/modify?boardNo=${article.boardNo}'"
 		style="color: white;">&nbsp;&nbsp;
-		<input type = "submit" value = "삭제" class="btn btn-warning" onclick = "return confirm('정말로 삭제할래요?')"">&nbsp;&nbsp;
+		-->
+          <input id = "modBtn" type = "button" value = "수정" class="btn btn-warning" 
+		style="color: white;">&nbsp;&nbsp;
+		<input type = "submit" value = "삭제" class="btn btn-warning" onclick = "return confirm('정말로 삭제할래요?')">&nbsp;&nbsp;
         
         </form>
 
@@ -52,4 +56,30 @@ header.masthead {
   </div>
 </div>
 </div>
+
+<script>
+
+	const result = "${msg}";
+	if (result === "modSuccess"){
+		alert("게시글 수정 완료되었습니다.");
+	}
+
+	
+	//jQuery 시작
+	$(function() {
+		const formElement = $("#formObj");					
+		var modifyBtn = $("#modBtn");
+		modifyBtn.click(function() {
+			console.log("수정 버튼이 클릭됨!");
+			formElement.attr("method", "get");
+			formElement.attr("action", "/board/modify");
+			formElement.submit();
+			
+		});
+		
+	});
+
+	
+</script>
+
 <jsp:include page="../include/footer.jsp" />

@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.service.IBoardService;
+import com.spring.mvc.commons.PageVO;
 
 @Controller
 @RequestMapping("/board")
@@ -21,6 +22,7 @@ public class BoardController {
 	@Inject
 	private IBoardService service;
 	
+	/*
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public void list(Model model) {
 		System.out.println("URL : /board/list => GET");
@@ -28,6 +30,18 @@ public class BoardController {
 		model.addAttribute("articles", articles);
 		articles.forEach(article -> System.out.println(article));
 	}
+	*/
+	
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	public void list(PageVO paging, Model model) {
+		System.out.println("URL : /board/list => GET");
+		System.out.println("parameter paging : " + paging);
+		List<BoardVO> articles = service.getArticleListPaging(paging);
+		model.addAttribute("articles", articles);
+		System.out.println("하나 이해가안가네");
+//		articles.forEach(article -> System.out.println(article));
+	}
+	
 	@RequestMapping(value = "/write", method = RequestMethod.GET)
 	public void write() {
 		System.out.println("URL : /board/write => GET");
@@ -55,5 +69,22 @@ public class BoardController {
 		return "redirect:/board/list";
 	}
 	
+	@RequestMapping(value = "/modify", method = RequestMethod.GET)
+	public String modify(Integer boardNo, Model model) {
+		System.out.println("URL : /board/modify => GET");
+		System.out.println("parameter boardNo : " + boardNo);
+		
+		model.addAttribute("article", service.getArticle(boardNo));
+		return "board/modify";
+	}
+	
+	@RequestMapping(value = "/modify", method = RequestMethod.POST)
+	public String modify(BoardVO article, RedirectAttributes ra) {
+		System.out.println("URL : /board/modify => POST");
+		System.out.println("parameter article : " + article);
 
+		service.update(article);
+		ra.addFlashAttribute("msg", "modSuccess");
+		return "redirect:/board/content/" + article.getBoardNo();
+	}
 }

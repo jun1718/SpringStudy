@@ -10,6 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.repository.IBoardMapper;
+import com.spring.mvc.commons.PageVO;
 
 //@ContextConfiguration(location = "")
 
@@ -23,15 +24,21 @@ public class BoardMapperTest {
 	
 	@Test
 	public void insert() {
-		
-		for (int i = 2; i <= 320; i++) {
 			BoardVO article = new BoardVO();
-			article.setWriter("김깡똥" + i);
-			article.setTitle("깡똥이의 제목" + i);
-			article.setContent("깡통이의 내용" + i);
+			article.setWriter("김깡똥");
+			article.setTitle("깡똥이의 제목");
+			article.setContent("깡통이의 내용");
 			
 			mapper.insert(article);
-		}
+		
+//		for (int i = 2; i <= 320; i++) {
+//			BoardVO article = new BoardVO();
+//			article.setWriter("김깡똥" + i);
+//			article.setTitle("깡똥이의 제목" + i);
+//			article.setContent("깡통이의 내용" + i);
+//			
+//			mapper.insert(article);
+//		}
 		
 		System.out.println("정보입력완료!");
 		
@@ -50,8 +57,18 @@ public class BoardMapperTest {
 	}
 	
 	@Test
+	public void getArticleListPagingTest() {
+		PageVO paging = new PageVO();
+		
+		List<BoardVO> list = mapper.getArticleListPaging(paging);
+
+	}
+	
+	@Test
 	public void getArticleTest() {
 		BoardVO article = mapper.getArticle(5);
+		
+		
 		if (article == null) {
 			System.out.println("해당 번호는 없습니다.");
 		} else {

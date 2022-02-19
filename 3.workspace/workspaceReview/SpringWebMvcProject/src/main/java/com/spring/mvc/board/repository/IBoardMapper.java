@@ -3,12 +3,15 @@ package com.spring.mvc.board.repository;
 import java.util.List;
 
 import com.spring.mvc.board.model.BoardVO;
+import com.spring.mvc.commons.PageVO;
 
 public interface IBoardMapper {
 	
 	public void insert(BoardVO article);
 	
 	public List<BoardVO> getArticleList();
+	
+	public List<BoardVO> getArticleListPaging(PageVO paging);
 	
 	public BoardVO getArticle(Integer boardNo);
 	

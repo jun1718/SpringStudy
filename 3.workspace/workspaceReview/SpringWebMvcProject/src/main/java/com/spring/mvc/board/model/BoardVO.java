@@ -13,6 +13,7 @@ public class BoardVO {
 	
 	
 	public Integer getBoardNo() {
+		System.out.println("getBoardNo() 실행됨");
 		return boardNo;
 	}
 	public void setBoardNo(Integer boardNo) {
@@ -31,6 +32,7 @@ public class BoardVO {
 		this.content = content;
 	}
 	public String getWriter() {
+		System.out.println("wrier() 실행됨");
 		return writer;
 	}
 	public void setWriter(String writer) {

@@ -13452,3 +13452,598 @@ header.masthead {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+22.02.19.13회차
+===============================================================================
+*수정기능(jQuery로 클릭시 Form요소의 속성변화), 페이징처리(jQuery로 클릭한 버튼객체의 value값수신)
+===============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+50)게시물 수정기능 
+
+
+1)게시물 수정페이지 요청처리
+	-문제해결방식 2가지
+		-input에서 onclick이용하여 해결
+			-location과 get방식 boardNo 던져서 하는방식
+		-input에서 onclick지우고 jquery에서 클릭시 어떻게할지 정하기
+
+-modify 관련 controller처리 (get방식)
+
+-jquery
+	-jquery cdn서버에서 다운받게하는 방식
+		-다운받아서 사용하는 방식도있다.(사실 외부템플릿 넣을때 리소스에 jquery를 이방식으로 넣긴했다)
+				-header.jsp의 31번라인에 다운받은걸 올려놓음
+				-그래서 아래 행위를 안해도 되긴 하다.
+				-다운받는게 번거로우면 아래처럼 하라는거다.
+				-그래서 다운받아서 붙여넣기만 해보고 앞으로는 script만 이용해서할거다
+	-jQuery Core 3.4.1 - uncompressed, minified, slim, slim minified
+		-minified(축약형)
+	-content에 복사해서 붙여넣기해라
+-수정button에 id 넣어라 modBtn (수정button을 객체화해서 jquery로 사용하기위함임)
+-form에도 id넣어라 formObj (폼을 객체화해서 js로 사용하기위함임)
+	-요소 : 태그제목
+	-속성 : name, id, property 등
+	-속성을 변경하는 걸이용해서 modBtn 객체가 클릭되었을때 브라우저 f12 콘솔창에 "수정버튼이 클릭됨!"이 나오게하고
+		이게 클릭되었을때만 action이 /board/modify로 변경되게하고 mehod는 get방식이 되도록하게해서
+		controller로 잘가게하고 이때 javascript를(jequery)를 잘 이용해서 수정버튼 클릭이벤트 처리를 해야함
+
+2)게시물 수정 요청
+-같은 url인경우 get에 hidden으로 들어오면 post에도 hidden이 따라서 들어온다. 그래서 post에서 수정눌렀을때
+	boardNo까지 따라오는 것이다.
+	-그래서 따로 post방식으로 넘길 form에서 다시 hidden으로 form 넘길필요없지만 확실하게하기위해서
+		form에 히든다시넣어라
+
+
+##############################################################################
+
+
+
+답:
+
+#BoardController의 수정관련 메소드
+	@GetMapping("/modify")
+	public String modify(Integer boardNo, Model model) {
+		System.out.println("URL: /board/modify => GET");
+		System.out.println("Parameter(글 번호) : " + boardNo);
+		model.addAttribute("article", service.getArticle(boardNo));
+		
+		return "board/modify";
+	}
+	
+	//게시물 수정 요청
+	@PostMapping("/modify")
+	public String modify(BoardVO article, RedirectAttributes ra) {
+		System.out.println("URL: /board/modify => POST");
+		System.out.println("parameter(게시글): " + article);
+		
+		service.update(article);
+		
+		ra.addFlashAttribute("msg", "modSuccess");
+		
+		return "redirect:/board/content/" + article.getBoardNo();
+	}
+
+
+#modify.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core"%>    
+<jsp:include page="../include/header.jsp" />
+<style>
+header.masthead {
+	
+	display: none;
+}	
+</style>
+<br/><br/>
+<div class="container">
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header text-white" style="background-color: #ff52a0;">${article.boardNo}번 게시물 수정</div>
+      <div class="card-body">
+
+        <form role="form" method="post">
+        	<input type = "hidden" name = "boardNo" value = "${article.boardNo}">
+        
+          <div class="form-group">
+            <label>작성자</label>
+            <input type="text" class="form-control" name='writer' value="${article.writer}">
+          </div>
+          
+          <div class="form-group">
+            <label>제목</label>
+            <input type="text" class="form-control" name='title' value="${article.title}">
+          </div>
+
+          <div class="form-group">
+            <label>내용</label>
+            <textarea class="form-control" rows="5" name='content'>${article.content}</textarea>
+          </div>
+
+          
+          <input class="btn" type="submit" value="수정" style="background-color: orange; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8"/>
+          <a class="btn" href="<c:url value = '/board/list'/>"
+		style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">목록</a>&nbsp;&nbsp;
+          
+        </form>
+
+
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<jsp:include page="../include/footer.jsp" />
+
+
+
+
+
+
+
+#content.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri="http://java.sun.com/jsp/jstl/core"%>
+    
+    
+<jsp:include page="../include/header.jsp" />
+<style>
+header.masthead {
+	
+	display: none;
+}	
+</style>
+<br/><br/>
+<div class="container">
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header text-white" style="background-color: #ff52a0;">${article.boardNo}번 게시물 내용</div>
+      <div class="card-body">
+
+
+          <div class="form-group">
+            <label>작성자</label>
+            <input type="text" class="form-control" name='writer' value="${article.writer}" readonly>
+          </div>
+          
+          <div class="form-group">
+            <label>제목</label>
+            <input type="text" class="form-control" name='title' value="${article.title}" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>내용</label>
+            <textarea class="form-control" rows="5" name='content' readonly>${article.content}</textarea>
+          </div>
+          
+           
+        <form id = "formObj" role="form" action="<c:url value = '/board/delete'/>" method="post">
+	      <input type="hidden" name="boardNo" value="${article.boardNo}">	
+        
+          <input type= "button" value = "목록" class="btn" onclick = "location.href='/board/list'"  
+				style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">&nbsp;&nbsp;
+          <input id = "modBtn" type = "button" value = "수정" class="btn btn-warning"  style="color: white;">&nbsp;&nbsp;
+          <input type = "submit" value = "삭제" class="btn btn-warning" onclick = "return confirm('정말로 삭제하시겠습니까?')">&nbsp;&nbsp;
+        </form>
+		
+
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<script>
+	const result = "${msg}";
+	if (result === "modSuccess") {
+		alert("게시물 수정 완료!");
+	}
+
+//jquery의 시작
+$(function() {
+	//변수는 let, 상수는 const로 선언 2015에 개선된문법(ES2015문법) var를 쓰지말란얘기임 혼용은 됨
+	const formElement = $("#formObj");
+	
+	//수정 버튼 클릭 이벤트 처리
+	//var modifyBtn = document.getElementById("modBtn"); // vanila js 원형, 원래문법임
+	var modifyBtn = $("#modBtn");
+	modifyBtn.click(function() {
+		console.log("수정 버튼이 클릭됨!");
+		formElement.attr("action", "/board/modify");
+		formElement.attr("method", "get");
+		formElement.submit();
+	});
+	
+	
+	
+}); //익명함수, jquery의 끝
+	
+</script>
+<jsp:include page="../include/footer.jsp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+51)페이징처리
+
+1)각페이지당 순차적이고 중복적이지 않은 10개의 게시물이 나오도록 페이징처리를 해보시오
+	-메소드명 : getArticleListPaging(int page)
+	-일단 여기서 list.jsp까지 변경하면 너무 복잡해지니까 주소창에
+	http://localhost/board/list?page=7 이런식으로 쳐서 page=1부터 10개식 내림차순으로 나오는지 확인해라
+	직접 page 파라미터를 주는방식으로
+
+2)PageVO를 만들고 controller, service, repository에서 이런 변화에 적응하도록처리하며
+	단위테스트로 BoardMapperTest에서 잘되는지 setter로 두 변수에 값을 주입한뒤 해보아라
+					-BoardMapper.xml은 변경할 필요없음 어차피 객체로 바꼈다해도 getter로 뽑으니까
+						PageVO에 getter만 잘 만들어져 있으면 됨
+	-page
+	-countPerPage
+	-com.spring.mvc.commons.PageVO;
+
+3)getPageStart()를 만들고 BoardMapper.xml에서 ${}했을때 getter를 불러오는 규칙을 이해하고서
+	getPage()가 호출되는 것이 아닌 getPageStart()가 호출되도록하라
+	-getPageStart()에는 입력된 페이지 번호에 따라서 몇번째 인덱스부터 가져올건지를 반환하는 기능을 한다.
+	-아래처럼 검색해야함 아직은 jsp에서 버튼을 눌렀을때 값을 전달하는 로직을 안짰기 때문임
+		http://localhost/board/list?page=2&countPerPage=20
+
+
+4)유효성검증: 아래 예시가 들어갔을때 유효성검증한값대로 처리되도록 만드시오
+	-page <= 0 경우 : 1page 응답(db 테이블의 행중 0번인덱스부터 가져오는 것을 뜻함)
+	-countPerPage <= 0 || > 50 경우 : 한페이지당 10개 응답
+		http://localhost/board/list?page=2&countPerPage=3000
+		http://localhost/board/list?page=-1090&countPerPage=3000
+		http://localhost/board/list?page=-10&countPerPage=51
+
+5)페이지 버튼 1~10까지 만들고 1누르면 1로 가고 2 누르면 2로가게해라
+	-이때 각 페이지는 1~10사이로 당연히 가는거고 한페이지당 보여줘야할놈은 기본 세팅된대로만 나오게(한페이지당 10개식) 해라
+	-list.jsp만 만지면 된다.
+
+6)10, 20, 30 눌렀을때 해당 갯수만큼 1페이지가 열리게하라
+	-아직 누른채로 2페이지 3페이지 이동은 안됨 지금하는거까지만해라
+##############################################################################
+
+
+
+답:
+
+3)
+#PageVO
+	public Integer getPageStart() {
+		return (this.page - 1) * this.countPerPage;
+	}
+	
+#BoardMapper.xml
+	<select id = "getArticleListPaging" resultMap = "BoardMap">
+		SELECT * 
+		FROM mvc_board
+		ORDER BY board_no DESC
+		LIMIT #{pageStart}, #{countPerPage}
+	</select> 
+
+
+
+
+
+5)
+
+#list.jsp
+					<!-- 페이징 처리 부분  -->
+					<ul class="pagination justify-content-center">
+						<!-- 이전 버튼 -->
+                       	<li class="page-item">
+							<a class="page-link" href="#" 
+							style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">이전</a>
+						</li>
+						
+						<!-- 페이지 버튼 -->
+						<c:forEach var = "pageNum" begin = "1" end = "10">
+							<li class="page-item">
+							   <a href="<c:url value = '/board/list?page=${pageNum}'/>" class="page-link" style="margin-top: 0; height: 40px; color: pink; border: 1px solid pink;">${pageNum}</a>
+							</li>
+					   </c:forEach>
+
+
+
+
+
+6)
+
+<script type="text/javascript">
+	//글쓰기 완료시 띄울 알림창처리
+	const result = "${msg}";
+	
+	if (result === "regSuccess") {
+		alert("게시글 등록이 완료되었습니다.");
+	} else if (result === "delSuccess") {
+		alert("게시글 삭제가 완료되었습니다.");
+	}
+	
+	//start jQuery
+	$(function() {
+		//목록 개수가 변동하는 이벤트 처리
+		$("#count-per-page .btn-izone").click(function() {
+			//console.log("목록 버튼이 클릭됨!");
+			//console.log($(this).val());
+			let count = $(this).val();
+			location.href = "/board/list?countPerPage=" + count;
+		});
+	});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
