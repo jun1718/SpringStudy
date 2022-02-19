@@ -30,7 +30,7 @@
 		SELECT * 
 		FROM mvc_board
 		ORDER BY board_no DESC
-		LIMIT #{page}, #{countPerPage}
+		LIMIT #{pageStart}, #{countPerPage}
 	</select> 
 	
 	<select id = "getArticle" resultMap = "BoardMap">

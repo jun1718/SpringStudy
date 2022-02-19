@@ -251,13 +251,38 @@ $(function() {
 	-countPerPage
 	-com.spring.mvc.commons.PageVO;
 
+3)getPageStart()를 만들고 BoardMapper.xml에서 ${}했을때 getter를 불러오는 규칙을 이해하고서
+	getPage()가 호출되는 것이 아닌 getPageStart()가 호출되도록하라
+	-getPageStart()에는 입력된 페이지 번호에 따라서 몇번째 인덱스부터 가져올건지를 반환하는 기능을 한다.
+	-아래처럼 검색해야함 아직은 jsp에서 버튼을 눌렀을때 값을 전달하는 로직을 안짰기 때문임
+		http://localhost/board/list?page=2&countPerPage=20
 
 
+4)유효성검증: 아래 예시가 들어갔을때 유효성검증한값대로 처리되도록 만드시오
+	-page <= 0 경우 : 1page 응답(db 테이블의 행중 0번인덱스부터 가져오는 것을 뜻함)
+	-countPerPage <= 0 || > 50 경우 : 한페이지당 10개 응답
+		http://localhost/board/list?page=2&countPerPage=3000
+		http://localhost/board/list?page=-1090&countPerPage=3000
+		http://localhost/board/list?page=-10&countPerPage=51
 ##############################################################################
 
 
 
 답:
+
+3)
+#PageVO
+	public Integer getPageStart() {
+		return (this.page - 1) * this.countPerPage;
+	}
+	
+#BoardMapper.xml
+	<select id = "getArticleListPaging" resultMap = "BoardMap">
+		SELECT * 
+		FROM mvc_board
+		ORDER BY board_no DESC
+		LIMIT #{pageStart}, #{countPerPage}
+	</select> 
 
 
 

@@ -10,16 +10,30 @@ public class PageVO {
 		this.countPerPage = 10;
 	}
 	
+	public Integer getPageStart() {
+		return (this.page - 1) * this.countPerPage;
+	}
+	
 	public Integer getPage() {
 		return page;
 	}
+	
 	public void setPage(Integer page) {
+		if (page <= 0) {
+			this.page = 1;
+			return;
+		}
+		
 		this.page = page;
 	}
 	public Integer getCountPerPage() {
 		return countPerPage;
 	}
 	public void setCountPerPage(Integer countPerPage) {
+		if (countPerPage <=0 || countPerPage > 50) {
+			this.countPerPage = 10;
+			return;
+		}
 		this.countPerPage = countPerPage;
 	}
 	

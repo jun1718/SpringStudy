@@ -34,6 +34,7 @@ public class BoardService implements IBoardService {
 		public List<BoardVO> getArticleListPaging(PageVO paging) {
 			// TODO Auto-generated method stub
 			//page = (page - 1) * 10; //객체에서 수행하도록
+			
 			return mapper.getArticleListPaging(paging);
 		}
 	
