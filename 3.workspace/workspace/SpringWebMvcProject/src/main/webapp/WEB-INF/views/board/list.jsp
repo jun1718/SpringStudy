@@ -78,15 +78,19 @@ header.masthead {
 					
 					<!-- 페이징 처리 부분  -->
 					<ul class="pagination justify-content-center">
+						<!-- 이전 버튼 -->
                        	<li class="page-item">
 							<a class="page-link" href="#" 
 							style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">이전</a>
 						</li>
 						
-						<li class="page-item">
-						   <a href="#" class="page-link" style="margin-top: 0; height: 40px; color: pink; border: 1px solid pink;">1</a>
-						</li>
-					   
+						<!-- 페이지 버튼 -->
+						<c:forEach var = "pageNum" begin = "1" end = "10">
+							<li class="page-item">
+							   <a href="<c:url value = '/board/list?page=${pageNum}'/>" class="page-link" style="margin-top: 0; height: 40px; color: pink; border: 1px solid pink;">${pageNum}</a>
+							</li>
+					   </c:forEach>
+					   <!-- 다음 버튼 -->
 					    <li class="page-item">
 					      <a class="page-link" href="#" 
 					      style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">다음</a>
@@ -133,5 +137,16 @@ header.masthead {
 	} else if (result === "delSuccess") {
 		alert("게시글 삭제가 완료되었습니다.");
 	}
+	
+	//start jQuery
+	$(function() {
+		//목록 개수가 변동하는 이벤트 처리
+		$("#count-per-page .btn-izone").click(function() {
+			//console.log("목록 버튼이 클릭됨!");
+			//console.log($(this).val());
+			let count = $(this).val();
+			location.href = "/board/list?countPerPage=" + count;
+		});
+	});
 </script>
 <jsp:include page="../include/footer.jsp" />

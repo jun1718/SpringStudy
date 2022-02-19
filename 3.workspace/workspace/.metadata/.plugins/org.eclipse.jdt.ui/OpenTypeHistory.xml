@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <typeInfoHistroy>
-<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.repository{IScoreDAO.java[IScoreDAO" modifiers="513" timestamp="1644382261837"/>
-<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.service{IScoreService.java[IScoreService" modifiers="513" timestamp="1644383541839"/>
-<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.service{IBoardService.java[IBoardService" modifiers="513" timestamp="1644467850177"/>
+<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.repository{IScoreDAO.java[IScoreDAO" modifiers="513" timestamp="1644390611097"/>
+<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.service{IScoreService.java[IScoreService" modifiers="513" timestamp="1644390659249"/>
+<typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.service{IBoardService.java[IBoardService" modifiers="513" timestamp="1644474873805"/>
 <typeInfo handle="=SpringWebBasic/src\/main\/java&lt;com.spring.web.repository{IBoardDAO.java[IBoardDAO" modifiers="513" timestamp="1644468148904"/>
+<typeInfo handle="=SpringDBAccess/src\/test\/java&lt;com.spring.database.test{Car.java[Car" modifiers="513" timestamp="1644904009196"/>
+<typeInfo handle="=SpringWebMvcProject/src\/main\/java&lt;com.spring.mvc.board.service{IBoardService.java[IBoardService" modifiers="513" timestamp="1645147932943"/>
 </typeInfoHistroy>
