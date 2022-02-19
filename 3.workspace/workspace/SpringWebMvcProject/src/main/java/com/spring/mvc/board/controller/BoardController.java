@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.service.IBoardService;
+import com.spring.mvc.commons.PageVO;
 
 @Controller
 @RequestMapping("/board")
@@ -37,10 +37,11 @@ public class BoardController {
 	
 	//페이징 처리 이후 게시글 목록 불러오기 요청
 	@GetMapping("/list")
-	public void list(Integer page, Model model) {
-		List<BoardVO> list = service.getArticleListPaging(page);
+	public void list(PageVO paging, Model model) {
+		List<BoardVO> list = service.getArticleListPaging(paging);
+		
 		System.out.println("URL : /board/list GET -> result : " + list.size());
-		System.out.println("parameter(페이지번호) : " + page);
+		System.out.println("parameter(페이지번호) : " + paging.getPage() + "번");
 //		list.forEach(article -> System.out.println(article));
 		
 		model.addAttribute("articles", list);

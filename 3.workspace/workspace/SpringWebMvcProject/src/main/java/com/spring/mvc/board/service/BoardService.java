@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.repository.IBoardMapper;
+import com.spring.mvc.commons.PageVO;
+import com.spring.mvc.commons.PageVO;
 
 @Service
 public class BoardService implements IBoardService {
@@ -29,10 +31,10 @@ public class BoardService implements IBoardService {
 	}
 
 	@Override
-		public List<BoardVO> getArticleListPaging(int page) {
+		public List<BoardVO> getArticleListPaging(PageVO paging) {
 			// TODO Auto-generated method stub
-			page = (page - 1) * 10;
-			return mapper.getArticleListPaging(page);
+			//page = (page - 1) * 10; //객체에서 수행하도록
+			return mapper.getArticleListPaging(paging);
 		}
 	
 	@Override

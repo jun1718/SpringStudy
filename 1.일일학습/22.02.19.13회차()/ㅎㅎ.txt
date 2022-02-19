@@ -243,6 +243,15 @@ $(function() {
 	http://localhost/board/list?page=7 이런식으로 쳐서 page=1부터 10개식 내림차순으로 나오는지 확인해라
 	직접 page 파라미터를 주는방식으로
 
+2)PageVO를 만들고 controller, service, repository에서 이런 변화에 적응하도록처리하며
+	단위테스트로 BoardMapperTest에서 잘되는지 setter로 두 변수에 값을 주입한뒤 해보아라
+					-BoardMapper.xml은 변경할 필요없음 어차피 객체로 바꼈다해도 getter로 뽑으니까
+						PageVO에 getter만 잘 만들어져 있으면 됨
+	-page
+	-countPerPage
+	-com.spring.mvc.commons.PageVO;
+
+
 
 ##############################################################################
 
