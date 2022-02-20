@@ -34,6 +34,12 @@ public class BoardService implements IBoardService {
 		System.out.println("BoardService test paging : " + paging);
 		return mapper.getArticleListPaging(paging);
 	}
+	
+	@Override
+	public Integer getCountArticles() {
+		// TODO Auto-generated method stub
+		return mapper.getCountArticles();
+	}
 
 	@Override
 	public BoardVO getArticle(Integer boardNo) {

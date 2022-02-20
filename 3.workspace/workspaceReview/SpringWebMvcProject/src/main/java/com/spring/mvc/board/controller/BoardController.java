@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.service.IBoardService;
+import com.spring.mvc.commons.PageCreator;
 import com.spring.mvc.commons.PageVO;
 
 @Controller
@@ -37,8 +38,13 @@ public class BoardController {
 		System.out.println("URL : /board/list => GET");
 		System.out.println("parameter paging : " + paging);
 		List<BoardVO> articles = service.getArticleListPaging(paging);
+		Integer countArticles = service.getCountArticles();
+		
+		PageCreator pc = new PageCreator(countArticles, paging);
+		System.out.println("pc : " + pc);
+		
 		model.addAttribute("articles", articles);
-		System.out.println("하나 이해가안가네");
+		model.addAttribute("pc", pc);
 //		articles.forEach(article -> System.out.println(article));
 	}
 	

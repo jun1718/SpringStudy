@@ -6,7 +6,6 @@ public class PageVO {
 	
 	public PageVO() {
 		// TODO Auto-generated constructor stub
-		System.out.println("생성됨 PageVO");
 		this.page = 1;
 		this.countPerPage = 10;
 	}
@@ -14,13 +13,11 @@ public class PageVO {
 	public Integer getPageStart() {
 		int n = (this.page - 1) * this.countPerPage;
 //		this.page = (this.page - 1) * this.countPerPage;
-		System.out.println("this.page = " + this.page);
 		return n;
 //		return (this.page - 1) * countPerPage;
 	}
 	
 	public Integer getPage() {
-		System.out.println("getPage() 시랳ㅇ됨");
 		return page;
 	}
 	public void setPage(Integer page) {
@@ -30,7 +27,6 @@ public class PageVO {
 		this.page = page;
 	}
 	public Integer getCountPerPage() {
-		System.out.println("getCountPerPage() 실행됨");
 		return countPerPage;
 	}
 	public void setCountPerPage(Integer countPerPage) {

@@ -14,6 +14,8 @@ public interface IBoardService {
 	
 	public List<BoardVO> getArticleListPaging(PageVO paging);
 	
+	public Integer getCountArticles();
+	
 	public BoardVO getArticle(Integer boardNo);
 	
 	public void update(BoardVO article);
