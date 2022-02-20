@@ -33,6 +33,12 @@
 		LIMIT #{pageStart}, #{countPerPage}
 	</select> 
 	
+	<select id = "countArticles" resultType = "int">
+		SELECT COUNT(*)
+		FROM mvc_board
+	</select>
+	
+	
 	<select id = "getArticle" resultMap = "BoardMap">
 		SELECT * 
 		FROM mvc_board
