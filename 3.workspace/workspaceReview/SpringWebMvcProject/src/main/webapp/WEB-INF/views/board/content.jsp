@@ -35,9 +35,10 @@ header.masthead {
 
         <form id = "formObj" role="form" action="<c:url value = '/board/delete'/>" method="post">
         
-
+         <input type = "hidden" name = "page" value = "${p.page}">
+         <input type = "hidden" name = "countPerPage" value = "${p.countPerPage}">
          <input type = "hidden" name = "boardNo" value = "${article.boardNo}">
-          <input type = "button" value = "목록" class="btn" onclick = "location.href = '/board/list'"
+          <input type = "button" value = "목록" class="btn" id = "list-btn"
 		style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">&nbsp;&nbsp;
          <!--  
           <input type = "button" value = "수정" class="btn btn-warning" onclick = "location.href = '/board/modify?boardNo=${article.boardNo}'"
@@ -75,6 +76,12 @@ header.masthead {
 			formElement.attr("action", "/board/modify");
 			formElement.submit();
 			
+		});
+		
+		
+		$("#list-btn").click(function() {
+			console.log("hi");
+			location.href = "/board/list?page=${p.page}&countPerPage=${p.countPerPage}";
 		});
 		
 	});

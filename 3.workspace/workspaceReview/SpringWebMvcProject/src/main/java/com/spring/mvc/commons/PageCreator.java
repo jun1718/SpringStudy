@@ -11,12 +11,14 @@ public class PageCreator {
 	
 	private final int displayPageNum = 10;
 	
-	public PageCreator(Integer countArticles, PageVO paging) {
+	public PageCreator() {
 		// TODO Auto-generated constructor stub	
-		this.setPaging(paging);
-		this.setCountArticles(countArticles);
-		calcData();
+//		this.setPaging(paging);
+//		this.setCountArticles(countArticles);
+//		calcData();
 	}
+	
+	
 	
 	private void calcData() {
 		endPage = (int) Math.ceil(paging.getPage() / (double) displayPageNum) * displayPageNum;
@@ -45,6 +47,7 @@ public class PageCreator {
 
 	public void setCountArticles(Integer countArticles) {
 		this.countArticles = countArticles;
+		calcData();
 	}
 
 	public Integer getBeginPage() {

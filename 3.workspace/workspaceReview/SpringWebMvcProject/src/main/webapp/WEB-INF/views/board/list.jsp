@@ -57,7 +57,7 @@ header.masthead {
 								<td>${article.boardNo}</td>
 								<td>${article.writer}</td>
 
-								<td><a style="margin-top: 0; height: 40px; color: orange;" href="<c:url value = '/board/content/${article.boardNo}'/>">
+								<td><a style="margin-top: 0; height: 40px; color: orange;" href="<c:url value = '/board/content/${article.boardNo}?page=${pc.paging.page}&countPerPage=${pc.paging.countPerPage}'/>">
 										${article.title}
 									</a>
 								</td>
@@ -136,6 +136,22 @@ header.masthead {
 			let count = $(this).val();
 			location.href = "/board/list?countPerPage=" + count;
 		});
+		
+		
+		$("#searchBtn").click(function() {
+			const keyword = $("#keywordInput").val();
+			const condition = $("#condition option:selected").val();
+			
+			location.href = "/board/list?keyword=" + keyword + "&condition=" + condition;
+		});
+		
+		$("#keywordInput").keydown(function(key) {
+			if (key.keyCode == 13) {
+				$("#searchBtn").click();
+			}
+		});
+		
+		
 	});
 	
 </script>

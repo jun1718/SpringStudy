@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.commons.PageVO;
+import com.spring.mvc.commons.SearchVO;
 
 public interface IBoardMapper {
 	
@@ -14,6 +15,22 @@ public interface IBoardMapper {
 	public List<BoardVO> getArticleListPaging(PageVO paging);
 	
 	public Integer getCountArticles();
+	
+	public List<BoardVO> getArticleListByTitle(SearchVO search);
+	
+	public Integer countArticleByTitle(SearchVO search);
+	
+	public List<BoardVO> getArticleListByWriter(SearchVO search);
+	
+	public Integer countArticleByWriter(SearchVO search);
+	
+	public List<BoardVO> getArticleListByContent(SearchVO search);
+	
+	public Integer countArticleByContent(SearchVO search);
+	
+	public List<BoardVO> getArticleListByTitleContent(SearchVO search);
+	
+	public Integer countArticleByTitleContent(SearchVO search);
 	
 	public BoardVO getArticle(Integer boardNo);
 	
