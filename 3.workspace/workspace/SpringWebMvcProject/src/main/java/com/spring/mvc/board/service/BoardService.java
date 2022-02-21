@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.repository.IBoardMapper;
 import com.spring.mvc.commons.PageVO;
+import com.spring.mvc.commons.SearchVO;
 import com.spring.mvc.commons.PageVO;
 
 @Service
@@ -38,6 +39,54 @@ public class BoardService implements IBoardService {
 			return mapper.getArticleListPaging(paging);
 		}
 	
+	@Override
+		public List<BoardVO> getArticleListByTitle(SearchVO search) {
+			// TODO Auto-generated method stub
+			return mapper.getArticleListByTitle(search);
+		}
+	
+	@Override
+		public Integer countArticleByTitle(SearchVO search) {
+			// TODO Auto-generated method stub
+			return mapper.countArticleByTitle(search);
+		}
+
+	@Override
+		public List<BoardVO> getArticleListByWriter(SearchVO search) {
+			// TODO Auto-generated method stub
+			return mapper.getArticleListByWriter(search);
+		}
+	
+	
+	@Override
+		public Integer countArticleByWriter(SearchVO search) {
+			// TODO Auto-generated method stub
+			return mapper.countArticleByWriter(search);
+		}
+	
+	@Override
+		public List<BoardVO> getArticleListByContent(SearchVO search) {
+			// TODO Auto-generated method stub
+			return mapper.getArticleListByContent(search);
+		}
+	
+	@Override
+		public Integer countArticleByContent(SearchVO search) {
+			// TODO Auto-generated method stub
+			return mapper.countArticleByContent(search);
+		}
+	
+	@Override
+		public List<BoardVO> getArticleListByTitleContent(SearchVO search) {
+			// TODO Auto-generated method stub
+			return mapper.getArticleListByTitleContent(search);
+		}
+	
+	@Override
+		public Integer countArticleByTitleContent(SearchVO search) {
+			// TODO Auto-generated method stub
+			return mapper.countArticleByTitleContent(search);
+		}
 	@Override
 		public Integer countArticles() {
 			// TODO Auto-generated method stub

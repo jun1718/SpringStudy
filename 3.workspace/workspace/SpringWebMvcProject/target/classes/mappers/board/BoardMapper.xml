@@ -38,6 +38,64 @@
 		FROM mvc_board
 	</select>
 	
+	<select id = "getArticleListByTitle" resultMap = "BoardMap">
+		SELECT *
+		FROM mvc_board
+		WHERE title LIKE CONCAT('%', #{keyword}, '%')
+		ORDER BY board_no DESC
+		LIMIT #{pageStart}, #{countPerPage}
+	</select>
+	
+	<select id = "countArticleByTitle" resultType = "Integer">
+		SELECT COUNT(*)
+		FROM mvc_board
+		WHERE title LIKE CONCAT('%', #{keyword}, '%')
+	</select>
+	
+	<select id = "getArticleListByWriter" resultMap = "BoardMap">
+		SELECT *
+		FROM mvc_board
+		WHERE writer LIKE CONCAT('%', #{keyword}, '%')
+		ORDER BY board_no DESC
+		LIMIT #{pageStart}, #{countPerPage}
+	
+	</select>
+	
+	<select id = "countArticleByWriter" resultType = "Integer">
+		SELECT COUNT(*)
+		FROM mvc_board
+		WHERE writer LIKE CONCAT('%', #{keyword}, '%')
+	</select>
+	
+	<select id = "getArticleListByContent" resultMap = "BoardMap">
+		SELECT * 
+		FROM mvc_board
+		WHERE content LIKE CONCAT('%', #{keyword}, '%')
+		ORDER BY board_no DESC
+		LIMIT #{pageStart}, #{countPerPage}
+	</select>
+	
+	<select id = "countArticleByContent" resultType = "Integer">
+		SELECT COUNT(*) 
+		FROM mvc_board
+		WHERE content LIKE CONCAT('%', #{keyword}, '%')
+	</select>
+	
+	<select id = "getArticleListByTitleContent" resultMap = "BoardMap">
+		SELECT * 
+		FROM mvc_board
+		WHERE title LIKE CONCAT('%', #{keyword}, '%')
+			AND content LIKE CONCAT('%', #{keyword}, '%')
+		ORDER BY board_no DESC
+		LIMIT #{pageStart}, #{countPerPage}
+	</select>
+	
+	<select id = "countArticleByTitleContent" resultType = "Integer">
+		SELECT COUNT(*)
+		FROM mvc_board
+		WHERE title LIKE CONCAT('%', #{keyword}, '%')
+			AND content LIKE CONCAT('%', #{keyword}, '%')
+	</select>
 	
 	<select id = "getArticle" resultMap = "BoardMap">
 		SELECT * 

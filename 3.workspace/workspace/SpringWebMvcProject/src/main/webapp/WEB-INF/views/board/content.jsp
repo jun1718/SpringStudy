@@ -38,8 +38,10 @@ header.masthead {
            
         <form id = "formObj" role="form" action="<c:url value = '/board/delete'/>" method="post">
 	      <input type="hidden" name="boardNo" value="${article.boardNo}">	
+	      <input type="hidden" name = "page" value = "${p.page}">
+	      <input type="hidden" name = "countPerPage" value = "${p.countPerPage}">
         
-          <input type= "button" value = "목록" class="btn" onclick = "location.href='/board/list'"  
+          <input type= "button" value = "목록" class="btn"  id = "list-btn"
 				style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">&nbsp;&nbsp;
           <input id = "modBtn" type = "button" value = "수정" class="btn btn-warning"  style="color: white;">&nbsp;&nbsp;
           <input type = "submit" value = "삭제" class="btn btn-warning" onclick = "return confirm('정말로 삭제하시겠습니까?')">&nbsp;&nbsp;
@@ -65,6 +67,13 @@ header.masthead {
 $(function() {
 	//변수는 let, 상수는 const로 선언 2015에 개선된문법(ES2015문법) var를 쓰지말란얘기임 혼용은 됨
 	const formElement = $("#formObj");
+	
+	// 목록버튼 클릭 이벤트 처리
+	$("#list-btn").click(function() {
+		console.log("목록 버튼이 클릭됨!");
+		location.href = '/board/list?page=${p.page}'
+				+ '&countPerPage=${p.countPerPage}';
+	});
 	
 	//수정 버튼 클릭 이벤트 처리
 	//var modifyBtn = document.getElementById("modBtn"); // vanila js 원형, 원래문법임

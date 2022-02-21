@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.service.IBoardService;
 import com.spring.mvc.commons.PageCreator;
 import com.spring.mvc.commons.PageVO;
+import com.spring.mvc.commons.SearchVO;
 
 @Controller
 @RequestMapping("/board")
@@ -37,6 +39,7 @@ public class BoardController {
 	*/
 	
 	//페이징 처리 이후 게시글 목록 불러오기 요청
+	/*
 	@GetMapping("/list")
 	public void list(PageVO paging, Model model) {
 		List<BoardVO> list = service.getArticleListPaging(paging);
@@ -55,6 +58,46 @@ public class BoardController {
 		model.addAttribute("pc", pc);
 		
 //		return "board/list";
+	}
+	*/
+	
+	//검색처리 이후 게시물 목록 불러오기 요청
+	@GetMapping("/list")
+	public void list(SearchVO search, Model model) {
+		String condition = search.getCondition();
+		
+		System.out.println("URL : /board/list GET -> result : ");
+		System.out.println("parameter(페이지번호) : " + search.getPage() + "번");
+		System.out.println("검색 조건 : " + search.getCondition());
+		System.out.println("검색어 : " + search.getKeyword());
+		
+		PageCreator pc = new PageCreator();		
+		pc.setPaging(search);
+		
+		System.out.println("pc : " + pc);
+		List<BoardVO> list = null;
+		
+		if (condition.equals("title")) {
+			 list = service.getArticleListByTitle(search);
+			 pc.setArticleTotalCount(service.countArticleByTitle(search));
+			
+		} else if (condition.equals("writer")) {
+			list = service.getArticleListByWriter(search);
+			pc.setArticleTotalCount(service.countArticleByWriter(search));
+		} else if (condition.equals("content")) {
+			list = service.getArticleListByContent(search);
+			pc.setArticleTotalCount(service.countArticleByContent(search));
+		}else if (condition.equals("titleContent")) {
+			list = service.getArticleListByTitleContent(search);
+			pc.setArticleTotalCount(service.countArticleByTitleContent(search));
+		} else {
+			list = service.getArticleListPaging(search);
+			pc.setArticleTotalCount(service.countArticles());
+		}
+		
+		model.addAttribute("articles", list);
+		model.addAttribute("pc", pc);
+
 	}
 	
 	//게시글 작성 페이지 요청
@@ -80,11 +123,13 @@ public class BoardController {
 	//public String content(@PathVariable("boardNo") Integer boardNo, Model model) {
 							//PathVariable로 경로에서 받은 놈 필드명을 가져오고 그 필드명이
 					//Integer boardNo와 같으면 PathVariable뒤에 전달인자를 줄 필요 없다.
-	public String content(@PathVariable Integer boardNo, Model model) {
+	public String content(@PathVariable Integer boardNo, Model model
+							, @ModelAttribute("p") PageVO paging) {
 		System.out.println("URL: /board/content => GET");
 		BoardVO article = service.getArticle(boardNo);
 		System.out.println("result data: " + article);
 		model.addAttribute("article", article);
+		
 		return "board/content";
 	}
 	
@@ -99,16 +144,23 @@ public class BoardController {
 	*/
 	
 	@PostMapping("/delete")
-	public String delete(Integer boardNo, RedirectAttributes ra) {
+	public String delete(Integer boardNo, RedirectAttributes ra, PageVO paging) {
 		System.out.println("URL: /board/delete => POST");
 		System.out.println("Controller Paramerter : " + boardNo);
 		service.delete(boardNo);
-		ra.addFlashAttribute("msg", "delSuccess");
+//		ra.addFlashAttribute("msg", "delSuccess");
+//		ra.addAttribute("page", paging.getPage());
+//		ra.addAttribute("countPerPage", paging.getCountPerPage());
+		ra.addFlashAttribute("msg", "delSuccess")
+		  .addAttribute("page", paging.getPage())
+		  .addAttribute("countPerPage", paging.getCountPerPage());
+		//원시적인방법
+//		return "redirect:/board/list?page="+paging.getPage()+"&countPerPage="+paging.getCountPerPage();
 		return "redirect:/board/list";
 	}
 	
 	@GetMapping("/modify")
-	public String modify(Integer boardNo, Model model) {
+	public String modify(Integer boardNo, Model model, @ModelAttribute("p") PageVO paging) {
 		System.out.println("URL: /board/modify => GET");
 		System.out.println("Parameter(글 번호) : " + boardNo);
 		model.addAttribute("article", service.getArticle(boardNo));
