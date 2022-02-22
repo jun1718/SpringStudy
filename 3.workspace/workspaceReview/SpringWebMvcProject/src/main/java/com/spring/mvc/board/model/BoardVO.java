@@ -10,8 +10,15 @@ public class BoardVO {
 	private Date regDate;
 	private Integer viewCnt;
 	
+	private boolean newMark;
 	
 	
+	public boolean isNewMark() {
+		return newMark;
+	}
+	public void setNewMark(boolean newMark) {
+		this.newMark = newMark;
+	}
 	public Integer getBoardNo() {
 		return boardNo;
 	}

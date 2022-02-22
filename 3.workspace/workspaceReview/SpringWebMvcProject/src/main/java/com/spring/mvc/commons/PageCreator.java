@@ -1,5 +1,8 @@
 package com.spring.mvc.commons;
 
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+
 public class PageCreator {
 	private PageVO paging;
 	private Integer countArticles;
@@ -18,7 +21,15 @@ public class PageCreator {
 //		calcData();
 	}
 	
-	
+	public String makeURI(Integer page) {
+		UriComponents ucp = UriComponentsBuilder.newInstance()
+												.queryParam("page", page)
+												.queryParam("countPerPage", paging.getCountPerPage())
+												.queryParam("condition", ((SearchVO) paging).getCondition())
+												.queryParam("keyword", ((SearchVO) paging).getKeyword())
+												.build();
+		return ucp.toUriString();
+	}
 	
 	private void calcData() {
 		endPage = (int) Math.ceil(paging.getPage() / (double) displayPageNum) * displayPageNum;

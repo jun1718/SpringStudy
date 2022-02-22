@@ -81,7 +81,7 @@ header.masthead {
 		
 		$("#list-btn").click(function() {
 			console.log("hi");
-			location.href = "/board/list?page=${p.page}&countPerPage=${p.countPerPage}";
+			location.href = "/board/list?page=${p.page}&countPerPage=${p.countPerPage}&keyword=${param.keyword}&condition=${param.condition}";
 		});
 		
 	});

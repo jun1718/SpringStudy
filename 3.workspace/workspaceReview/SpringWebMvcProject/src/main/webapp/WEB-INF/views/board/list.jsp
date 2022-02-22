@@ -52,40 +52,56 @@ header.masthead {
 						</thead>
 
 						<!-- 게시물이 들어갈 공간 -->
+						<c:if test = "${articles.size() > 0}">
 						<c:forEach var = "article" items = "${articles}">
 							<tr style="color: #ff52a0;">
 								<td>${article.boardNo}</td>
 								<td>${article.writer}</td>
 
-								<td><a style="margin-top: 0; height: 40px; color: orange;" href="<c:url value = '/board/content/${article.boardNo}?page=${pc.paging.page}&countPerPage=${pc.paging.countPerPage}'/>">
+								<td><a style="margin-top: 0; height: 40px; color: orange;" href="<c:url value = '/board/content/${article.boardNo}${param.page == null ? pc.makeURI(1) : pc.makeURI(param.page)}'/>">
 										${article.title}
 									</a>
+									&nbsp;
+									<c:if test = "${article.isNewMark()}">
+										<span class="label label-dange">
+											new
+										</span>
+									</c:if>> 
+									
 								</td>
 
 								<td><fmt:formatDate value="${article.regDate}" pattern="yyyy년 MM월 dd일 a hh:mm" /></td>
 								<td>${article.viewCnt}</td>
 							</tr>
 						</c:forEach>
+						</c:if>
 						
+						<c:if test = "${articles.size() <= 0}">
+							<tr>
+								<td colspan="5" align="center">
+									<strong>검색 결과가 없습니다.</strong>						
+								</td>
+							</tr>
+						</c:if>
 					</table>
 					
 					<!-- 페이징 처리 부분  -->
 					<ul class="pagination justify-content-center">
 						<c:if test = "${pc.prev}">
 	                       	<li class="page-item">
-								<a class="page-link" href="<c:url value = '/board/list?page=${pc.beginPage - 1}&&countPerPage=${pc.paging.countPerPage}'/>" 
+								<a class="page-link" href="<c:url value = '/board/list${pc.makeURI(pc.beginPage - 1)}'/>" 
 								style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">이전</a>
 							</li>
 						</c:if>
 						<c:forEach var = "pageNum" begin = "${pc.beginPage}" end = "${pc.endPage}">
 						<li class="page-item">
-						   <a href="<c:url value = '/board/list?page=${pageNum}&&countPerPage=${pc.paging.countPerPage}'/>" class="page-link ${pc.paging.page == pageNum ? 'page-active' : ''}" style="margin-top: 0; height: 40px; color: pink; border: 1px solid pink;">${pageNum}</a>
+						   <a href="<c:url value = '/board/list${pc.makeURI(pageNum)}'/>" class="page-link ${pc.paging.page == pageNum ? 'page-active' : ''}" style="margin-top: 0; height: 40px; color: pink; border: 1px solid pink;">${pageNum}</a>
 						</li>
 						
 						</c:forEach>
 					   	<c:if test = "${pc.next}">
 						    <li class="page-item">
-						      <a class="page-link" href="<c:url value = '/board/list?page=${pc.endPage + 1}&&countPerPage=${pc.paging.countPerPage}'/>" 
+						      <a class="page-link" href="<c:url value = '/board/list${pc.makeURI(pc.endPage + 1)}'/>" 
 						      style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">다음</a>
 						    </li>
 					    </c:if>
@@ -99,15 +115,15 @@ header.masthead {
 						<div class="col-sm-2"></div>
 	                    <div class="form-group col-sm-2">
 	                        <select id="condition" class="form-control" name="condition">                            	
-	                            <option value="title">제목</option>
-	                            <option value="content">내용</option>
-	                            <option value="writer">작성자</option>
-	                            <option value="titleContent">제목+내용</option>
+	                            <option value="title" ${param.condition == 'title' ? 'selected' : ''}>제목</option>
+	                            <option value="content" ${param.condition == 'content' ? 'selected' : ''}>내용</option>
+	                            <option value="writer" ${param.condition == 'writer' ? 'selected' : ''}>작성자</option>
+	                            <option value="titleContent" ${param.condition == 'titleContent' ? 'selected' : ''}>제목+내용</option>
 	                        </select>
 	                    </div>
 	                    <div class="form-group col-sm-4">
 	                        <div class="input-group">
-	                            <input type="text" class="form-control" name="keyword" id="keywordInput" placeholder="검색어">
+	                            <input type="text" class="form-control" value = "${param.keyword}"  name="keyword" id="keywordInput" placeholder="검색어">
 	                            <span class="input-group-btn">
 	                                <input type="button" value="검색" class="btn btn-izone btn-flat" id="searchBtn">                                       
 	                            </span>
@@ -134,7 +150,8 @@ header.masthead {
 		let countPerPage = $("#count-per-page .btn-izone");
 		countPerPage.click(function() {
 			let count = $(this).val();
-			location.href = "/board/list?countPerPage=" + count;
+			location.href = "/board/list?countPerPage=" + count + "&condition=${param.condition}&keyword=${param.keyword}";
+
 		});
 		
 		

@@ -40,21 +40,21 @@ public class PagingAlgorithmTest {
 		
 		prev = (beginPage != 1);
 		
-		countArticles = mapper.getCountArticles();
-		System.out.println("게시글 총 갯수 : " + countArticles);
+//		countArticles = mapper.getCountArticles();
+//		System.out.println("게시글 총 갯수 : " + countArticles);
 		System.out.println("begin page : " + beginPage);
 		System.out.println("end page : " + endPage);
 		
-		next = (countArticles > endPage * page.getCountPerPage());
+//		next = (countArticles > endPage * page.getCountPerPage());
 		
-		if (!next
-				&& countArticles < endPage * page.getCountPerPage()) {
-			endPage = (int) Math.ceil(countArticles / (double) page.getCountPerPage());
-		}
+//		if (!next
+//				&& countArticles < endPage * page.getCountPerPage()) {
+//			endPage = (int) Math.ceil(countArticles / (double) page.getCountPerPage());
+//		}
 		
 		
 		System.out.println("prev 활성화 여부 : " + prev);
-		System.out.println("next 활성화 여부 : " + next);
+//		System.out.println("next 활성화 여부 : " + next);
 		System.out.println("보정된 endPage : " + endPage);
 	}
 	
@@ -63,10 +63,10 @@ public class PagingAlgorithmTest {
 		SearchVO search = new SearchVO();
 		search.setKeyword("99");
 		
-		List<BoardVO> list = mapper.getArticleListByTitle(search);
-		list.forEach(vo -> System.out.println(vo));
+//		List<BoardVO> list = mapper.getArticleListByTitle(search);
+//		list.forEach(vo -> System.out.println(vo));
 		
-		System.out.println("제목으로 검색한 게시글의 수 : " + mapper.countArticleByTitle(search));
+//		System.out.println("제목으로 검색한 게시글의 수 : " + mapper.countArticleByTitle(search));
 		
 		
 	}
@@ -75,10 +75,10 @@ public class PagingAlgorithmTest {
 		SearchVO search = new SearchVO();
 		search.setKeyword("허희은");
 		
-		List<BoardVO> list = mapper.getArticleListByWriter(search);
-		list.forEach(vo -> System.out.println(vo));
+//		List<BoardVO> list = mapper.getArticleListByWriter(search);
+//		list.forEach(vo -> System.out.println(vo));
 		
-		System.out.println("작성자로 검색한 게시글의 수 : " + mapper.countArticleByWriter(search));
+//		System.out.println("작성자로 검색한 게시글의 수 : " + mapper.countArticleByWriter(search));
 		
 	}
 	
@@ -87,10 +87,10 @@ public class PagingAlgorithmTest {
 		SearchVO search = new SearchVO();
 		search.setKeyword("수정한");
 		
-		List<BoardVO> list = mapper.getArticleListByContent(search);
-		list.forEach(vo -> System.out.println(vo));
+//		List<BoardVO> list = mapper.getArticleListByContent(search);
+//		list.forEach(vo -> System.out.println(vo));
 		
-		System.out.println("내용으로 검색한 게시글의 수 : " + mapper.countArticleByContent(search));
+//		System.out.println("내용으로 검색한 게시글의 수 : " + mapper.countArticleByContent(search));
 		
 	}
 	
@@ -99,10 +99,24 @@ public class PagingAlgorithmTest {
 		SearchVO search = new SearchVO();
 		search.setKeyword("희은이가");
 		
-		List<BoardVO> list = mapper.getArticleListByTitleContent(search);
+//		List<BoardVO> list = mapper.getArticleListByTitleContent(search);
+//		list.forEach(vo -> System.out.println(vo));
+		
+//		System.out.println("제목 + 내용으로 검색한 게시글의 수 : " + mapper.countArticleByTitleContent(search));
+		
+	}
+	
+	@Test
+	public void searchTest() {
+		SearchVO search = new SearchVO();
+		search.setCondition("titleContent");
+		search.setKeyword("보");
+		
+		System.out.println("search : " + search);
+		List<BoardVO> list = mapper.getArticleList(search);
+		
 		list.forEach(vo -> System.out.println(vo));
 		
-		System.out.println("제목 + 내용으로 검색한 게시글의 수 : " + mapper.countArticleByTitleContent(search));
-		
+		System.out.println("해당 조건 게시글 수 : " + mapper.countArticles(search));
 	}
 }

@@ -57,10 +57,13 @@ public class BoardController {
 		System.out.println("parameter paging : " + search);
 		
 		String condition = search.getCondition();
-		List<BoardVO> articles = null;
+		List<BoardVO> articles = service.getArticleList(search);
 		PageCreator pc = new PageCreator();
 		pc.setPaging(search);
+		pc.setCountArticles(service.countArticles(search));
 		
+		
+		/*
 		if (condition.equals("title")) {
 			articles = service.getArticleListByTitle(search);
 			pc.setCountArticles(service.countArticleByTitle(search));
@@ -80,9 +83,9 @@ public class BoardController {
 			articles = service.getArticleListPaging(search);
 			pc.setCountArticles(service.getCountArticles());
 		}
+		*/
 		
-		
-		Integer countArticles = service.getCountArticles();
+//		Integer countArticles = service.getCountArticles();
 		
 		System.out.println("pc : " + pc);
 		
@@ -105,7 +108,7 @@ public class BoardController {
 	}
 	
 	@RequestMapping(value = "/content/{boardNo}", method = RequestMethod.GET)
-	public String content(@PathVariable Integer boardNo, Model model, @ModelAttribute("p") PageVO paging) {
+	public String content(@PathVariable Integer boardNo, Model model, @ModelAttribute("p") SearchVO search) {
 		System.out.println("URL: /board/content => GET");
 		model.addAttribute("article", service.getArticle(boardNo));
 		return "board/content";

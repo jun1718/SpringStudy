@@ -13,6 +13,26 @@
 		<result property = "viewCnt" column = "view_cnt" /> 
 	</resultMap>
 
+	
+	<sql id="search">
+		<if test = "condition == 'title'">
+			WHERE title	LIKE CONCAT('%', #{keyword}, '%')
+		</if>
+		
+		<if test = "condition == 'writer'">
+			WHERE writer LIKE CONCAT('%', #{keyword}, '%')
+		</if>
+		
+		<if test = "condition == 'content'">
+			WHERE content LIKE CONCAT('%', #{keyword}, '%')
+		</if>
+		
+		<if test = "condition == 'titleContent'">
+			WHERE title LIKE CONCAT('%', #{keyword}, '%')
+				OR content LIKE CONCAT('%', #{keyword}, '%')
+		</if>
+	</sql>
+
 	<insert id = "insert">
 		INSERT INTO mvc_board
 			(writer, title, content)
@@ -22,8 +42,17 @@
 	<select id = "getArticleList" resultMap = "BoardMap">
 		SELECT * 
 		FROM mvc_board
+		<include refid="search" />
 		ORDER BY board_no DESC
+		LIMIT #{pageStart}, #{countPerPage}
 	</select>
+	
+	<select id = "countArticles" resultType = "Integer">
+		SELECT COUNT(*) 
+		FROM mvc_board
+		<include refid = "search"/>
+	</select>
+	<!-- 
 			
 	<select id = "getArticleListPaging" resultMap = "BoardMap">
 		SELECT * 
@@ -94,7 +123,7 @@
 		WHERE content LIKE CONCAT('%', #{keyword}, '%')
 			AND title LIKE CONCAT('%', #{keyword}, '%')
 	</select>
-	
+	 -->
 	
 	
 	
@@ -103,6 +132,12 @@
 		FROM mvc_board
 		WHERE board_no = #{boardNo}
 	</select>
+	
+	<update id = "updateViewCnt">
+		UPDATE mvc_board
+		SET view_cnt = view_cnt + 1
+		WHERE board_no = #{boardNo} 
+	</update>
 	
 	
 	<update id = "update">

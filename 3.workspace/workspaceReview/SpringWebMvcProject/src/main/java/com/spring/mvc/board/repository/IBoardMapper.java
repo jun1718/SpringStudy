@@ -10,11 +10,16 @@ public interface IBoardMapper {
 	
 	public void insert(BoardVO article);
 	
-	public List<BoardVO> getArticleList();
+	public List<BoardVO> getArticleList(SearchVO search);
 	
+	public Integer countArticles(SearchVO search);
+	
+	public void updateViewCnt(Integer boardNo);
+	
+	/*
+	public Integer getCountArticles();
 	public List<BoardVO> getArticleListPaging(PageVO paging);
 	
-	public Integer getCountArticles();
 	
 	public List<BoardVO> getArticleListByTitle(SearchVO search);
 	
@@ -31,6 +36,7 @@ public interface IBoardMapper {
 	public List<BoardVO> getArticleListByTitleContent(SearchVO search);
 	
 	public Integer countArticleByTitleContent(SearchVO search);
+	*/
 	
 	public BoardVO getArticle(Integer boardNo);
 	

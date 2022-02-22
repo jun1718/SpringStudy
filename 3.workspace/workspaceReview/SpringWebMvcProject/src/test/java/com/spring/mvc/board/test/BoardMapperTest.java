@@ -47,20 +47,20 @@ public class BoardMapperTest {
 	
 	@Test
 	public void getArticleListTest() {
-		List<BoardVO> list = mapper.getArticleList();
+//		List<BoardVO> list = mapper.getArticleList();
 		
 //		for (BoardVO vo : list) {
 //			System.out.println(vo);
 //		}
 		
-		list.forEach(vo -> System.out.println(vo));
+//		list.forEach(vo -> System.out.println(vo));
 	}
 	
 	@Test
 	public void getArticleListPagingTest() {
 		PageVO paging = new PageVO();
 		
-		List<BoardVO> list = mapper.getArticleListPaging(paging);
+//		List<BoardVO> list = mapper.getArticleListPaging(paging);
 
 	}
 	

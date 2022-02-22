@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.repository.IBoardMapper;
-import com.spring.mvc.commons.PageVO;
 import com.spring.mvc.commons.SearchVO;
 
 @Service
@@ -24,13 +23,29 @@ public class BoardService implements IBoardService {
 	}
 
 	@Override
-	public List<BoardVO> getArticleList() {
+	public List<BoardVO> getArticleList(SearchVO search) {
 		// TODO Auto-generated method stub
-		return mapper.getArticleList();
+		List<BoardVO> list = mapper.getArticleList(search); 
+		
+		for (BoardVO article : list) {
+			long nowTime = System.currentTimeMillis();
+			long regTime = article.getRegDate().getTime();
+			
+			if (nowTime - regTime <= 60 * 60 * 24 * 5 *1000) {
+				article.setNewMark(true);
+			}
+		}
+		
+		return list;
 	}
 	
+	@Override
+	public Integer countArticles(SearchVO search) {
+		// TODO Auto-generated method stub
+		return mapper.countArticles(search);
+	}
 	
-	
+	/*
 	@Override
 	public List<BoardVO> getArticleListByTitle(SearchVO search) {
 		// TODO Auto-generated method stub
@@ -92,11 +107,15 @@ public class BoardService implements IBoardService {
 		return mapper.getCountArticles();
 	}
 
+	*/
 	@Override
 	public BoardVO getArticle(Integer boardNo) {
 		// TODO Auto-generated method stub
+		mapper.updateViewCnt(boardNo);
 		return mapper.getArticle(boardNo);
 	}
+	
+	
 
 	@Override
 	public void update(BoardVO article) {
