@@ -7,9 +7,17 @@ import com.spring.mvc.commons.PageVO;
 import com.spring.mvc.commons.SearchVO;
 
 public interface IBoardService {
-	// 게시글 등록 기능
+		// 게시글 등록 기능
 		void insert(BoardVO article);
 		
+		//# 검색, 페이징 기능이 포함된 게시물 목록조회기능
+		List<BoardVO> getArticleList(SearchVO search);
+		
+		Integer countArticles(SearchVO search);
+		
+	
+		
+		/*
 		// 게시글 목록 조회
 		List<BoardVO> getArticleList();
 		
@@ -42,6 +50,7 @@ public interface IBoardService {
 		
 		// 총 게시물의 수 조회기능
 		Integer countArticles();
+		*/
 		
 		// 게시글 상세 조회기능
 		BoardVO getArticle(Integer boardNo);

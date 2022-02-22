@@ -1,5 +1,8 @@
 package com.spring.mvc.commons;
 
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+
 public class PageCreator {
 	//페이지 번호와 한 페이지당 들어갈 게시물 수를 갖고 있는 객체
 	private PageVO paging;
@@ -9,6 +12,20 @@ public class PageCreator {
 	private Integer endPage; // 끝페이지번호
 	private boolean prev; // 이전버튼 활성화 여부
 	private boolean next; // 다음버튼 활성화 여부
+	
+	
+	//uri를 쉽게 작성할수 있도록 도와주는 유틸 클래스 UriComponentsBuilder 사용하기
+	public String makeURI(Integer page) {
+		System.out.println("page : " + page);
+		UriComponents ucp = UriComponentsBuilder.newInstance()
+							.queryParam("page", page)
+							.queryParam("countPerPage", paging.getCountPerPage())
+							.queryParam("keyword", ((SearchVO) paging).getKeyword())
+							.queryParam("condition", ((SearchVO) paging).getCondition())
+							.build();
+	
+		return ucp.toUriString();
+	}
 	
 	//한 화면에 보여질 페이지 수
 	private final Integer displayPageNum = 10;

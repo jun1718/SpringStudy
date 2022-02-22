@@ -75,6 +75,13 @@ public class BoardController {
 		pc.setPaging(search);
 		
 		System.out.println("pc : " + pc);
+		System.out.println("toUriString() : " + pc.makeURI(search.getPage()));
+		
+		List<BoardVO> list = service.getArticleList(search);
+		pc.setArticleTotalCount(service.countArticles(search));
+		
+		
+		/*
 		List<BoardVO> list = null;
 		
 		if (condition.equals("title")) {
@@ -94,6 +101,8 @@ public class BoardController {
 			list = service.getArticleListPaging(search);
 			pc.setArticleTotalCount(service.countArticles());
 		}
+		*/
+		
 		
 		model.addAttribute("articles", list);
 		model.addAttribute("pc", pc);
@@ -124,12 +133,15 @@ public class BoardController {
 							//PathVariable로 경로에서 받은 놈 필드명을 가져오고 그 필드명이
 					//Integer boardNo와 같으면 PathVariable뒤에 전달인자를 줄 필요 없다.
 	public String content(@PathVariable Integer boardNo, Model model
-							, @ModelAttribute("p") PageVO paging) {
+							, @ModelAttribute("p") SearchVO search) {
 		System.out.println("URL: /board/content => GET");
 		BoardVO article = service.getArticle(boardNo);
 		System.out.println("result data: " + article);
 		model.addAttribute("article", article);
 		
+		PageCreator pc = new PageCreator();
+		pc.setPaging(search);
+		model.addAttribute("pc", pc);
 		return "board/content";
 	}
 	

@@ -41,7 +41,7 @@ public class BoardMapperTest {
 //			System.out.println(vo);
 //		}
 		
-		mapper.getArticleList().forEach(vo -> System.out.println(vo));
+//		mapper.getArticleList().forEach(vo -> System.out.println(vo));
 	}
 	
 	//게시글 단일 조회 테스트
@@ -94,7 +94,7 @@ public class BoardMapperTest {
 		paging.setCountPerPage(20);
 		
 		System.out.println("--------------------------------------------");
-		mapper.getArticleListPaging(paging).forEach(a -> System.out.println(a));
+//		mapper.getArticleListPaging(paging).forEach(a -> System.out.println(a));
 		System.out.println("--------------------------------------------");
 		
 	}

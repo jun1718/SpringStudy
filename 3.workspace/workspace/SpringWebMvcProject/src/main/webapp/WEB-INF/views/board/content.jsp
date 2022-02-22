@@ -71,8 +71,10 @@ $(function() {
 	// 목록버튼 클릭 이벤트 처리
 	$("#list-btn").click(function() {
 		console.log("목록 버튼이 클릭됨!");
-		location.href = '/board/list?page=${p.page}'
-				+ '&countPerPage=${p.countPerPage}';
+		//location.href = '/board/list?page=${p.page}'
+			//	+ '&countPerPage=${p.countPerPage}';
+		//location.href = '/board/list${pc.makeURI(pc.paging.page)}';
+		location.href = '/board/list${pc.makeURI(p.page)}';
 	});
 	
 	//수정 버튼 클릭 이벤트 처리

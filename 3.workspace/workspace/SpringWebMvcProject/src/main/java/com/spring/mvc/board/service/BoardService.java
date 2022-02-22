@@ -1,5 +1,6 @@
 package com.spring.mvc.board.service;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -8,9 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.spring.mvc.board.model.BoardVO;
 import com.spring.mvc.board.repository.IBoardMapper;
-import com.spring.mvc.commons.PageVO;
 import com.spring.mvc.commons.SearchVO;
-import com.spring.mvc.commons.PageVO;
 
 @Service
 public class BoardService implements IBoardService {
@@ -24,7 +23,34 @@ public class BoardService implements IBoardService {
 		// TODO Auto-generated method stub
 		mapper.insert(article);
 	}
-
+	
+	
+	@Override
+		public List<BoardVO> getArticleList(SearchVO search) {
+			// TODO Auto-generated method stub
+			List<BoardVO> list = mapper.getArticleList(search);
+			
+			//1일 이내 신규글 new마크 처리 로직
+			for (BoardVO article : list) {
+				//현재 시간 읽어오기
+				long now = System.currentTimeMillis(); // 밀리초로 읽기 (15억 몇초  * 1000초) = 밀리초 
+															//이런식으로 
+				Date regDate = article.getRegDate();
+				long regTime = regDate.getTime(); // 밀리초로 바꿔줌
+				
+				if (now - regTime < 60 * 60 * 24 * 5 * 1000) { //1은 하루를 의미 2,3,4 이틀삼일사일
+					article.setNewMark(true);
+				}
+			}
+			return list;
+		}
+	
+	@Override
+		public Integer countArticles(SearchVO search) {
+			// TODO Auto-generated method stub
+			return mapper.countArticles(search);
+		}
+	/*
 	@Override
 	public List<BoardVO> getArticleList() {
 		// TODO Auto-generated method stub
@@ -92,10 +118,11 @@ public class BoardService implements IBoardService {
 			// TODO Auto-generated method stub
 			return mapper.countArticles();
 		}
-	
+	*/
 	@Override
 	public BoardVO getArticle(Integer boardNo) {
 		// TODO Auto-generated method stub
+		mapper.updateViewCnt(boardNo);
 		return mapper.getArticle(boardNo);
 	}
 
