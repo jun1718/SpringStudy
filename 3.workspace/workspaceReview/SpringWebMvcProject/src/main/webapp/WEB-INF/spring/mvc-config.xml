@@ -24,5 +24,6 @@
 	</bean>
 	
 	<mybatis-spring:scan base-package="com.spring.mvc.board.repository"/>
+	<mybatis-spring:scan base-package="com.spring.mvc.user.repository"/>
 		
 </beans>

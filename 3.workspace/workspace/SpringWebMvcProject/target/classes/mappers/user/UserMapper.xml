@@ -29,6 +29,8 @@
  		SELECT *
  		FROM mvc_user
  	</select>
+ 	
+ 	
  	<!--  DB컬럼명과 VO클래스의 필드가 다름으로 ResultMap세팅해야함 -->
  	<resultMap id = "UserResultMap" type = "com.spring.mvc.user.model.UserVO">
  		<result property="account" column="account"/>
