@@ -7,6 +7,9 @@ import com.spring.mvc.user.model.UserVO;
 public interface IUserService {
 	void register(UserVO user);
 	
+	Integer checkId(String account);
+	
+	
 	void delete(String account);
 	
 	UserVO selectOne(String account);

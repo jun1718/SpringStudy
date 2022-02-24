@@ -456,29 +456,7 @@ $(function() {
 		}
 		
 	});
-	<%--
-					$.ajax({
-				type: "POST", //서버에 전송하는 HTTP요청 방식
-				url: "/user/", //서버 요청 URI
-				headers: {
-					"Content-Type": "application/json"
-				}, //요청 헤더 정보
-				dataType: "text", //응답받을 데이터의 형태
-				data: JSON.stringify(user), //서버로 전송할 데이터
-				success: function(result) { //함수의 매개변수는 통신성공시의 데이터가 저장될 곳.
-					console.log("통신 성공!: " + result);
-					if(result === "joinSuccess") {
-						alert("회원가입에 성공했습니다!");
-						location.href="/";
-					} else {
-						alert("회원가입에 실패했습니다!");
-					}
-				}, //통신 성공시 처리할 내용들을 함수 내부에 작성.
-				error: function() {
-					console.log("통신 실패!");
-				} //통신 실패 시 처리할 내용들을 함수 내부에 작성.
-			});
-	--%>
+
 	
 	
 });//end JQuery

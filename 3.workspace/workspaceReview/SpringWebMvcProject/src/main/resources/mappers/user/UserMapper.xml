@@ -10,6 +10,13 @@
 		VALUES (#{account}, #{password}, #{name})
 	</insert>
 	
+	<select id = "checkId" resultType = "Integer">
+		SELECT COUNT(*)
+		FROM mvc_user
+		WHERE account = #{account}
+		
+	</select>
+	
 	
 	<delete id = "delete">
 		DELETE FROM mvc_user

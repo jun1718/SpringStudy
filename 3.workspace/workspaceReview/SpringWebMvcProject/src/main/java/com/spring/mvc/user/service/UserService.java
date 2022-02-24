@@ -20,6 +20,11 @@ public class UserService implements IUserService {
 	}
 
 	@Override
+	public Integer checkId(String account) {
+		// TODO Auto-generated method stub
+		return mapper.checkId(account);
+	}
+	@Override
 	public void delete(String account) {
 		// TODO Auto-generated method stub
 		mapper.delete(account);
