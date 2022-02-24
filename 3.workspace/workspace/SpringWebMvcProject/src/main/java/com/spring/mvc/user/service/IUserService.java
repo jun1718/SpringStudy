@@ -8,6 +8,10 @@ public interface IUserService {
 	//회원가입 기능
 	void register(UserVO user);
 	
+	// id 중복체크 기능
+	Integer checkId(String account);
+		
+		
 	// 회원 탈퇴 기능
 	void delete(String account);
 	

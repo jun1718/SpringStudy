@@ -10,6 +10,12 @@
  		VALUES (#{account}, #{password}, #{name})
  	</insert>
  	
+ 	<!--  아이디중복체크확인을 위한 sql  -->
+ 	<select id = "checkId" resultType = "Integer">
+ 		SELECT COUNT(*)
+ 		FROM mvc_user
+ 		WHERE account = #{account}
+ 	</select>
  	<!--  회원 탈퇴 SQL -->
  	<delete id = "delete">
  		DELETE FROM mvc_user
