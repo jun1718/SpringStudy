@@ -2,7 +2,10 @@ package com.spring.mvc.user.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.spring.mvc.user.model.UserVO;
 import com.spring.mvc.user.service.IUserService;
@@ -53,7 +57,17 @@ public class UserController {
 	
 	// 로그인 요청 처리
 	@PostMapping("/loginCheck")
-	public String loginCheck(@RequestBody UserVO inputData) {
+//	public String loginCheck(@RequestBody UserVO inputData) {
+//	public String loginCheck(@RequestBody UserVO inputData, 
+//								HttpServletRequest request) {
+	public String loginCheck(@RequestBody UserVO inputData,
+								HttpSession session) {
+		// 서버에서 세션 객체를 얻는 방법.
+		// 1.HttpServletRequest 객체 사용
+//		HttpSession session = request.getSession();
+		// 2.HttpSession 객체 사용
+		
+		
 		String result = null;
 		/*
 		 # 클라이언트가 전송한 id값과 pw값을 가지고 DB에서 회원의 정보를 조회해서 불러온다음
@@ -63,6 +77,7 @@ public class UserController {
 		 	3. 로그인 성공시 문자열 "loginSuccess" 전송
 		 */
 		
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		UserVO dbData = service.selectOne(inputData.getAccount());
 		
 		if (dbData == null) {
@@ -71,15 +86,46 @@ public class UserController {
 		}
 		
 		{ // id가 있는 경우
-			if (!dbData.getPassword().equals(inputData.getPassword())) {
+			if (!encoder.matches(inputData.getPassword(), dbData.getPassword())) {
 				result = "pwFail";
 				return result;
 			}
+			
+			session.setAttribute("login", dbData);
 			result = "loginSuccess";
 		}
 		
 		return result;
 	}
+	
+	//로그아웃 요청처리
+	
+	/* 기초적인방법
+	 @GetMapping("/logout")
+	public void logout(HttpSession session, HttpServletResponse response) {
+		UserVO user = (UserVO) session.getAttribute("login");
+		
+		if (user != null) {
+			session.removeAttribute("login"); //이거까지하면 더 깔끔 아래 무효화만해도됨
+			session.invalidate(); // 세션무효화
+			response.sendRedirect("/");
+		}
+	}
+	 * 
+	 */
+	@GetMapping("/logout")
+	public ModelAndView logout(HttpSession session) {
+		UserVO user = (UserVO) session.getAttribute("login");
+		
+		if (user != null) {
+			session.removeAttribute("login"); //이거까지하면 더 깔끔 아래 무효화만해도됨
+			session.invalidate(); // 세션무효화
+		}
+		
+		return new ModelAndView("redirect:/");
+//		return new ModelAndView("user/login"); // 뷰리절버에 보내서 login.jsp로 보내기
+	}
+	
 	// 회원 탈퇴 요청 처리
 //	@RequestMapping(value = "/", method = RequestMethod.DELETE)
 	@DeleteMapping("/{account}")

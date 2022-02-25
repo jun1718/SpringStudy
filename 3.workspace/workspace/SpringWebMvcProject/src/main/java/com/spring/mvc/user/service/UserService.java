@@ -3,6 +3,7 @@ package com.spring.mvc.user.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.spring.mvc.user.model.UserVO;
@@ -18,6 +19,16 @@ public class UserService implements IUserService {
 	@Override
 	public void register(UserVO user) {
 		// TODO Auto-generated method stub
+		System.out.println("암호화 전 : " + user.getPassword());
+		
+		// 회원 비밀번호를 암호화 인코딩
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		
+		// 비밀번호를 암호화하여 다시 user 객체에 저장
+		String securePw = encoder.encode(user.getPassword());
+		user.setPassword(securePw);
+
+		System.out.println("암호화 후 : " + securePw);
 		mapper.register(user);
 	}
 	

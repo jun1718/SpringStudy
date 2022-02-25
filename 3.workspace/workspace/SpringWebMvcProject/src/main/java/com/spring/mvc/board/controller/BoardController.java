@@ -3,6 +3,7 @@ package com.spring.mvc.board.controller;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -111,8 +112,15 @@ public class BoardController {
 	
 	//게시글 작성 페이지 요청
 	@GetMapping("/write")
-	public void write() {
+	public String write(HttpSession session, RedirectAttributes ra) {
+		ra.addFlashAttribute("msg", "not-login");
 		System.out.println("URL : /board/write => GET");
+		
+		if (session.getAttribute("login") == null) {
+			return "redirect:/";
+		}
+		
+		return "board/write";
 	}
 	
 	//게시글 등록 요청

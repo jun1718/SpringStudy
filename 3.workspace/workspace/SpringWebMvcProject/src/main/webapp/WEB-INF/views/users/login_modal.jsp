@@ -431,21 +431,24 @@ $(function() {
 				},
 				dataType : "text",
 				data : JSON.stringify(user),
-				success : function(result) {
-					console.log("result : " + result);
-					
-					/*
-					if (result === "idFail") {
-					} else if (result === "pwFail") {
-						console.log("id : " + id);
-						console.log("pw : " + pw);
-	
-					} else {
-						console.log("id : " + id);
-						console.log("pw : " + pw);
-						///location.href = "/";					
+				success : function(data) {
+					console.log("result : " + data);
+					if(data === "idFail") {
+						$('#signInId').css("background-color", "pink");
+						$('#idCheck').html('<b style="font-size:14px;color:red;">[회원가입 먼저~~]</b>');
+						$('#signInPw').val("");
+						$('#signInId').focus();
+						chk2 = false;
+				    } else if(data === "pwFail") {
+						$('#signInPw').css("background-color", "pink");
+						$('#signInPw').val("");
+						$('#signInPw').focus();
+						$('#pwCheck').html('<b style="font-size:14px;color:red;">[비밀번호가 틀렸어요!]</b>');
+						chk2 = false;
+					} else if(data === "loginSuccess") {
+						self.location="/";
 					}
-					*/
+				
 				},
 				error : function() {
 					console.log("통신 실패! 으이구!");

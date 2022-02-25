@@ -18,9 +18,9 @@ header.masthead {
 
         <form role="form" method="post">
         
-          <div class="form-group">
-            <label>작성자</label>
-            <input type="text" class="form-control" name='writer'>
+          <div class="form-group" hidden = "hidden"> <!-- 테그에는 남아있지만  html 구조에는 남아있지만 사용자에게는 작성자 입력창이 안보이게된다-->
+            <label>작성자</label> <!-- type hidden은 어차피 위에서 안보이게처리해서 안해도 되지만 확실하게 하자는 측면에서 한것이다. -->
+            <input type="hidden" class="form-control" name='writer' value = "${login.name}">
           </div>
           
           <div class="form-group">
