@@ -129,6 +129,7 @@ header.masthead {
 	                            </span>
 	                        </div>
 	                    </div>
+	                    
 	                    <div class="col-sm-2">
 							<a href="<c:url value = '/board/write'/>" class="btn btn-izone float-right">글쓰기</a>
 						</div>

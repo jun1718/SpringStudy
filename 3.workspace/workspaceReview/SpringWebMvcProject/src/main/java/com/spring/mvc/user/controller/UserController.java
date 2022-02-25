@@ -2,13 +2,18 @@ package com.spring.mvc.user.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.spring.mvc.user.model.UserVO;
 import com.spring.mvc.user.service.IUserService;
@@ -45,7 +50,7 @@ public class UserController {
 	
 	// 로그인 요청 처리
 	@PostMapping("/loginCheck")
-	public String loginCheck(@RequestBody UserVO inputData) {
+	public String loginCheck(@RequestBody UserVO inputData, HttpSession session) {
 		String result = null;
 		/*
 		 # 클라이언트가 전송한 id값과 pw값을 가지고 DB에서 회원의 정보를 조회해서 불러온다음
@@ -63,15 +68,28 @@ public class UserController {
 			return "idFail";
 		}
 		
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		
-		if (!dbData.getPassword().equals(inputData.getPassword())) {
+		if (!encoder.matches(inputData.getPassword(), dbData.getPassword())) {
 			return "pwFail";
 		}
 		
 		result = "loginSuccess";
-		
+		session.setAttribute("login", dbData);
 		
 		return result;
+	}
+	
+	@GetMapping("/logout") 
+	public ModelAndView logout(HttpSession session) {
+		UserVO user = (UserVO) session.getAttribute("login");
+		
+		if (user != null) {
+			session.removeAttribute("login");
+			session.invalidate();
+		}
+		
+		return new ModelAndView("redirect:/");
 	}
 	
 	@RequestMapping(value = "/{account}", method = RequestMethod.DELETE)

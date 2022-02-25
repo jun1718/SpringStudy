@@ -428,6 +428,22 @@ $(function() {
 				data : JSON.stringify(user),
 				success : function(result) {
 					console.log("result : " + result);
+					
+					if (result === "idFail") {
+						$('#signInId').css("background-color", "pink");
+						$('#idCheck').html('<b style="font-size:14px;color:red;">[회원가입 먼저~~]</b>');
+						$('#signInPw').val("");
+						$('#signInId').focus();
+						chk1 = false;
+					} else if (result === "pwFail") {
+						$('#signInPw').css("background-color", "pink");
+						$('#pwCheck').html('<b style="font-size:14px;color:red;">[비밀번호 똑바로해라 ~~]</b>');
+						$('#signInPw').val("");
+						$('#signInPw').focus();
+						chk2 = false;
+					} else {
+						self.location = "/";
+					}
 				},
 				error : function() {
 					console.log("통신 실패!");

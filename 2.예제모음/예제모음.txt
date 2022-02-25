@@ -17004,6 +17004,680 @@ $(function() {
 
 
 
+22.02.25.19회차
+===============================================================================
+*비밀번호 암호화(encoder.mathes.encode), session(로그인,로그아웃), 인터셉터를 이용하여 비회원제 게시판만들기
+===============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+67)로그인버튼이벤트처리, 비밀번호 인코딩(암호화)
+
+1)ui에도 로그인버튼눌렀을때 정상적으로 작동하게하라
+idFail인경우
+	css:"background-color", "pink"
+	html:'<b style="font-size:14px;color:red;">[회원가입 먼저~~]</b>'
+	pw비우기
+	커서id란으로 옮기기
+
+pwFail인경우
+	css: "background-color", "pink"
+	html: '<b style="font-size:14px;color:red;">[비밀번호가 틀렸어요!]</b>'
+	pw비우기
+	커서pw란으로 옮기기
+
+loginSuccess인경우
+	홈으로 이동
+
+
+				if(data === "idFail") {
+						$('#signInId').css("background-color", "pink");
+						$('#idCheck').html('<b style="font-size:14px;color:red;">[회원가입 먼저~~]</b>');
+						$('#signInPw').val("");
+						$('#signInId').focus();
+						chk2 = false;
+				    } else if(data === "pwFail") {
+						$('#signInPw').css("background-color", "pink");
+						$('#signInPw').val("");
+						$('#signInPw').focus();
+						$('#pwCheck').html('<b style="font-size:14px;color:red;">[비밀번호가 틀렸어요!]</b>');
+						chk2 = false;
+					} else if(data === "loginSuccess") {
+						self.location="/";
+					}
+
+
+2)비밀번호 암호화(인코딩, 매치)
+	-요약 : 인설트할때 암호화해서 넣어지는지 디비로 확인하고 로그인할때 내 비번과 암호화비번이 잘 비교되서
+		로그인이 되는지 확인하면됨
+	-TRUNCATE TABLE mvc_user;로 테이블을 비워라
+		-이건 롤벡안되니까 항상조심
+		-하는이유 : 현재 비번이 db관리자에게는 다 보이게 되어있다. 암호화가 되어야하기때문에 지우고 다시한다.
+
+	-Spring Security 모듈 복사붙여넣기(pom.xml)
+			<!-- Spring Security 모듈 -->		
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+	-회원 비밀번호를 암호화 인코딩
+	-비밀번호를 암호화하여 다시 user 객체에 저장
+	-인코딩된 비밀번호와 입력된 비밀번호 일치확인
+		-현재 암호화하면 로그인했을때 로그인 안된다. 그건 db에서 인코딩된것을 string화해서 inputId와 비교하기때문이다.
+		-UserMapperTest에서 loginTest()만들어서 비밀번호일치하는가 확인해봐라
+		-실제 ui에 적용해서 로그인되게 해보기
+
+
+##############################################################################
+
+
+
+답:
+
+
+
+#UserMapperTest
+	@Test
+	public void loginTest() {
+		
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		
+		
+		String inputId = "abc1234";
+		String inputPw = "aaa1234!";
+		
+		UserVO dbData = mapper.selectOne(inputId);
+		
+		String dbPw = dbData.getPassword();
+		
+		System.out.println("입력된 비밀번호 : " + inputPw);
+		System.out.println("DB에 등록된 비밀번호 : " + dbPw);
+		
+//		System.out.println("비밀번호 일치?? " + inputPw.equals(dbPw));
+		System.out.println("비밀번호 일치?? " + encoder.matches(inputPw, dbPw));
+
+	}
+
+
+#UserController
+	@PostMapping("/loginCheck")
+	public String loginCheck(@RequestBody UserVO inputData) {
+		String result = null;
+		/*
+		 # 클라이언트가 전송한 id값과 pw값을 가지고 DB에서 회원의 정보를 조회해서 불러온다음
+		 	값 비교를 통해
+		 	1. 아이디가 없을 경우 클라이언트측으로 문자열 "idFail" 전송
+		 	2. 비밀번호가 틀렸을 경우 문자열 "pwFail" 전송
+		 	3. 로그인 성공시 문자열 "loginSuccess" 전송
+		 */
+		
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		UserVO dbData = service.selectOne(inputData.getAccount());
+		
+		if (dbData == null) {
+			result = "idFail";
+			return result;
+		}
+		
+		{ // id가 있는 경우
+			if (!encoder.matches(inputData.getPassword(), dbData.getPassword())) {
+				result = "pwFail";
+				return result;
+			}
+			result = "loginSuccess";
+		}
+		
+		return result;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+68)session 응용(로그인시 페이지변경, 로그아웃)
+
+
+
+1)로그인 햇을때 마이페이지, ~님 안녕 되도록하라
+1-1)controller에서 loginCheck를 할때 로그인에 성공한 경우 세션을 login id로 부여해서 해당 정보가 들어있는 객체를 속성값으로 넣어라
+// 서버에서 세션 객체를 얻는 방법.
+		// 1.HttpServletRequest 객체 사용
+//		HttpSession session = request.getSession();
+		// 2.HttpSession 객체 사용
+
+
+
+
+1-2)개념파악 및 변경실습
+	views/incluse/header.jsp 110번째줄쯤부터
+	-4개영역중 두개이상에 login이란 아이디로 등록했을때 로그인을 불러오는 경우로 작성해봐라
+		<c:if test="${sessionScope.login == null}" > 
+			        -원래 이게 맞지만 4가지 영역에서 id가 login인놈이 하나만있으면 login만해도된다. 지금은 session에만 login아이디로 저장했으니 그냥 login하면 알아서 찾는다.
+	-empty를 통해 login id를 가진 세션이 비었는지 아닌지 비교하라
+		<c:if test="${empty login}" >
+
+1-3)???님 안녕~♥</a>
+
+
+
+
+2)로그아웃 : 최종적으로 로그아웃이 완료되면 context root 페이지로 보내라(홈페이지)
+2-1)로그아웃기능 비동기식이 아닌 동기식으로 보내는것 확인 header.jsp 124번줄쯤
+	-비동기식으로 보낼필요없다
+2-2)controller에서 로그아웃 요청처리 : controller에 /user/logout uri를 처리하는 메소드를 만들어라
+	-RestController에서 (원래 restController에서는 전부다 ResponseBody로 보내서 클라이언트에게 리턴값으로 응답을바로함)
+		-기초적인 방법과 고급적인 방법이 있다.
+		-redirect 하는 법
+		-뷰리절버에게 보내는법
+
+
+##############################################################################
+
+
+답:
+
+
+          
+
+
+
+
+
+##############################################################################
+69)권한처리
+
+
+1)글쓰기 수정 및 삭제에 대해 작성자와 유저의 이름이 같을때만 권한을 인정하여 수정 및 삭제 가능하게하라
+1-1)로그인한 뒤 게시판에서 글쓰기했을때 작성자칸이 아예 사용자에게 보이지않도록 조치하고 글의 작성자는 회원가입한 사람의 이름이 되도록 하라
+	-로그인이 되었다면 게시판에서 글쓰기할때 이제는 작성자칸을 입력시킬필요가없다. 회원의 이름을 넣으면 되는것이다.
+		-우리는 회원제 게시판을 만드는 것이다.
+
+1-2) 지금 개나소나 사람들 글 다 수정가능하다. 자기글이 아니면 수정과 삭제 버튼이 보이지 않도록 처리해라
+
+2)글쓰기 버튼도 로그인된자만 누를수있도록하라
+	-이건 BoardController의 write에서 해결하라
+	-비회원이 글쓰기 누르면 홈으로만 탁 돌아가게해라
+
+
+##############################################################################
+
+
+답:
+
+1-1)
+  <div class="form-group" hidden = "hidden"> <!-- 테그에는 남아있지만  html 구조에는 남아있지만 사용자에게는 작성자 입력창이 안보이게된다-->
+            <label>작성자</label> <!-- type hidden은 어차피 위에서 안보이게처리해서 안해도 되지만 확실하게 하자는 측면에서 한것이다. -->
+            <input type="hidden" class="form-control" name='writer' value = "${login.name}">
+          </div>
+
+
+
+
+
+
+
+
+
+##############################################################################
+70)인터셉터
+	-로그인 안했는데 localhost/modify 해서 수정들어가는 놈들 막으려면 매번 위문제 2번에서 한거처럼 매번 컨트롤러에서 차단을해야
+	주소쳐도 불가능한데(session으로 로그인됏는지안됐는지) 이것을 매번하긴 힘들다.
+	그래서 존재하는것이 인터셉터다.
+
+com.spring.mvc.test.InterceptorController
+
+com.spring.mvc.commons.interceptor.TestInterceptor
+
+servlet-config.xml
+
+1)아래 코드들을 통해서 왜 test1 uri로 들어갔을때는 아래 두줄이 한번 실행되고 test2 uri로 들어갔을때는 아래 두줄이 두번실행된 뒤
+test1로 가서 data를 hello world로 출력을하는지 해석하시오.
+	-원래는 test1에 data가 없어서 안뜬다.
+	 	
+테스트 인터셉터의 preHandle이 작동!!
+테스트 인터셉터의 postHandle 작동!!
+
+#views/test/inter-test.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>인터셉터 테스트</h2>
+<a href = "/test2">test2로 이동</a>
+<p>
+	# 데이터 : ${data}
+</p>
+</body>
+</html>
+##############################################################################
+
+
+답: test2에서 두번도는 이유는 data가 있을때 다시 test1으로 리다이렉트가갔기때문에
+		test2 한번 test1한번 뜨는거다. 거기에 session의 data가 출력되는거고
+
+#TestInterceptor
+
+package com.spring.mvc.commons.interceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+//인터셉터 클래스를 만드려면 HandlerInterceptorAdapter 클래스를 상속
+public class TestInterceptor  extends HandlerInterceptorAdapter{
+	
+	// preHandle은 특정 컨트롤러에 진입하기전에 공통처리할 내용을 작성
+	@Override
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+			throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("테스트 인터셉터의 preHandle이 작동!!");
+		return true; // true가 리턴되면 컨트롤러로 진입, false가 리턴되면 진입실퓨ㅐ
+	}
+	
+	// postHandle은 컨트롤러를 나갈때 공통 처리해야할 내용을 작성
+	@Override
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+			ModelAndView modelAndView) throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("테스트 인터셉터의 postHandle 작동!!");
+		Object data = modelAndView.getModel().get("data");
+		if (data != null) {
+			request.getSession().setAttribute("data", data);
+			response.sendRedirect("/test1");
+		}
+	}
+}
+
+
+#servlet-config.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- 정적자원 (html, css, img, js)등을 URI 절대 경로로 사용하기 위한 매핑처리 -->
+	
+	<resources mapping="/resources/**" location="/resources/" />
+	<resources mapping = "/css/**" location = "/resources/css/"/>
+	<resources mapping = "/js/**" location = "/resources/js/"/>
+	<resources mapping = "/img/**" location = "/resources/img/"/>
+	<resources mapping = "/scss/**" location = "/resources/scss/"/>
+	<resources mapping = "/vendor/**" location = "/resources/vendor/"/>
+	
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	<context:component-scan base-package="com.spring.mvc" />
+	<!-- 인터셉터 빈 등록 -->
+	<beans:bean id = "testInterceptor" class = "com.spring.mvc.commons.interceptor.TestInterceptor"/>
+		
+	<interceptors>
+		<interceptor>
+			<mapping path = "/test1"/>
+			<mapping path = "/test2"/>
+			<beans:ref bean = "testInterceptor" />
+		</interceptor>
+	</interceptors>
+	
+	
+	
+</beans:beans>
+
+
+#InterceptorController.java
+package com.spring.mvc.test;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class InterceptorController {
+	@GetMapping("/test1")
+	public String test1() {
+		return "test/inter-test";
+	}
+	@GetMapping("/test2")
+	public String test2(Model model) {
+		model.addAttribute("data", "Hello World!");
+		return "test/inter-test";
+	}
+	
+	
+
+}
+
+
+##############################################################################
+71)인터셉터를 이용하여 비회원제 게시판만들기
+
+com.spring.mvc.commons.interceptor.BoardInterceptor
+
+1)글쓰기, 수정, 삭제를 로그인하지 않으면 못하도록하게 하는 것을 interceptor를 이용해서 해라
+	-로그인하지않으면 게시판 조회만 가능하다.
+	-글쓰기는 버튼눌러서 확인하고 수정은 /board/modify 직접검색해라. delete는 post방식이라 지금은 post man 안하면
+		테스트할수 없음
+	-처음에는 response객체를 이용해서 글쓰기 수정 접근하면 바로 홈으로 보내고, 그담에는 스크립트를 자바소스에서 작성하여
+		out객체를 이용해라
+			-비회원이 수정 또는 글쓰기에 접근하면 "로그인을 해야해요!" 라는 팝업창과 확인을 누르면 홈으로 가게해라
+		-out객체 출력버퍼비우고 자원반납요청까지 잊지마라
+##############################################################################
+
+
+답:
+
+
+
+
+#BoardInterceptor
+
+package com.spring.mvc.commons.interceptor;
+
+import java.io.PrintWriter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+public class BoardInterceptor extends HandlerInterceptorAdapter{
+	@Override
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+			throws Exception {
+		// TODO Auto-generated method stub
+		
+		System.out.println("게시판 인터셉터 발동!");
+		HttpSession session = request.getSession();
+		
+		if (session.getAttribute("login") == null) {
+			System.out.println("회원 인증 시패!");
+//			response.sendRedirect("/");
+			
+			response.setContentType("text/html; charset = utf-8");
+			PrintWriter out = response.getWriter();
+			
+			String element = "<script>"
+							+ "alert('로그인을 해야해요!'); "
+							+ "location.href = '/'; "
+							+ "</script>";
+					
+			out.print(element);
+			out.flush(); // 브라우저 출력버퍼 비우기
+			out.close(); 
+			return false;
+		}
+		
+		return true;
+	}
+}
+
+
+
+
+#servlet-config.jsp
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- 정적자원 (html, css, img, js)등을 URI 절대 경로로 사용하기 위한 매핑처리 -->
+	
+	<resources mapping="/resources/**" location="/resources/" />
+	<resources mapping = "/css/**" location = "/resources/css/"/>
+	<resources mapping = "/js/**" location = "/resources/js/"/>
+	<resources mapping = "/img/**" location = "/resources/img/"/>
+	<resources mapping = "/scss/**" location = "/resources/scss/"/>
+	<resources mapping = "/vendor/**" location = "/resources/vendor/"/>
+	
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	<context:component-scan base-package="com.spring.mvc" />
+	<!-- 인터셉터 빈 등록 -->
+	<beans:bean id = "testInterceptor" class = "com.spring.mvc.commons.interceptor.TestInterceptor"/>
+	<beans:bean id = "boardInterceptor" class = "com.spring.mvc.commons.interceptor.BoardInterceptor"/>
+		
+	<interceptors>
+		<interceptor>
+			<mapping path = "/test1"/>
+			<mapping path = "/test2"/>
+			<beans:ref bean = "testInterceptor" />
+		</interceptor>
+		<interceptor>
+			<mapping path = "/board/write"/>
+			<mapping path = "/board/modify"/>
+			<mapping path = "/board/delete"/>
+			<beans:ref bean = "boardInterceptor" />
+		</interceptor>
+	</interceptors>
+	
+	
+	
+</beans:beans>
 
 
 

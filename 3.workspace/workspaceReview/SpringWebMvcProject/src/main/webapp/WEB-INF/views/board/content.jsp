@@ -44,9 +44,12 @@ header.masthead {
           <input type = "button" value = "수정" class="btn btn-warning" onclick = "location.href = '/board/modify?boardNo=${article.boardNo}'"
 		style="color: white;">&nbsp;&nbsp;
 		-->
-          <input id = "modBtn" type = "button" value = "수정" class="btn btn-warning" 
-		style="color: white;">&nbsp;&nbsp;
-		<input type = "submit" value = "삭제" class="btn btn-warning" onclick = "return confirm('정말로 삭제할래요?')">&nbsp;&nbsp;
+		
+		<c:if test = "${sessionScope.login.name.equals(article.writer)}">
+	          <input id = "modBtn" type = "button" value = "수정" class="btn btn-warning" 
+			style="color: white;">&nbsp;&nbsp;
+			<input type = "submit" value = "삭제" class="btn btn-warning" onclick = "return confirm('정말로 삭제할래요?')">&nbsp;&nbsp;
+        </c:if>
         
         </form>
 

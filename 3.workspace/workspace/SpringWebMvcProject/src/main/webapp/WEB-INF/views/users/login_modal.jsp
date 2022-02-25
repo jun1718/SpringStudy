@@ -438,7 +438,7 @@ $(function() {
 						$('#idCheck').html('<b style="font-size:14px;color:red;">[회원가입 먼저~~]</b>');
 						$('#signInPw').val("");
 						$('#signInId').focus();
-						chk2 = false;
+						chk1 = false;
 				    } else if(data === "pwFail") {
 						$('#signInPw').css("background-color", "pink");
 						$('#signInPw').val("");

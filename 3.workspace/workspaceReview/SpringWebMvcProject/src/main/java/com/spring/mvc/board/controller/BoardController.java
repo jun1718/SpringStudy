@@ -3,6 +3,7 @@ package com.spring.mvc.board.controller;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -95,8 +96,14 @@ public class BoardController {
 	}
 	
 	@RequestMapping(value = "/write", method = RequestMethod.GET)
-	public void write() {
+	public String write(HttpSession session) {
 		System.out.println("URL : /board/write => GET");
+			
+		if (session.getAttribute("login") == null) {
+			return "redirect:/"; 
+		}
+		
+		return "board/write";
 	}
 	
 	@RequestMapping(value = "/write", method = RequestMethod.POST)

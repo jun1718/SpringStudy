@@ -28,6 +28,15 @@
 	
 	<context:component-scan base-package="com.spring.mvc" />
 	
+	<beans:bean id = "boardInterceptor" class = "com.spring.mvc.commons.interceptor.BoardInterceptor" />
 	
+	<interceptors>
+		<interceptor>
+			<mapping path="/board/write"/>
+			<mapping path="/board/modify"/>
+			<mapping path="/board/delete"/>
+			<beans:ref bean="boardInterceptor"/>
+		</interceptor>
+	</interceptors>
 	
 </beans:beans>

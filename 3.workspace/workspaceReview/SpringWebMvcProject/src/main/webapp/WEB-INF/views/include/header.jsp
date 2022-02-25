@@ -121,7 +121,7 @@
             <a class="nav-link js-scroll-trigger" href="#">MYPAGE</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="#" onclick="return confirm('진짜로 로그아웃 하는거에요?')">LOGOUT</a>
+            <a class="nav-link js-scroll-trigger" href="/user/logout" onclick="return confirm('진짜로 로그아웃 하는거에요?')">LOGOUT</a>
           </li>
           </c:if>
         </ul>
@@ -133,11 +133,11 @@
   <header class="masthead">
     <div class="container">
       <div class="intro-text">        
-    <c:if test="${login == null}" >
+    <c:if test="${empty login}" >
         <button class="btn btn-chu btn-xl text-uppercase js-scroll-trigger" data-toggle="modal" data-target="#log-in">CHU~♥</button>
     </c:if>
-    <c:if test="${login != null}" >
-    	 <a class="btn btn-chu btn-xl text-uppercase js-scroll-trigger" href="#">???님 안녕~♥</a>
+    <c:if test="${not empty login}" >
+    	 <a class="btn btn-chu btn-xl text-uppercase js-scroll-trigger" href="#">${sessionScope.login.name}님 안녕~♥</a>
     </c:if>
       </div>
     </div>

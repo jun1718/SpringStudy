@@ -8178,3 +8178,7 @@ Caused by: org.eclipse.aether.transfer.ArtifactNotFoundException: Could not find
 2022-02-25 15:00:43,998 [Worker-2175: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 5 resources
 2022-02-25 15:00:44,000 [Worker-2175: Building workspace] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (MS949 actually) to copy filtered resources, i.e. build is platform dependent!
 2022-02-25 15:00:44,001 [Worker-2175: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2022-02-25 15:35:45,875 [Worker-2192: Building workspace] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (MS949 actually) to copy filtered resources, i.e. build is platform dependent!
+2022-02-25 15:35:45,879 [Worker-2192: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2022-02-25 15:35:45,880 [Worker-2192: Building workspace] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (MS949 actually) to copy filtered resources, i.e. build is platform dependent!
+2022-02-25 15:35:45,881 [Worker-2192: Building workspace] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource

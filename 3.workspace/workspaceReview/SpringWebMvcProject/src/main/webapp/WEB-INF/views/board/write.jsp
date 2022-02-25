@@ -16,11 +16,11 @@ header.masthead {
       <div class="card-header text-white" style="background-color: #ff52a0;"> 게시글 등록</div>
       <div class="card-body">
 
-        <form role="form" action="#" method="post">
+        <form role="form" action="" method="post">
         
-          <div class="form-group">
+          <div class="form-group" hidden = "hidden">
             <label>작성자</label>
-            <input type="text" class="form-control" name='writer'>
+            <input type="hidden" value = "${sessionScope.login.name}" class="form-control" name='writer'>
           </div>
           
           <div class="form-group">
@@ -36,7 +36,7 @@ header.masthead {
          <input type="submit" value="등록" class="btn form-control"
 			style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">
           &nbsp;&nbsp;
-          <a class="btn form-control"	href="#"
+          <a class="btn form-control"	href="/board/list"
 		style="cursor: pointer; margin-top: 0; height: 40px; color: white; background-color: orange; border: 0px solid #388E3C; opacity: 0.8">취소</a>
         </form>
 
