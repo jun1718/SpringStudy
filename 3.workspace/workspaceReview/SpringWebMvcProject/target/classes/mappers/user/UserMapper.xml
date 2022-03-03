@@ -34,11 +34,26 @@
 		FROM mvc_user
 	</select>
 	
+	<update id = "keepLogin">
+		UPDATE mvc_user
+		SET session_id = #{sessionId},
+			limit_time = #{limitTime}
+		WHERE account = #{account}
+	</update>
+	
+	<select id = "getUserWithSessionId" resultMap = "UserResultMap">
+		SELECT * 
+		FROM mvc_user
+		WHERE session_id = #{sessionId}
+	</select>
+	
 	<resultMap id = "UserResultMap" type="com.spring.mvc.user.model.UserVO">
 		<result property="account" column = "account"/>
 		<result property="password" column = "password"/>
 		<result property="name" column = "name"/>
 		<result property="regDate" column = "reg_date"/>
+		<result property = "sessionId" column = "session_id"/>
+		<result property = "limitTime" column = "limit_time"/>
 	</resultMap>
 </mapper>
    

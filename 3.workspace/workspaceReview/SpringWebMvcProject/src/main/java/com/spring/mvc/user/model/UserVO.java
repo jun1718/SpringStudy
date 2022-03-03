@@ -8,6 +8,33 @@ public class UserVO {
 	private String name;
 	private Date regDate;
 	
+	private boolean autoLogin;
+	
+	private String sessionId;
+	private Date limitTime;
+	
+	
+	
+	
+	public String getSessionId() {
+		return sessionId;
+	}
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+	public Date getLimitTime() {
+		return limitTime;
+	}
+	public void setLimitTime(Date limitTime) {
+		this.limitTime = limitTime;
+	}
+	
+	public boolean isAutoLogin() {
+		return autoLogin;
+	}
+	public void setAutoLogin(boolean autoLogin) {
+		this.autoLogin = autoLogin;
+	}
 	public String getAccount() {
 		return account;
 	}
@@ -35,8 +62,9 @@ public class UserVO {
 	@Override
 	public String toString() {
 		return "UserVO [account=" + account + ", password=" + password + ", name=" + name + ", regDate=" + regDate
-				+ "]";
+				+ ", autoLogin=" + autoLogin + "]";
 	}
+	
 	
 	
 }

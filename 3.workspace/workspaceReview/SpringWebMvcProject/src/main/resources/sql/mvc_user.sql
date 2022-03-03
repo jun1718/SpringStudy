@@ -4,3 +4,7 @@ CREATE TABLE mvc_user (
 	name VARCHAR(100) NOT NULL,
 	reg_date TIMESTAMP DEFAULT NOW()
 );
+
+
+ALTER TABLE mvc_user ADD COLUMN session_id VARCHAR(80) NOT NULL DEFAULT 'none';
+ALTER TABLE mvc_user ADD COLUMN limit_time TIMESTAMP;

@@ -1,7 +1,11 @@
 package com.spring.mvc.user.controller;
 
+import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.WebUtils;
 
 import com.spring.mvc.user.model.UserVO;
 import com.spring.mvc.user.service.IUserService;
@@ -50,7 +55,8 @@ public class UserController {
 	
 	// 로그인 요청 처리
 	@PostMapping("/loginCheck")
-	public String loginCheck(@RequestBody UserVO inputData, HttpSession session) {
+	public String loginCheck(@RequestBody UserVO inputData, HttpSession session,
+								HttpServletResponse response) {
 		String result = null;
 		/*
 		 # 클라이언트가 전송한 id값과 pw값을 가지고 DB에서 회원의 정보를 조회해서 불러온다음
@@ -61,6 +67,8 @@ public class UserController {
 
 			전송은 클라이언트에게 하는거고 클라이언트 콘솔에서 확인하면 되느니라
 		 */
+		
+		System.out.println("inputData : " + inputData);
 		
 		UserVO dbData = service.selectOne(inputData.getAccount());
 		
@@ -77,16 +85,44 @@ public class UserController {
 		result = "loginSuccess";
 		session.setAttribute("login", dbData);
 		
+		if (inputData.isAutoLogin()) {
+			Cookie loginCookie = new Cookie("loginCookie", session.getId());
+			long limitTime = 60 * 60 * 24 * 90;
+			
+			
+			loginCookie.setPath("/");
+			loginCookie.setMaxAge((int) limitTime);
+			
+			
+			Date limitDate = new Date(System.currentTimeMillis() + (limitTime * 1000));
+
+			
+			response.addCookie(loginCookie);
+			service.keepLogin(session.getId(), limitDate, dbData.getAccount());
+			
+		}
+		
 		return result;
 	}
 	
 	@GetMapping("/logout") 
-	public ModelAndView logout(HttpSession session) {
+	public ModelAndView logout(HttpSession session, HttpServletRequest request,
+								HttpServletResponse response) {
 		UserVO user = (UserVO) session.getAttribute("login");
 		
 		if (user != null) {
 			session.removeAttribute("login");
 			session.invalidate();
+			
+			Cookie loginCookie = WebUtils.getCookie(request, "loginCookie");
+			
+			if (loginCookie != null) {
+				loginCookie.setMaxAge(0);		
+				response.addCookie(loginCookie);
+				
+				service.keepLogin("none", new Date(), user.getAccount());
+			}
+			
 		}
 		
 		return new ModelAndView("redirect:/");

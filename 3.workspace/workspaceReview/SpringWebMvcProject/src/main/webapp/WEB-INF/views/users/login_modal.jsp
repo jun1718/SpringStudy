@@ -414,14 +414,17 @@ $(function() {
 		if (chk1 && chk2) {
 			const id = $("#signInId").val();
 			const pw = $("#signInPw").val();
-			const autoLogin = $("input, autoLogin") 
+			const autoLogin = $("input[name = autoLogin]").is(":checked");
+			
 			
 			console.log("id : " + id);
 			console.log("pw : " + pw);
+			console.log("autoLogin : " + autoLogin);
 			
 			const user = {
 					account : id,
-					password : pw
+					password : pw,
+					autoLogin : autoLogin
 			}
 			
 			$.ajax({
