@@ -47,6 +47,11 @@
 								placeholder="최소 8자"></td>
 						</tr>
 						<tr>
+							<td>
+								<input type = "checkbox" id = "auto-login" name = "autoLogin"> 자동 로그인
+							</td>
+						</tr>
+						<tr>
 							<td style="padding-top: 10px; text-align: center">
 								<p><strong>로그인하셔서 WIZONE이 되어보세요~~!</strong></p>
 							</td>
@@ -409,6 +414,8 @@ $(function() {
 		if (chk1 && chk2) {
 			const id = $("#signInId").val();
 			const pw = $("#signInPw").val();
+			const autoLogin = $("input, autoLogin") 
+			
 			console.log("id : " + id);
 			console.log("pw : " + pw);
 			

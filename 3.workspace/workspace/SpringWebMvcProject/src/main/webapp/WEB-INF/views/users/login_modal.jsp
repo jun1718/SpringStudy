@@ -46,6 +46,14 @@
 								style="ime-mode: inactive; margin-bottom: 25px; height: 40px; border: 1px solid #d9d9de"
 								placeholder="최소 8자"></td>
 						</tr>
+						
+						<!--  자동로그인 체크박스 -->
+						<tr>
+							<td>
+								<input type = "checkbox" id = "auto-login" name = "autoLogin"> 자동 로그인
+							</td>
+						</tr>
+						
 						<tr>
 							<td style="padding-top: 10px; text-align: center">
 								<p><strong>로그인하셔서 WIZONE이 되어보세요~~!</strong></p>
@@ -414,13 +422,18 @@ $(function() {
 		if (chk1 && chk2) {
 			const id = $("#signInId").val();
 			const pw = $("#signInPw").val();
+			const autoLogin = $("input[name = autoLogin]").is(":checked"); 
+			// 아이디가 아니라 태그 이름으로 지목하기, input 태그의 name 속성이 autoLogin인놈 선택해라
+			// is() 함수는 상태여부를 판단하여 논리값을 리턴합니다.
+				// checked 됐으면 트루 안됐으면 false가 들어오게한다.
 			
 			console.log("id : " + id);
 			console.log("pw : " + pw);
-			
+			console.log("auto : " + autoLogin);
 			const user = {
 					account : id,
-					password : pw
+					password : pw,
+					autoLogin : autoLogin
 			};
 			
 			$.ajax({

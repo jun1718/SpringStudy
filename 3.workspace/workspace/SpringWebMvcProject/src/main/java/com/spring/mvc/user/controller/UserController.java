@@ -1,7 +1,11 @@
 package com.spring.mvc.user.controller;
 
+import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.WebUtils;
 
 import com.spring.mvc.user.model.UserVO;
 import com.spring.mvc.user.service.IUserService;
@@ -61,12 +66,12 @@ public class UserController {
 //	public String loginCheck(@RequestBody UserVO inputData, 
 //								HttpServletRequest request) {
 	public String loginCheck(@RequestBody UserVO inputData,
-								HttpSession session) {
+								HttpSession session, HttpServletResponse response) {
 		// 서버에서 세션 객체를 얻는 방법.
 		// 1.HttpServletRequest 객체 사용
 //		HttpSession session = request.getSession();
 		// 2.HttpSession 객체 사용
-		
+		System.out.println("parameter: " + inputData);
 		
 		String result = null;
 		/*
@@ -91,8 +96,28 @@ public class UserController {
 				return result;
 			}
 			
+			
 			session.setAttribute("login", dbData);
 			result = "loginSuccess";
+			
+			
+			long limitTime = 60 * 60 * 24 * 90;
+			// 자동 로그인 체크시 처리
+			if (inputData.isAutoLogin()) {
+				
+				
+				Cookie loginCookie = new Cookie("loginCookie", session.getId());
+				loginCookie.setPath("/");
+				loginCookie.setMaxAge((int) limitTime);
+				
+				response.addCookie(loginCookie);
+				
+				long expireDate = System.currentTimeMillis() + (limitTime * 1000);
+				//현재 시간에서 3개월이 지난 시점의 밀리초를 아래 Date에 생성자로 넣어서 날짜로 변경해줌
+				Date limitDate = new Date(expireDate);
+						
+				service.keepLogin(session.getId(), limitDate, inputData.getAccount());
+			}
 		}
 		
 		return result;
@@ -114,13 +139,37 @@ public class UserController {
 	 * 
 	 */
 	@GetMapping("/logout")
-	public ModelAndView logout(HttpSession session) {
+	public ModelAndView logout(HttpSession session, HttpServletRequest request, 
+								HttpServletResponse response) {
 		UserVO user = (UserVO) session.getAttribute("login");
 		
 		if (user != null) {
 			session.removeAttribute("login"); //이거까지하면 더 깔끔 아래 무효화만해도됨
 			session.invalidate(); // 세션무효화
+			
+			
+			// 로그아웃 시 자동 로그인 쿠키 삭제 및 해당 회원 정보에서 session_id 제거
+			/*
+			 * 1.loginCookie를 읽어온뒤 해당 쿠키가 존재하는지 여부 확인
+			 * 2.쿠키가 존재한다면 쿠키의 수명을 초로 다시 설정한 후 (setMaxAge사용) 
+			 * 3.응답객체를 통해 로컬에 0초짜리 쿠키 재전송 -> 쿠키삭제의 의미란 이런것이다!
+			 * 4.service를 통해 keepLogin을 호출하여 DB컬럼 레코드 재설정(session_id -> "none", 
+			 * limit_time -> 현재시간으로)
+			 */
+			
+			Cookie loginCookie = WebUtils.getCookie(request, "loginCookie");
+			
+			if (loginCookie != null) {
+				loginCookie.setMaxAge(0);
+				response.addCookie(loginCookie);
+				
+				Date limitDate = new Date(System.currentTimeMillis());
+//				service.keepLogin("none", limitDate, user.getAccount()); 이렇게해도된다 근데 그냥 newDate()만 해도 된다.
+				service.keepLogin("none", new Date(), user.getAccount());
+			}
+			
 		}
+		
 		
 		return new ModelAndView("redirect:/");
 //		return new ModelAndView("user/login"); // 뷰리절버에 보내서 login.jsp로 보내기
